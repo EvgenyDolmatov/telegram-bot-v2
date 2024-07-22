@@ -2,7 +2,10 @@
 
 namespace App\Services;
 
+use App\Dto\ButtonDto;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class SendMessageService
 {
@@ -13,7 +16,7 @@ class SendMessageService
     )
     {}
 
-    public function sendMessage(string $message): void
+    public function sendMessage(string $message, array $buttons = []): void
     {
         $url = self::BASE_URL . $this->telegramService->token . '/sendMessage';
         $body = [
@@ -22,6 +25,32 @@ class SendMessageService
             'text' => $message,
         ];
 
-        Http::post($url, $body);
+        if (count($buttons) !== 0) {
+            /** @link ButtonDto */
+            foreach ($buttons as $button) {
+                $body['reply_markup']['inline_keyboard'][] = [
+                    [
+                        'text' => $button->getText(),
+                        'callback_data' => $button->getCallbackData(),
+                    ]
+                ];
+            }
+        }
+
+        $response = Http::post($url, $body);
+        Log::debug('BOT: ' . $response);
+    }
+
+    public function sendPoll(string $question, array $options): void
+    {
+        $url = self::BASE_URL . $this->telegramService->token . '/sendPoll';
+        $body = [
+            'chat_id' => $this->telegramService->chat->getId(),
+            'question' => $question,
+            'options' => $options,
+        ];
+
+        $response = Http::post($url, $body);
+        Log::debug('BOT: ' . $response);
     }
 }
