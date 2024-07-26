@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\ButtonConstants;
 use App\Helpers\StepAction;
+use App\Models\User;
 use App\Repositories\RequestRepository;
 use App\Services\TelegramService;
 use Illuminate\Http\Request;
@@ -21,12 +23,28 @@ class MainController extends Controller
             $messageDto = $requestRepository->convertToMessage();
             Log::debug('USER TEXT: ' . $messageDto->getText());
 
+            $user = User::getOrCreate($requestRepository);
+            $userState = $user->states->first();
+
             if ($messageDto->getText() === '/start') {
                 $stepHelper->start();
+                return;
             }
 
             if ($messageDto->getText() === '/help') {
                 $stepHelper->help();
+                return;
+            }
+
+
+            if ($userState) {
+                if ($userState->code === 'start') {
+                    if (in_array($messageDto->getText(), ['create_survey', 'support'])) {
+                        $stepHelper->help();
+                    } else {
+                        $stepHelper->start();
+                    }
+                }
             }
         }
     }
