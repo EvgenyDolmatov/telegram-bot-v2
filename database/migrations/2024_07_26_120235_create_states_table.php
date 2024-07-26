@@ -17,7 +17,6 @@ return new class extends Migration
         });
 
         Schema::create('user_states', function (Blueprint $table) {
-            $table->id();
             $table->foreignId('user_id')->references('id')->on('users')->cascadeOnDelete();
             $table->foreignId('state_id')->references('id')->on('states')->cascadeOnDelete();
         });

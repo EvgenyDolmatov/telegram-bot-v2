@@ -5,6 +5,7 @@ namespace App\Helpers;
 use App\Builder\Message\MessageBuilder;
 use App\Builder\Sender;
 use App\Constants\ButtonConstants;
+use App\Models\State;
 use App\Models\User;
 use App\Repositories\RequestRepository;
 use App\Services\SendMessageService;
@@ -33,16 +34,8 @@ class StepAction
      */
     public function start(): void
     {
-        $userRepository = $this->repository->convertToUser();
-        User::create([
-            'tg_user_id' => $userRepository->getId(),
-            'username' => $userRepository->getUsername(),
-            'is_bot' => $userRepository->getIsBot(),
-            'first_name' => $userRepository->getFirstName(),
-            'last_name' => $userRepository->getLastName(),
-        ]);
-
-
+        $user = User::getOrCreate($this->repository);
+        $user->changeState('start');
 
         $text = 'Привет! Выбери вариант:';
         $buttons = [

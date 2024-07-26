@@ -10,4 +10,9 @@ class State extends Model
     use HasFactory;
 
     protected $fillable = ['code'];
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'user_states');
+    }
 }
