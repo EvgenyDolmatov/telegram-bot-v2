@@ -5,6 +5,8 @@ namespace App\Helpers;
 use App\Builder\Message\MessageBuilder;
 use App\Builder\Sender;
 use App\Constants\ButtonConstants;
+use App\Models\User;
+use App\Repositories\RequestRepository;
 use App\Services\SendMessageService;
 use App\Services\TelegramService;
 use Illuminate\Http\Request;
@@ -14,21 +16,34 @@ class StepAction
     private Sender $sender;
     private TelegramService $telegramService;
     private Request $request;
+    private RequestRepository $repository;
 
     public function __construct(TelegramService $telegramService, Request $request)
     {
-        $this->sender = (new Sender())->setBuilder(new MessageBuilder());
         $this->telegramService = $telegramService;
         $this->request = $request;
+        $this->sender = (new Sender())->setBuilder(new MessageBuilder());
+        $this->repository = new RequestRepository($request);
     }
 
     /**
-     * Step 1: If user pressed "Start" button
+     * If user pressed "/start" button
      *
      * @return void
      */
     public function start(): void
     {
+        $userRepository = $this->repository->convertToUser();
+        User::create([
+            'tg_user_id' => $userRepository->getId(),
+            'username' => $userRepository->getUsername(),
+            'is_bot' => $userRepository->getIsBot(),
+            'first_name' => $userRepository->getFirstName(),
+            'last_name' => $userRepository->getLastName(),
+        ]);
+
+
+
         $text = 'Привет! Выбери вариант:';
         $buttons = [
             ButtonConstants::SUPPORT,
@@ -43,6 +58,11 @@ class StepAction
         )->send();
     }
 
+    /**
+     * If user pressed "/help" button
+     *
+     * @return void
+     */
     public function help(): void
     {
         $text = 'Инструкция по работе с ботом:';

@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Dto\ChatDto;
 use App\Dto\MessageDto;
+use App\Dto\UserDto;
 use App\Models\Chat;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -84,6 +85,19 @@ class RequestRepository
             $payload['chat']['type'],
             $payload['chat']['first_name'],
             $payload['chat']['last_name']
+        );
+    }
+
+    public function convertToUser(): UserDto
+    {
+        $payload = $this->getData();
+
+        return new UserDto(
+            $payload['from']['id'],
+            $payload['from']['username'],
+            $payload['from']['is_bot'],
+            $payload['from']['first_name'],
+            $payload['from']['last_name']
         );
     }
 }
