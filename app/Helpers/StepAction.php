@@ -39,8 +39,8 @@ class StepAction
 
         $text = 'Привет! Выбери вариант:';
         $buttons = [
-            ButtonConstants::SUPPORT,
-            ButtonConstants::CREATE_SURVEY
+            ButtonConstants::CREATE_SURVEY,
+            ButtonConstants::SUPPORT
         ];
 
         $message = $this->sender->createMessageWithButtons($text, $buttons);
@@ -61,6 +61,44 @@ class StepAction
         $text = 'Инструкция по работе с ботом:';
 
         $message = $this->sender->createSimpleMessage($text);
+        (new SendMessageService(
+            $this->request,
+            $this->telegramService,
+            $message)
+        )->send();
+    }
+
+    /**
+     * If user pressed to "support" button
+     *
+     * @return void
+     */
+    public function support(): void
+    {
+        $text = 'Если у вас есть вопросы, напишите мне в личные сообщения: <a href="https://t.me/nkm_studio">https://t.me/nkm_studio</a>';
+
+        $message = $this->sender->createSimpleMessage($text);
+        (new SendMessageService(
+            $this->request,
+            $this->telegramService,
+            $message)
+        )->send();
+    }
+
+    /**
+     * If user pressed to "create survey" button
+     *
+     * @return void
+     */
+    public function selectSurveyType(): void
+    {
+        $text = 'Выберите тип опроса:';
+        $buttons = [
+            ButtonConstants::QUIZ,
+            ButtonConstants::SURVEY
+        ];
+
+        $message = $this->sender->createMessageWithButtons($text, $buttons);
         (new SendMessageService(
             $this->request,
             $this->telegramService,

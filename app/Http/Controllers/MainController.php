@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Constants\ButtonConstants;
+use App\Constants\CallbackConstants;
 use App\Helpers\StepAction;
 use App\Models\User;
 use App\Repositories\RequestRepository;
@@ -39,10 +39,15 @@ class MainController extends Controller
 
             if ($userState) {
                 if ($userState->code === 'start') {
-                    if (in_array($messageDto->getText(), ['create_survey', 'support'])) {
-                        $stepHelper->help();
-                    } else {
-                        $stepHelper->start();
+                    switch ($messageDto->getText()) {
+                        case CallbackConstants::SUPPORT:
+                            $stepHelper->support();
+                            break;
+                        case CallbackConstants::CREATE_SURVEY:
+                            $stepHelper->selectSurveyType();
+                            break;
+                        default:
+                            $stepHelper->start();
                     }
                 }
             }
