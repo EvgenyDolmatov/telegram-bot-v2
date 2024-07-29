@@ -6,7 +6,9 @@ use App\Builder\Message\Message;
 use App\Builder\Message\MessageBuilder;
 use App\Builder\Sender;
 use App\Constants\ButtonConstants;
+use App\Constants\ButtonKeyConstants;
 use App\Constants\StateConstants;
+use App\Models\Sector;
 use App\Models\User;
 use App\Repositories\RequestRepository;
 use App\Services\SendMessageService;
@@ -81,6 +83,7 @@ class StepAction
 
     /**
      * If user pressed to "create survey" button
+     * Show survey type choice
      *
      * @return void
      */
@@ -101,6 +104,7 @@ class StepAction
 
     /**
      * If user pressed to "type_quiz" or "type_survey" button
+     * Show is anon choice
      *
      * @return void
      */
@@ -121,14 +125,37 @@ class StepAction
 
     /**
      * If user pressed to "is_anon" or "is_not_anon" button
+     * Show all sectors
      *
      * @return void
      */
     public function selectSector(): void
     {
-        $text = 'Выберите направление:';
+        $user = User::getOrCreate($this->repository);
+        $user->changeState(StateConstants::SECTOR_CHOICE);
 
-        $message = $this->sender->createSimpleMessage($text);
+        $text = 'Выберите направление:';
+        $buttons = [];
+
+        foreach (Sector::all() as $sector) {
+            $buttons[] = [
+                ButtonKeyConstants::TEXT => $sector->title,
+                ButtonKeyConstants::CALLBACK => $sector->code
+            ];
+        }
+
+        $message = $this->sender->createMessageWithButtons($text, $buttons);
         $this->prepareData($message)->send();
+    }
+
+    /**
+     * If user pressed to "sector" button
+     * Show all subjects
+     *
+     * @return void
+     */
+    public function selectSubject(): void
+    {
+        //
     }
 }

@@ -13,7 +13,9 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             StateSeeder::class,
-            TransitionSeeder::class
+            TransitionSeeder::class,
+            SectorSeeder::class,
+            SubjectSeeder::class,
         ]);
     }
 }

@@ -4,9 +4,6 @@ namespace App\Models;
 
 use App\Constants\CallbackConstants;
 use App\Constants\StateConstants;
-use App\Constants\StepConstants;
-use App\Dto\UserDto;
-use App\Entities\Message\UserEntity;
 use App\Helpers\StepAction;
 use App\Repositories\RequestRepository;
 use Illuminate\Database\Eloquent\Model;
@@ -15,6 +12,7 @@ class User extends Model
 {
     protected $fillable = [
         'tg_user_id',
+        'tg_chat_id',
         'username',
         'first_name',
         'last_name',
@@ -39,11 +37,13 @@ class User extends Model
     public static function getOrCreate(RequestRepository $repository): User
     {
         $userDto = $repository->convertToUser();
+        $chatDto = $repository->convertToChat();
         $user = User::where('tg_user_id', $userDto->getId())->first();
 
         if ($user === null) {
             $user = User::create([
                 'tg_user_id' => $userDto->getId(),
+                'tg_chat_id' => $chatDto->getId(),
                 'username' => $userDto->getUsername(),
                 'is_bot' => $userDto->getIsBot(),
                 'first_name' => $userDto->getFirstName(),
@@ -103,6 +103,21 @@ class User extends Model
                     default:
                         $stepAction->selectAnonymity();
                 }
+            }
+
+            /** Step 4: Sector choice */
+            if ($currentState->code === StateConstants::SECTOR_CHOICE) {
+                $callbackNames = [];
+                foreach (Sector::all() as $sector) {
+                    $callbackNames[] = $sector->code;
+                }
+
+                if (in_array($message, $callbackNames)) {
+                    $stepAction->selectSubject();
+                    return;
+                }
+
+                $stepAction->selectSector();
             }
         }
     }

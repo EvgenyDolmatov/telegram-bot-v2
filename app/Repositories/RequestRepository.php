@@ -5,10 +5,7 @@ namespace App\Repositories;
 use App\Dto\ChatDto;
 use App\Dto\MessageDto;
 use App\Dto\UserDto;
-use App\Models\Chat;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class RequestRepository
 {
@@ -29,6 +26,7 @@ class RequestRepository
         $payload = array();
         $body = $this->toArray();
 
+        // Response from user request after send simple message
         if (isset($body['message'])) {
             $payload['id'] = $body['message']['message_id'];
             $payload['date'] = $body['message']['date'];
@@ -47,6 +45,7 @@ class RequestRepository
             $payload['chat']['type'] = $body['message']['chat']['type'];
         }
 
+        // Response from user request after click by button
         if(isset($body['callback_query'])) {
             $payload['id'] = $body['callback_query']['message']['message_id'];
             $payload['date'] = $body['callback_query']['message']['date'];

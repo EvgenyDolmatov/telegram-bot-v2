@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('trash_messages', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('chat_id');
+            $table->bigInteger('message_id');
+            $table->boolean('is_trash')->default(0);
             $table->timestamps();
         });
     }

@@ -21,7 +21,7 @@ class MainController extends Controller
         if ($request->hasAny(['message', 'callback_query'])) {
             $stepHelper = new StepAction($telegram, $request);
             $messageDto = $requestRepository->convertToMessage();
-            Log::debug('USER TEXT: ' . $messageDto->getText());
+            Log::debug('USER: ' . $messageDto->getId() . ' : ' . $messageDto->getText());
 
             $user = User::getOrCreate($requestRepository);
 

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('tg_user_id')->unique();
+            $table->bigInteger('tg_chat_id')->unique();
             $table->string('username');
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
@@ -37,7 +38,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
     }
 };

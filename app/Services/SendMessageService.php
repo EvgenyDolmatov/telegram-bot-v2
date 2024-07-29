@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Builder\Message\Message;
 use App\Constants\CommonConstants;
 use App\Repositories\RequestRepository;
+use App\Repositories\ResponseRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -15,8 +16,7 @@ readonly class SendMessageService
         private Request         $request,
         private TelegramService $telegramService,
         private Message         $message
-    )
-    {
+    ) {
     }
 
     public function send(): void
@@ -42,7 +42,13 @@ readonly class SendMessageService
             }
         }
 
-        Http::post($url, $body);
+        $response = Http::post($url, $body);
+
+        if ($response['ok']) {
+            $responseRepository = new ResponseRepository($response);
+            $messageDto = $responseRepository->convertToMessage();
+            Log::debug('BOT: '. $messageDto->getId() . ' : ' . $messageDto->getText());
+        }
     }
 
 //    public function sendPoll(string $question, array $options): void

@@ -13,7 +13,12 @@ return new class extends Migration
     {
         Schema::create('subjects', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->string('code')->unique();
+            $table->string('title');
+            $table->boolean('has_child')->default(0);
+            $table->integer('parent_id')->nullable();
+            $table->foreignId('sector_id')->references('id')->on('sectors')->onDelete('cascade');
+            $table->text('example')->nullable();
         });
     }
 
