@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Constants\CallbackConstants;
+use App\Constants\CommandConstants;
 use App\Helpers\StepAction;
 use App\Models\User;
 use App\Repositories\RequestRepository;
@@ -24,33 +24,21 @@ class MainController extends Controller
             Log::debug('USER TEXT: ' . $messageDto->getText());
 
             $user = User::getOrCreate($requestRepository);
-            $userState = $user->states->first();
 
-            if ($messageDto->getText() === '/start') {
+            /** Select "/start" command */
+            if ($messageDto->getText() === CommandConstants::START) {
                 $stepHelper->start();
                 return;
             }
 
-            if ($messageDto->getText() === '/help') {
+            /** Select "/help" command */
+            if ($messageDto->getText() === CommandConstants::HELP) {
                 $stepHelper->help();
                 return;
             }
 
-
-            if ($userState) {
-                if ($userState->code === 'start') {
-                    switch ($messageDto->getText()) {
-                        case CallbackConstants::SUPPORT:
-                            $stepHelper->support();
-                            break;
-                        case CallbackConstants::CREATE_SURVEY:
-                            $stepHelper->selectSurveyType();
-                            break;
-                        default:
-                            $stepHelper->start();
-                    }
-                }
-            }
+            /** User steps flow */
+            $user->stateHandler($stepHelper, $messageDto->getText());
         }
     }
 }

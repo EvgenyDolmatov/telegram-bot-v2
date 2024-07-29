@@ -24,4 +24,13 @@ interface ButtonConstants
         ButtonKeyConstants::CALLBACK => CallbackConstants::TYPE_SURVEY
     ];
 
+    public const array IS_ANON = [
+        ButtonKeyConstants::TEXT => 'Да',
+        ButtonKeyConstants::CALLBACK => CallbackConstants::IS_ANON
+    ];
+
+    public const array IS_NOT_ANON = [
+        ButtonKeyConstants::TEXT => 'Нет',
+        ButtonKeyConstants::CALLBACK => CallbackConstants::IS_NOT_ANON
+    ];
 }
