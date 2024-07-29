@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Builder\Message\Message;
 use App\Constants\CommonConstants;
+use App\Models\TrashMessage;
 use App\Repositories\RequestRepository;
 use App\Repositories\ResponseRepository;
 use Illuminate\Http\Request;
@@ -43,10 +44,13 @@ readonly class SendMessageService
         }
 
         $response = Http::post($url, $body);
-
         if ($response['ok']) {
             $responseRepository = new ResponseRepository($response);
+            $chatDto = $responseRepository->convertToChat();
             $messageDto = $responseRepository->convertToMessage();
+
+            TrashMessage::add($chatDto, $messageDto, true);
+
             Log::debug('BOT: '. $messageDto->getId() . ' : ' . $messageDto->getText());
         }
     }

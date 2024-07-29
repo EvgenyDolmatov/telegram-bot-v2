@@ -9,6 +9,7 @@ use App\Constants\ButtonConstants;
 use App\Constants\ButtonKeyConstants;
 use App\Constants\StateConstants;
 use App\Models\Sector;
+use App\Models\TrashMessage;
 use App\Models\User;
 use App\Repositories\RequestRepository;
 use App\Services\SendMessageService;
@@ -42,9 +43,16 @@ class StepAction
      */
     public function start(): void
     {
-        $user = User::getOrCreate($this->repository);
+        $repository = $this->repository;
+        $chatDto = $this->repository->convertToChat();
+        $messageDto = $this->repository->convertToMessage();
+
+        $user = User::getOrCreate($repository);
         $user->changeState(StateConstants::START);
 
+        TrashMessage::add($chatDto, $messageDto, true);
+
+        // Prepare to send message
         $text = 'Привет! Выбери вариант:';
         $buttons = [
             ButtonConstants::CREATE_SURVEY,
