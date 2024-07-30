@@ -7,6 +7,7 @@ use App\Constants\StateConstants;
 use App\Helpers\StepAction;
 use App\Repositories\RequestRepository;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 
 class User extends Model
 {
@@ -24,14 +25,9 @@ class User extends Model
         return $this->belongsToMany(State::class, 'user_states');
     }
 
-    public function changeState(string $stateCode): void
+    public function flows()
     {
-        $state = State::where('code', $stateCode)->first();
-        if ($this->states->count()) {
-            $this->states()->detach();
-        }
-
-        $this->states()->attach($state->id);
+        return $this->hasMany(UserFlow::class, 'user_id');
     }
 
     public static function getOrCreate(RequestRepository $repository): User
@@ -52,6 +48,68 @@ class User extends Model
         }
 
         return $user;
+    }
+
+    /**
+     * Change user state
+     *
+     * @param Request $request
+     * @param string $direction
+     * @return void
+     */
+    public function changeState(Request $request, string $direction = 'next'): void
+    {
+        $requestRepository = new RequestRepository($request);
+        $messageDto = $requestRepository->convertToMessage();
+
+        $userStates = $this->states;
+        $nextState = State::where('code', StateConstants::START)->first();
+
+        if ($userStates->count()) {
+            $userState = $this->states->first();
+            $stateTransition = Transition::where('source', $userState->code)->first();
+
+            if ($direction === 'next') {
+                $nextState = State::where('code', $stateTransition->next)->first();
+            }
+
+            if ($direction === 'prev') {
+                $nextState = State::where('code', $stateTransition->back)->first();
+            }
+
+            $this->states()->detach();
+        }
+
+        $this->addToFlow($messageDto->getText());
+        $this->states()->attach($nextState->id);
+    }
+
+    /**
+     * Remember user answer on the step
+     *
+     * @param string $message
+     * @return void
+     */
+    public function addToFlow(string $message): void
+    {
+        $userState = $this->states->first();
+        $userFlow = $this->flows->where('is_completed', 0)->first();
+
+        if ($userState) {
+            if ($userFlow) {
+                $userFlowArray = json_decode($userFlow->flow, true);
+                $userFlowArray[$userState->code] = $message;
+
+                $userFlow->flow = json_encode($userFlowArray);
+                $userFlow->save();
+                return;
+            }
+
+            UserFlow::create([
+                'user_id' => $this->id,
+                'flow' => json_encode([$userState->code => $message])
+            ]);
+        }
     }
 
 

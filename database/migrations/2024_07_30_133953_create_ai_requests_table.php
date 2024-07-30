@@ -14,9 +14,8 @@ return new class extends Migration
         Schema::create('ai_requests', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('tg_chat_id');
-            $table->json('user_flow')->nullable();
+            $table->foreignId('user_flow_id')->references('id')->on('user_flows')->cascadeOnDelete();
             $table->json('ai_survey')->nullable();
-            $table->json('usage_prompt_tokens')->nullable();
             $table->bigInteger('usage_prompt_tokens')->nullable();
             $table->bigInteger('usage_completion_tokens')->nullable();
             $table->bigInteger('usage_total_tokens')->nullable();

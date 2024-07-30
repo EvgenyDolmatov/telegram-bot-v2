@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('user_flows', function (Blueprint $table) {
             $table->id();
-            $table->text('flow');
+            $table->foreignId('user_id')->references('id')->on('users')->cascadeOnDelete();
+            $table->json('flow');
             $table->boolean('is_completed')->default(0);
             $table->timestamps();
         });

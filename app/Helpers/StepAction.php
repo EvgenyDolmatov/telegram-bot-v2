@@ -56,7 +56,7 @@ class StepAction
 
         $repository = $this->repository;
         $user = User::getOrCreate($repository);
-        $user->changeState(StateConstants::START);
+        $user->changeState($this->request, StateConstants::START);
 
         // Prepare to send message
         $text = 'Привет! Выбери вариант:';
@@ -105,7 +105,7 @@ class StepAction
     public function selectSurveyType(): void
     {
         $user = User::getOrCreate($this->repository);
-        $user->changeState(StateConstants::TYPE_CHOICE);
+        $user->changeState($this->request);
 
         $text = 'Выберите тип опроса:';
         $buttons = [
@@ -126,7 +126,7 @@ class StepAction
     public function selectAnonymity(): void
     {
         $user = User::getOrCreate($this->repository);
-        $user->changeState(StateConstants::ANON_CHOICE);
+        $user->changeState($this->request);
 
         $text = 'Опрос будет анонимный?';
         $buttons = [
@@ -147,7 +147,7 @@ class StepAction
     public function selectSector(): void
     {
         $user = User::getOrCreate($this->repository);
-        $user->changeState(StateConstants::SECTOR_CHOICE);
+        $user->changeState($this->request);
 
         $text = 'Выберите направление:';
         $buttons = [];
