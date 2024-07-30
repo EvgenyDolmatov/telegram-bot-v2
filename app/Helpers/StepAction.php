@@ -36,6 +36,15 @@ class StepAction
         return new SendMessageService($this->request, $this->telegramService, $message);
     }
 
+    public function addToTrash(): void
+    {
+        $repository = $this->repository;
+        $chatDto = $repository->convertToChat();
+        $messageDto = $repository->convertToMessage();
+
+        TrashMessage::add($chatDto, $messageDto, true);
+    }
+
     /**
      * If user pressed "/start" button
      *
@@ -43,14 +52,11 @@ class StepAction
      */
     public function start(): void
     {
-        $repository = $this->repository;
-        $chatDto = $this->repository->convertToChat();
-        $messageDto = $this->repository->convertToMessage();
+        $this->addToTrash();
 
+        $repository = $this->repository;
         $user = User::getOrCreate($repository);
         $user->changeState(StateConstants::START);
-
-        TrashMessage::add($chatDto, $messageDto, true);
 
         // Prepare to send message
         $text = 'Привет! Выбери вариант:';
@@ -70,6 +76,7 @@ class StepAction
      */
     public function help(): void
     {
+        $this->addToTrash();
         $text = 'Инструкция по работе с ботом:';
 
         $message = $this->sender->createSimpleMessage($text);

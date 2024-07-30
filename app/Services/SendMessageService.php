@@ -20,6 +20,11 @@ readonly class SendMessageService
     ) {
     }
 
+    /**
+     * Send simple message or message with buttons
+     *
+     * @return void
+     */
     public function send(): void
     {
         $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/sendMessage';
@@ -44,27 +49,46 @@ readonly class SendMessageService
         }
 
         $response = Http::post($url, $body);
-        if ($response['ok']) {
+        $this->updateChatMessages($response);
+
+        Log::debug('BOT: '. $response);
+    }
+
+    /**
+     * Remove old messages and prepare messages for removing for next step
+     *
+     * @param $response
+     * @return void
+     */
+    public function updateChatMessages($response): void
+    {
+        if (json_decode($response, true)['ok']) {
             $responseRepository = new ResponseRepository($response);
             $chatDto = $responseRepository->convertToChat();
             $messageDto = $responseRepository->convertToMessage();
 
-            TrashMessage::add($chatDto, $messageDto, true);
+            $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/deleteMessages';
+            $trashMessages = TrashMessage::where('chat_id', $chatDto->getId())->where('is_trash', true)->get();
 
-            Log::debug('BOT: '. $messageDto->getId() . ' : ' . $messageDto->getText());
+            if ($trashMessages->count()) {
+                $trashMessageIds = [];
+
+                foreach ($trashMessages as $trashMessage) {
+                    $trashMessageIds[] = $trashMessage->message_id;
+                    $trashMessage->delete();
+                }
+
+                $data = [
+                    'chat_id' => $chatDto->getId(),
+                    'message_ids' => $trashMessageIds
+                ];
+
+                // Delete messages
+                Http::post($url, $data);
+            }
+
+            // Prepare trash messages for next step
+            TrashMessage::add($chatDto, $messageDto, true);
         }
     }
-
-//    public function sendPoll(string $question, array $options): void
-//    {
-//        $url = self::BASE_URL . $this->telegramService->token . '/sendPoll';
-//        $body = [
-//            'chat_id' => $this->telegramService->chat->getId(),
-//            'question' => $question,
-//            'options' => $options,
-//        ];
-//
-//        $response = Http::post($url, $body);
-//        Log::debug('BOT: ' . $response);
-//    }
 }

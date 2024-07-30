@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Constants\CommonConstants;
-use App\Helpers\StepAction;
 use Illuminate\Support\Facades\Http;
 
 class TelegramService
@@ -17,12 +16,12 @@ class TelegramService
 
     public function resetQueue(): void
     {
-        Http::post(
-            CommonConstants::TELEGRAM_BASE_URL. $this->token . '/setWebhook',
-            [
-                'url' => 'https://transsyberia.su/webhook',
-                'drop_pending_updates' => true
-            ]
-        );
+        $url = CommonConstants::TELEGRAM_BASE_URL. $this->token . '/setWebhook';
+        $data = [
+            'url' => 'https://transsyberia.su/webhook',
+            'drop_pending_updates' => true
+        ];
+
+        Http::post($url, $data);
     }
 }
