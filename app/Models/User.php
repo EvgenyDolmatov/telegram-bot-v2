@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Constants\CallbackConstants;
+use App\Constants\CommandConstants;
 use App\Constants\StateConstants;
 use App\Helpers\StepAction;
 use App\Repositories\RequestRepository;
@@ -50,6 +51,16 @@ class User extends Model
         return $user;
     }
 
+    public function getOpenedFlow(): ?UserFlow
+    {
+        return $this->flows->where('is_completed', 0)->first();
+    }
+
+    public function getCurrentState(): ?State
+    {
+        return $this->states->first();
+    }
+
     /**
      * Change user state
      *
@@ -63,11 +74,14 @@ class User extends Model
         $messageDto = $requestRepository->convertToMessage();
 
         $userStates = $this->states;
-        $nextState = State::where('code', StateConstants::START)->first();
 
         if ($userStates->count()) {
             $userState = $this->states->first();
             $stateTransition = Transition::where('source', $userState->code)->first();
+
+            if ($direction === StateConstants::START) {
+                $nextState = State::where('code', StateConstants::START)->first();
+            }
 
             if ($direction === 'next') {
                 $nextState = State::where('code', $stateTransition->next)->first();
@@ -80,8 +94,11 @@ class User extends Model
             $this->states()->detach();
         }
 
-        $this->addToFlow($messageDto->getText());
-        $this->states()->attach($nextState->id);
+        $this->updateFlow($messageDto->getText());
+
+        if (isset($nextState)) {
+            $this->states()->attach($nextState->id);
+        }
     }
 
     /**
@@ -90,13 +107,18 @@ class User extends Model
      * @param string $message
      * @return void
      */
-    public function addToFlow(string $message): void
+    public function updateFlow(string $message): void
     {
-        $userState = $this->states->first();
-        $userFlow = $this->flows->where('is_completed', 0)->first();
+        $userState = $this->getCurrentState();
+        $userFlow = $this->getOpenedFlow();
 
         if ($userState) {
             if ($userFlow) {
+                if ($message === CommandConstants::START) {
+                    $userFlow->delete();
+                    return;
+                }
+
                 $userFlowArray = json_decode($userFlow->flow, true);
                 $userFlowArray[$userState->code] = $message;
 
@@ -171,11 +193,17 @@ class User extends Model
                 }
 
                 if (in_array($message, $callbackNames)) {
-                    $stepAction->selectSubject();
+                    $sector = Sector::where('code', $message)->first();
+                    $stepAction->selectSubject($sector);
                     return;
                 }
 
                 $stepAction->selectSector();
+            }
+
+            /** Step 5: Subject choice */
+            if ($currentState->code === StateConstants::SUBJECT_CHOICE) {
+                //
             }
         }
     }
