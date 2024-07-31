@@ -210,4 +210,15 @@ class StepAction
         $message = $this->sender->createMessageWithButtons($text, $buttons);
         $this->prepareData($message)->send();
     }
+
+    /**
+     * If user pressed to "subject" button
+     * Waiting user request
+     *
+     * @return void
+     */
+    public function waitingThemeRequest(): void
+    {
+        //
+    }
 }

@@ -61,6 +61,18 @@ class User extends Model
         return $this->states->first();
     }
 
+    public function getSelectedSector(): ?Sector
+    {
+        $userFlowArray = json_decode($this->getOpenedFlow()->flow, true);
+        $userSectorChoice = $userFlowArray[StateConstants::SECTOR_CHOICE];
+
+        if ($userSectorChoice) {
+            return Sector::where('code', $userSectorChoice)->first();
+        }
+
+        return null;
+    }
+
     /**
      * Change user state
      *
@@ -219,7 +231,19 @@ class User extends Model
 
             /** Step 6: Subject choice */
             if ($currentState->code === StateConstants::SUBJECT_CHOICE) {
-                //
+                if ($userSector = $this->getSelectedSector()) {
+                    $callbackNames = [];
+                    foreach ($userSector->subjects as $subject) {
+                        $callbackNames[] = $subject->code;
+                    }
+
+                    if (in_array($message, $callbackNames)) {
+                        $stepAction->waitingThemeRequest();
+                        return;
+                    }
+
+                    $stepAction->selectSubject($userSector);
+                }
             }
         }
     }
