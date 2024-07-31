@@ -10,4 +10,7 @@ interface CallbackConstants
     public const string TYPE_SURVEY = 'type_survey';
     public const string IS_ANON = 'is_anon';
     public const string IS_NOT_ANON = 'is_not_anon';
+    public const string LEVEL_EASY = 'level_easy';
+    public const string LEVEL_MIDDLE = 'level_middle';
+    public const string LEVEL_HARD = 'level_hard';
 }

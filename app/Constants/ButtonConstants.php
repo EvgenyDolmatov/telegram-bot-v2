@@ -33,4 +33,19 @@ interface ButtonConstants
         ButtonKeyConstants::TEXT => 'Нет',
         ButtonKeyConstants::CALLBACK => CallbackConstants::IS_NOT_ANON
     ];
+
+    public const array LEVEL_EASY = [
+        ButtonKeyConstants::TEXT => 'Низкая сложность',
+        ButtonKeyConstants::CALLBACK => CallbackConstants::LEVEL_EASY
+    ];
+
+    public const array LEVEL_MIDDLE = [
+        ButtonKeyConstants::TEXT => 'Средняя сложность',
+        ButtonKeyConstants::CALLBACK => CallbackConstants::LEVEL_MIDDLE
+    ];
+
+    public const array LEVEL_HARD = [
+        ButtonKeyConstants::TEXT => 'Высокая сложность',
+        ButtonKeyConstants::CALLBACK => CallbackConstants::LEVEL_HARD
+    ];
 }

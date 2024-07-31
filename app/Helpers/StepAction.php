@@ -140,6 +140,28 @@ class StepAction
 
     /**
      * If user pressed to "is_anon" or "is_not_anon" button
+     * Show is difficulty choice
+     *
+     * @return void
+     */
+    public function selectDifficulty(): void
+    {
+        $user = User::getOrCreate($this->repository);
+        $user->changeState($this->request);
+
+        $text = 'Выберите сложность вопросов:';
+        $buttons = [
+            ButtonConstants::LEVEL_EASY,
+            ButtonConstants::LEVEL_MIDDLE,
+            ButtonConstants::LEVEL_HARD
+        ];
+
+        $message = $this->sender->createMessageWithButtons($text, $buttons);
+        $this->prepareData($message)->send();
+    }
+
+    /**
+     * If user pressed to "is_anon" or "is_not_anon" button
      * Show all sectors
      *
      * @return void
@@ -167,10 +189,25 @@ class StepAction
      * If user pressed to "sector" button
      * Show all subjects
      *
+     * @param Sector $sector
      * @return void
      */
-    public function selectSubject(): void
+    public function selectSubject(Sector $sector): void
     {
-        //
+        $user = User::getOrCreate($this->repository);
+        $user->changeState($this->request);
+
+        $text = 'Выберите предмет:';
+        $buttons = [];
+
+        foreach ($sector->subjects as $subject) {
+            $buttons[] = [
+                ButtonKeyConstants::TEXT => $subject->title,
+                ButtonKeyConstants::CALLBACK => $subject->code
+            ];
+        }
+
+        $message = $this->sender->createMessageWithButtons($text, $buttons);
+        $this->prepareData($message)->send();
     }
 }

@@ -2,24 +2,57 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Constants\StateConstants;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class TransitionSeeder extends Seeder
 {
+    private const string SOURCE = 'source';
+    private const string NEXT = 'next';
+    private const string BACK = 'back';
+
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
         DB::table('transitions')->insert([
-            ['source' => 'start', 'next' => 'type_choice', 'back' => null],
-            ['source' => 'type_choice', 'next' => 'anon_choice', 'back' => 'start'],
-            ['source' => 'anon_choice', 'next' => 'sector_choice', 'back' => 'type_choice'],
-            ['source' => 'sector_choice', 'next' => 'subject_choice', 'back' => 'anon_choice'],
-            ['source' => 'subject_choice', 'next' => 'theme_request', 'back' => 'sector_choice'],
-            ['source' => 'theme_request', 'next' => null, 'back' => 'subject_choice'],
+            [
+                self::SOURCE => StateConstants::START,
+                self::NEXT => StateConstants::TYPE_CHOICE,
+                self::BACK => null
+            ],
+            [
+                self::SOURCE => StateConstants::TYPE_CHOICE,
+                self::NEXT => StateConstants::ANON_CHOICE,
+                self::BACK => StateConstants::START
+            ],
+            [
+                self::SOURCE => StateConstants::ANON_CHOICE,
+                self::NEXT => StateConstants::DIFFICULTY_CHOICE,
+                self::BACK => StateConstants::TYPE_CHOICE
+            ],
+            [
+                self::SOURCE => StateConstants::DIFFICULTY_CHOICE,
+                self::NEXT => StateConstants::SECTOR_CHOICE,
+                self::BACK => StateConstants::ANON_CHOICE
+            ],
+            [
+                self::SOURCE => StateConstants::SECTOR_CHOICE,
+                self::NEXT => StateConstants::SUBJECT_CHOICE,
+                self::BACK => StateConstants::DIFFICULTY_CHOICE
+            ],
+            [
+                self::SOURCE => StateConstants::SUBJECT_CHOICE,
+                self::NEXT => StateConstants::THEME_REQUEST,
+                self::BACK => StateConstants::SECTOR_CHOICE
+            ],
+            [
+                self::SOURCE => StateConstants::THEME_REQUEST,
+                self::NEXT => null,
+                self::BACK => StateConstants::SUBJECT_CHOICE
+            ],
         ]);
     }
 }

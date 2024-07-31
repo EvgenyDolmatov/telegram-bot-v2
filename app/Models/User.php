@@ -74,13 +74,14 @@ class User extends Model
         $messageDto = $requestRepository->convertToMessage();
 
         $userStates = $this->states;
+        $startState = State::where('code', StateConstants::START)->first();
 
         if ($userStates->count()) {
             $userState = $this->states->first();
             $stateTransition = Transition::where('source', $userState->code)->first();
 
             if ($direction === StateConstants::START) {
-                $nextState = State::where('code', StateConstants::START)->first();
+                $nextState = $startState;
             }
 
             if ($direction === 'next') {
@@ -98,6 +99,8 @@ class User extends Model
 
         if (isset($nextState)) {
             $this->states()->attach($nextState->id);
+        } else {
+            $this->states()->attach($startState->id);
         }
     }
 
@@ -178,14 +181,27 @@ class User extends Model
                 switch ($message) {
                     case CallbackConstants::IS_ANON:
                     case CallbackConstants::IS_NOT_ANON:
-                        $stepAction->selectSector();
+                        $stepAction->selectDifficulty();
                         break;
                     default:
                         $stepAction->selectAnonymity();
                 }
             }
 
-            /** Step 4: Sector choice */
+            /** Step 4: Survey difficulty choice */
+            if ($currentState->code === StateConstants::DIFFICULTY_CHOICE) {
+                switch ($message) {
+                    case CallbackConstants::LEVEL_EASY:
+                    case CallbackConstants::LEVEL_MIDDLE:
+                    case CallbackConstants::LEVEL_HARD:
+                        $stepAction->selectSector();
+                        break;
+                    default:
+                        $stepAction->selectDifficulty();
+                }
+            }
+
+            /** Step 5: Sector choice */
             if ($currentState->code === StateConstants::SECTOR_CHOICE) {
                 $callbackNames = [];
                 foreach (Sector::all() as $sector) {
@@ -201,7 +217,7 @@ class User extends Model
                 $stepAction->selectSector();
             }
 
-            /** Step 5: Subject choice */
+            /** Step 6: Subject choice */
             if ($currentState->code === StateConstants::SUBJECT_CHOICE) {
                 //
             }

@@ -35,6 +35,11 @@ class SubjectSeeder extends Seeder
                         'sector_id' => $sector->id,
                     ],
                     [
+                        'code' => 'geography',
+                        'title' => 'География',
+                        'sector_id' => $sector->id,
+                    ],
+                    [
                         'code' => 'chemistry',
                         'title' => 'Химия',
                         'sector_id' => $sector->id,
