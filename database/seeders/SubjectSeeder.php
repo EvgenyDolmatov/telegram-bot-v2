@@ -68,25 +68,25 @@ class SubjectSeeder extends Seeder
                     [
                         'code' => 'english_language',
                         'title' => 'Английский язык',
-                        'parent_id' => 8,
+                        'parent_id' => 9,
                         'sector_id' => $sector->id,
                     ],
                     [
                         'code' => 'german_language',
                         'title' => 'Немецкий язык',
-                        'parent_id' => 8,
+                        'parent_id' => 9,
                         'sector_id' => $sector->id,
                     ],
                     [
                         'code' => 'french_language',
                         'title' => 'Французский язык',
-                        'parent_id' => 8,
+                        'parent_id' => 9,
                         'sector_id' => $sector->id,
                     ],
                     [
                         'code' => 'chinese_language',
                         'title' => 'Китайский язык',
-                        'parent_id' => 8,
+                        'parent_id' => 9,
                         'sector_id' => $sector->id,
                     ],
                 ];

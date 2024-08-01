@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Constants\CallbackConstants;
 use App\Constants\CommandConstants;
 use App\Constants\StateConstants;
+use App\Constants\TransitionConstants;
 use App\Helpers\StepAction;
 use App\Repositories\RequestRepository;
 use Illuminate\Database\Eloquent\Model;
@@ -74,13 +75,32 @@ class User extends Model
     }
 
     /**
+     * Get next user state
+     *
+     * @param State $currentState
+     * @param string $destination
+     * @return State
+     */
+    public function getNextState(State $currentState, string $destination): State
+    {
+        $stateTransition = Transition::where(TransitionConstants::SOURCE, $currentState->code)->first();
+
+        return match ($destination) {
+            TransitionConstants::SOURCE => State::where('code', $stateTransition->source)->first(),
+            TransitionConstants::NEXT => State::where('code', $stateTransition->next)->first(),
+            TransitionConstants::BACK => State::where('code', $stateTransition->back)->first(),
+            default => State::where('code', StateConstants::START)->first(),
+        };
+    }
+
+    /**
      * Change user state
      *
      * @param Request $request
-     * @param string $direction
+     * @param string $destination
      * @return void
      */
-    public function changeState(Request $request, string $direction = 'next'): void
+    public function changeState(Request $request, string $destination = TransitionConstants::NEXT): void
     {
         $requestRepository = new RequestRepository($request);
         $messageDto = $requestRepository->convertToMessage();
@@ -89,20 +109,8 @@ class User extends Model
         $startState = State::where('code', StateConstants::START)->first();
 
         if ($userStates->count()) {
-            $userState = $this->states->first();
-            $stateTransition = Transition::where('source', $userState->code)->first();
-
-            if ($direction === StateConstants::START) {
-                $nextState = $startState;
-            }
-
-            if ($direction === 'next') {
-                $nextState = State::where('code', $stateTransition->next)->first();
-            }
-
-            if ($direction === 'prev') {
-                $nextState = State::where('code', $stateTransition->back)->first();
-            }
+            $currentState = $this->states->first();
+            $nextState = $this->getNextState($currentState, $destination);
 
             $this->states()->detach();
         }
@@ -162,58 +170,65 @@ class User extends Model
         $currentState = $this->states->first();
 
         if ($currentState) {
-            /** Step 1: Start choice */
+            /** Step 1: Show start choice */
             if ($currentState->code === StateConstants::START) {
-                switch ($message) {
-                    case CallbackConstants::SUPPORT:
-                        $stepAction->support();
-                        break;
-                    case CallbackConstants::CREATE_SURVEY:
-                        $stepAction->selectSurveyType();
-                        break;
-                    default:
-                        $stepAction->start();
+                if (!in_array($message, [CallbackConstants::CREATE_SURVEY, CallbackConstants::SUPPORT])) {
+                    $stepAction->start();
+                    return;
+                }
+
+                if ($message === CallbackConstants::SUPPORT) {
+                    $stepAction->support();
+                    return;
+                }
+
+                if ($message === CallbackConstants::CREATE_SURVEY) {
+                    $stepAction->selectSurveyType();
+                    return;
                 }
             }
 
-            /** Step 2: Survey type choice */
+            /** Step 2: Show survey type choice */
             if ($currentState->code === StateConstants::TYPE_CHOICE) {
                 switch ($message) {
                     case CallbackConstants::TYPE_QUIZ:
                     case CallbackConstants::TYPE_SURVEY:
                         $stepAction->selectAnonymity();
-                        break;
+                        return;
                     default:
                         $stepAction->selectSurveyType();
+                        return;
                 }
             }
 
-            /** Step 3: Is anonymous survey choice */
+            /** Step 3: Show is anonymous survey choice */
             if ($currentState->code === StateConstants::ANON_CHOICE) {
                 switch ($message) {
                     case CallbackConstants::IS_ANON:
                     case CallbackConstants::IS_NOT_ANON:
                         $stepAction->selectDifficulty();
-                        break;
+                        return;
                     default:
                         $stepAction->selectAnonymity();
+                        return;
                 }
             }
 
-            /** Step 4: Survey difficulty choice */
+            /** Step 4: Show survey difficulty choice */
             if ($currentState->code === StateConstants::DIFFICULTY_CHOICE) {
                 switch ($message) {
                     case CallbackConstants::LEVEL_EASY:
                     case CallbackConstants::LEVEL_MIDDLE:
                     case CallbackConstants::LEVEL_HARD:
                         $stepAction->selectSector();
-                        break;
+                        return;
                     default:
                         $stepAction->selectDifficulty();
+                        return;
                 }
             }
 
-            /** Step 5: Sector choice */
+            /** Step 5: Show sector choice */
             if ($currentState->code === StateConstants::SECTOR_CHOICE) {
                 $callbackNames = [];
                 foreach (Sector::all() as $sector) {
@@ -227,9 +242,10 @@ class User extends Model
                 }
 
                 $stepAction->selectSector();
+                return;
             }
 
-            /** Step 6: Subject choice */
+            /** Step 6: Show subject choice */
             if ($currentState->code === StateConstants::SUBJECT_CHOICE) {
                 if ($userSector = $this->getSelectedSector()) {
                     $callbackNames = [];
@@ -238,12 +254,24 @@ class User extends Model
                     }
 
                     if (in_array($message, $callbackNames)) {
+                        // If subject has child subjects
+                        $parentSubject = Subject::where('code', $message)->first();
+                        if ($parentSubject->hasChild()) {
+                            $stepAction->selectChildSubject($parentSubject);
+                            return;
+                        }
+
                         $stepAction->waitingThemeRequest();
                         return;
                     }
 
                     $stepAction->selectSubject($userSector);
                 }
+            }
+
+            /** Step 7: Waiting user request */
+            if ($currentState->code === StateConstants::THEME_REQUEST) {
+                //
             }
         }
     }

@@ -13,4 +13,9 @@ class Subject extends Model
     {
         return $this->belongsTo(Sector::class);
     }
+
+    public function hasChild(): bool
+    {
+        return $this->has_child;
+    }
 }

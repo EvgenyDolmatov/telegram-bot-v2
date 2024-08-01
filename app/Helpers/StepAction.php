@@ -8,7 +8,10 @@ use App\Builder\Sender;
 use App\Constants\ButtonConstants;
 use App\Constants\ButtonKeyConstants;
 use App\Constants\StateConstants;
+use App\Constants\StepConstants;
+use App\Constants\TransitionConstants;
 use App\Models\Sector;
+use App\Models\Subject;
 use App\Models\TrashMessage;
 use App\Models\User;
 use App\Repositories\RequestRepository;
@@ -16,7 +19,7 @@ use App\Services\SendMessageService;
 use App\Services\TelegramService;
 use Illuminate\Http\Request;
 
-class StepAction
+class StepAction implements StepConstants
 {
     private Sender $sender;
     private TelegramService $telegramService;
@@ -31,9 +34,31 @@ class StepAction
         $this->repository = new RequestRepository($request);
     }
 
+    /**
+     * Prepare data to sending message
+     *
+     * @param Message $message
+     * @return SendMessageService
+     */
     public function prepareData(Message $message): SendMessageService
     {
         return new SendMessageService($this->request, $this->telegramService, $message);
+    }
+
+    /**
+     * Send simple message or message with buttons
+     *
+     * @param string $text
+     * @param array|null $buttons
+     * @return void
+     */
+    public function sendMessage(string $text, ?array $buttons = null): void
+    {
+        $message = $buttons === null
+            ? $this->sender->createSimpleMessage($text)
+            : $this->sender->createMessageWithButtons($text, $buttons);
+
+        $this->prepareData($message)->send();
     }
 
     public function addToTrash(): void
@@ -59,14 +84,12 @@ class StepAction
         $user->changeState($this->request, StateConstants::START);
 
         // Prepare to send message
-        $text = 'Привет! Выбери вариант:';
         $buttons = [
             ButtonConstants::CREATE_SURVEY,
             ButtonConstants::SUPPORT
         ];
 
-        $message = $this->sender->createMessageWithButtons($text, $buttons);
-        $this->prepareData($message)->send();
+        $this->sendMessage(self::START_TEXT, $buttons);
     }
 
     /**
@@ -77,10 +100,7 @@ class StepAction
     public function help(): void
     {
         $this->addToTrash();
-        $text = 'Инструкция по работе с ботом:';
-
-        $message = $this->sender->createSimpleMessage($text);
-        $this->prepareData($message)->send();
+        $this->sendMessage(self::HELP_TEXT);
     }
 
     /**
@@ -90,10 +110,7 @@ class StepAction
      */
     public function support(): void
     {
-        $text = 'Если у вас есть вопросы, напишите мне в личные сообщения: <a href="https://t.me/nkm_studio">https://t.me/nkm_studio</a>';
-
-        $message = $this->sender->createSimpleMessage($text);
-        $this->prepareData($message)->send();
+        $this->sendMessage(self::SUPPORT_TEXT);
     }
 
     /**
@@ -107,14 +124,12 @@ class StepAction
         $user = User::getOrCreate($this->repository);
         $user->changeState($this->request);
 
-        $text = 'Выберите тип опроса:';
         $buttons = [
             ButtonConstants::QUIZ,
             ButtonConstants::SURVEY
         ];
 
-        $message = $this->sender->createMessageWithButtons($text, $buttons);
-        $this->prepareData($message)->send();
+        $this->sendMessage(self::SURVEY_TYPE_TEXT, $buttons);
     }
 
     /**
@@ -128,14 +143,12 @@ class StepAction
         $user = User::getOrCreate($this->repository);
         $user->changeState($this->request);
 
-        $text = 'Опрос будет анонимный?';
         $buttons = [
             ButtonConstants::IS_ANON,
             ButtonConstants::IS_NOT_ANON
         ];
 
-        $message = $this->sender->createMessageWithButtons($text, $buttons);
-        $this->prepareData($message)->send();
+        $this->sendMessage(self::ANONYMITY_TEXT, $buttons);
     }
 
     /**
@@ -149,15 +162,13 @@ class StepAction
         $user = User::getOrCreate($this->repository);
         $user->changeState($this->request);
 
-        $text = 'Выберите сложность вопросов:';
         $buttons = [
             ButtonConstants::LEVEL_EASY,
             ButtonConstants::LEVEL_MIDDLE,
             ButtonConstants::LEVEL_HARD
         ];
 
-        $message = $this->sender->createMessageWithButtons($text, $buttons);
-        $this->prepareData($message)->send();
+        $this->sendMessage(self::DIFFICULTY_TEXT, $buttons);
     }
 
     /**
@@ -171,9 +182,7 @@ class StepAction
         $user = User::getOrCreate($this->repository);
         $user->changeState($this->request);
 
-        $text = 'Выберите направление:';
         $buttons = [];
-
         foreach (Sector::all() as $sector) {
             $buttons[] = [
                 ButtonKeyConstants::TEXT => $sector->title,
@@ -181,8 +190,7 @@ class StepAction
             ];
         }
 
-        $message = $this->sender->createMessageWithButtons($text, $buttons);
-        $this->prepareData($message)->send();
+        $this->sendMessage(self::SECTOR_TEXT, $buttons);
     }
 
     /**
@@ -197,18 +205,43 @@ class StepAction
         $user = User::getOrCreate($this->repository);
         $user->changeState($this->request);
 
-        $text = 'Выберите предмет:';
         $buttons = [];
+        $subjects = $sector->subjects->where('parent_id', null);
 
-        foreach ($sector->subjects as $subject) {
+        foreach ($subjects as $subject) {
             $buttons[] = [
                 ButtonKeyConstants::TEXT => $subject->title,
                 ButtonKeyConstants::CALLBACK => $subject->code
             ];
         }
 
-        $message = $this->sender->createMessageWithButtons($text, $buttons);
-        $this->prepareData($message)->send();
+        $this->sendMessage(self::SUBJECT_TEXT, $buttons);
+    }
+
+    /**
+     * If user pressed to "parent subject" button
+     * Show child subjects
+     *
+     * @param Subject $subject
+     * @return void
+     */
+    public function selectChildSubject(Subject $subject): void
+    {
+        $user = User::getOrCreate($this->repository);
+        $user->changeState($this->request, TransitionConstants::SOURCE);
+
+        $buttons = [];
+
+        $childSubjects = Subject::where('parent_id', $subject->id)->get();
+
+        foreach ($childSubjects as $childSubject) {
+            $buttons[] = [
+                ButtonKeyConstants::TEXT => $childSubject->title,
+                ButtonKeyConstants::CALLBACK => $childSubject->code
+            ];
+        }
+
+        $this->sendMessage(self::SUBJECT_TEXT, $buttons);
     }
 
     /**
@@ -219,6 +252,9 @@ class StepAction
      */
     public function waitingThemeRequest(): void
     {
-        //
+        $user = User::getOrCreate($this->repository);
+        $user->changeState($this->request);
+
+        $this->sendMessage(self::CUSTOM_TEXT);
     }
 }
