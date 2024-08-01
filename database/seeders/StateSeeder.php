@@ -23,6 +23,7 @@ class StateSeeder extends Seeder
             [self::CODE => StateConstants::SECTOR_CHOICE],
             [self::CODE => StateConstants::SUBJECT_CHOICE],
             [self::CODE => StateConstants::THEME_REQUEST],
+            [self::CODE => StateConstants::AI_RESPONSE],
         ]);
     }
 }

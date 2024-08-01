@@ -50,8 +50,13 @@ class TransitionSeeder extends Seeder
             ],
             [
                 self::SOURCE => StateConstants::THEME_REQUEST,
-                self::NEXT => null,
+                self::NEXT => StateConstants::AI_RESPONSE,
                 self::BACK => StateConstants::SUBJECT_CHOICE
+            ],
+            [
+                self::SOURCE => StateConstants::AI_RESPONSE,
+                self::NEXT => null,
+                self::BACK => StateConstants::THEME_REQUEST
             ],
         ]);
     }

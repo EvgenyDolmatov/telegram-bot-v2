@@ -271,7 +271,7 @@ class User extends Model
 
             /** Step 7: Waiting user request */
             if ($currentState->code === StateConstants::THEME_REQUEST) {
-                //
+                $stepAction->responseFromAi();
             }
         }
     }

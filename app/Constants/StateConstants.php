@@ -11,4 +11,5 @@ interface StateConstants
     public const string SECTOR_CHOICE = 'sector_choice';
     public const string SUBJECT_CHOICE = 'subject_choice';
     public const string THEME_REQUEST = 'theme_request';
+    public const string AI_RESPONSE = 'ai_response';
 }

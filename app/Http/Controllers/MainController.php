@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Constants\CommandConstants;
 use App\Helpers\StepAction;
+use App\Models\TrashMessage;
 use App\Models\User;
 use App\Repositories\RequestRepository;
 use App\Services\TelegramService;
@@ -21,7 +22,11 @@ class MainController extends Controller
         if ($request->hasAny(['message', 'callback_query'])) {
             $stepHelper = new StepAction($telegram, $request);
             $messageDto = $requestRepository->convertToMessage();
+            $chatDto = $requestRepository->convertToChat();
+
             Log::debug('USER: ' . $messageDto->getId() . ' : ' . $messageDto->getText());
+
+            TrashMessage::add($chatDto, $messageDto, true);
 
             $user = User::getOrCreate($requestRepository);
 

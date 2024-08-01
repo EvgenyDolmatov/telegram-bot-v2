@@ -257,4 +257,19 @@ class StepAction implements StepConstants
 
         $this->sendMessage(self::CUSTOM_TEXT);
     }
+
+    /**
+     * If user sent custom request
+     * Send data to Open AI
+     *
+     * @return void
+     */
+    public function responseFromAi(): void
+    {
+        $user = User::getOrCreate($this->repository);
+        $user->changeState($this->request);
+
+        // code...
+        $this->sendMessage('Вы получили ответ от AI...');
+    }
 }
