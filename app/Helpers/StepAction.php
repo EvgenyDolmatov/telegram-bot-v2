@@ -4,7 +4,10 @@ namespace App\Helpers;
 
 use App\Builder\Message\Message;
 use App\Builder\Message\MessageBuilder;
-use App\Builder\Sender;
+use App\Builder\MessageSender;
+use App\Builder\Poll\Poll;
+use App\Builder\Poll\PollBuilder;
+use App\Builder\PollSender;
 use App\Constants\ButtonConstants;
 use App\Constants\ButtonKeyConstants;
 use App\Constants\StateConstants;
@@ -14,14 +17,19 @@ use App\Models\Sector;
 use App\Models\Subject;
 use App\Models\TrashMessage;
 use App\Models\User;
+use App\Repositories\OpenAiRepository;
 use App\Repositories\RequestRepository;
+use App\Services\OpenAiService;
 use App\Services\SendMessageService;
+use App\Services\SendPollService;
 use App\Services\TelegramService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class StepAction implements StepConstants
 {
-    private Sender $sender;
+    private MessageSender $messageSender;
+    private PollSender $pollSender;
     private TelegramService $telegramService;
     private Request $request;
     private RequestRepository $repository;
@@ -30,7 +38,8 @@ class StepAction implements StepConstants
     {
         $this->telegramService = $telegramService;
         $this->request = $request;
-        $this->sender = (new Sender())->setBuilder(new MessageBuilder());
+        $this->messageSender = (new MessageSender())->setBuilder(new MessageBuilder());
+        $this->pollSender = (new PollSender())->setBuilder(new PollBuilder());
         $this->repository = new RequestRepository($request);
     }
 
@@ -55,10 +64,46 @@ class StepAction implements StepConstants
     public function sendMessage(string $text, ?array $buttons = null): void
     {
         $message = $buttons === null
-            ? $this->sender->createSimpleMessage($text)
-            : $this->sender->createMessageWithButtons($text, $buttons);
+            ? $this->messageSender->createSimpleMessage($text)
+            : $this->messageSender->createMessageWithButtons($text, $buttons);
 
         $this->prepareData($message)->send();
+    }
+
+    /**
+     * Prepare data to sending poll
+     *
+     * @param Poll $poll
+     * @return SendPollService
+     */
+    public function preparePollData(Poll $poll): SendPollService
+    {
+        return new SendPollService($this->request, $this->telegramService, $poll);
+    }
+
+    /**
+     * Send poll message
+     *
+     * @param string $question
+     * @param array $options
+     * @param bool $isAnonymous
+     * @param bool $isQuiz
+     * @param int|null $correctOptionId
+     * @return void
+     */
+    public function sendPoll(
+        string $question,
+        array  $options,
+        bool   $isAnonymous,
+        bool   $isQuiz = false,
+        ?int    $correctOptionId = null
+    ): void
+    {
+        $poll = $isQuiz
+            ? $this->pollSender->createQuiz($question, $options, $isAnonymous, $correctOptionId)
+            : $this->pollSender->createPoll($question, $options, $isAnonymous);
+
+        $this->preparePollData($poll)->send();
     }
 
     public function addToTrash(): void
@@ -266,10 +311,25 @@ class StepAction implements StepConstants
      */
     public function responseFromAi(): void
     {
+        // Обрабатываем
         $user = User::getOrCreate($this->repository);
         $user->changeState($this->request);
+//        $openAiService = new OpenAiService();
+//        $openAiRepository = new OpenAiRepository($openAiService);
+//        $openAiCompletion = $openAiRepository->getCompletion();
 
-        // code...
+
+
+        // Выводим сообщение
         $this->sendMessage('Вы получили ответ от AI...');
+        $this->sendPoll(
+            question: 'TEST:',
+            options: [
+                ["text" => "Ответ 1"],
+                ["text" => "Ответ 2"],
+                ["text" => "Ответ 3"],
+            ],
+            isAnonymous: true
+        );
     }
 }

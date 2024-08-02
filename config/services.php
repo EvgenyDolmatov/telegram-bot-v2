@@ -38,4 +38,8 @@ return [
     'telegram' => [
         'token' => env('TELEGRAM_TOKEN'),
     ],
+
+    'openai' => [
+        'token' => env('OPEN_AI_TOKEN'),
+    ],
 ];

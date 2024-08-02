@@ -1,0 +1,12 @@
+<?php
+
+namespace App\Builder\Poll;
+
+interface PollBuilderInterface
+{
+    public function setQuestion(string $question): void;
+    public function setOption(array $option): void;
+    public function setIsQuiz(bool $isQuiz): void;
+    public function setIsAnonymous(bool $isAnonymous): void;
+    public function setCorrectOptionId(int $correctOptionId): void;
+}

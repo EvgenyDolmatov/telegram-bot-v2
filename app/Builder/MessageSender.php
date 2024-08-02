@@ -4,9 +4,8 @@ namespace App\Builder;
 
 use App\Builder\Message\Message;
 use App\Builder\Message\MessageBuilderInterface;
-use Illuminate\Support\Facades\Http;
 
-class Sender
+class MessageSender
 {
     private MessageBuilderInterface $builder;
 
