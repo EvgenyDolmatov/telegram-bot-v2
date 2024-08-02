@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Builder\Message\Message;
+use App\Builder\Poll\Poll;
 use App\Constants\CommonConstants;
 use App\Models\TrashMessage;
 use App\Repositories\RequestRepository;
@@ -11,30 +12,30 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-readonly class SendMessageService
+readonly class SenderService
 {
     public function __construct(
         private Request         $request,
-        private TelegramService $telegramService,
-        private Message         $message
+        private TelegramService $telegramService
     ) {
     }
 
     /**
      * Send simple message or message with buttons
      *
+     * @param Message $message
      * @return void
      */
-    public function send(): void
+    public function sendMessage(Message $message): void
     {
         $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/sendMessage';
         $chat = (new RequestRepository($this->request))->convertToChat();
-        $buttons = $this->message->getButtons();
+        $buttons = $message->getButtons();
 
         $body = [
             'chat_id' => $chat->getId(),
             'parse_mode' => 'html',
-            'text' => $this->message->getText()
+            'text' => $message->getText()
         ];
 
         if (count($buttons) !== 0) {
@@ -51,7 +52,36 @@ readonly class SendMessageService
         $response = Http::post($url, $body);
         $this->updateChatMessages($response);
 
-        Log::debug('BOT: '. $response);
+        Log::debug('BOT: ' . $response);
+    }
+
+    /**
+     * Send poll or quiz
+     *
+     * @param Poll $poll
+     * @return void
+     */
+    public function sendPoll(Poll $poll): void
+    {
+        $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/sendPoll';
+        $chat = (new RequestRepository($this->request))->convertToChat();
+
+        $body = [
+            "chat_id" => $chat->getId(),
+            "question" => $poll->getQuestion(),
+            "options" => $poll->getOptions(),
+            "type" => $poll->getIsQuiz() ? "quiz" : "regular",
+            "is_anonymous" => $poll->getIsAnonymous(),
+        ];
+
+        if ($poll->getIsQuiz()) {
+            $body["correct_option_id"] = $poll->getCorrectOptionId();
+        }
+
+        $response = Http::post($url, $body);
+        $this->updateChatMessages($response);
+
+        Log::debug('BOT: ' . $response);
     }
 
     /**

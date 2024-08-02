@@ -5,12 +5,12 @@ namespace App\Dto;
 class MessageDto
 {
     private int $id;
-    private string $text;
+    private ?string $text;
 
-    public function __construct(int $id, string $text)
+    public function __construct(int $id, ?string $text = null)
     {
         $this->id = $id;
-        $this->text = $text;
+        $this->text = $text ?? '';
     }
 
     public function getId(): int
@@ -18,7 +18,7 @@ class MessageDto
         return $this->id;
     }
 
-    public function getText(): string
+    public function getText(): ?string
     {
         return $this->text;
     }

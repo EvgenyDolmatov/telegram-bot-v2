@@ -20,8 +20,7 @@ use App\Models\User;
 use App\Repositories\OpenAiRepository;
 use App\Repositories\RequestRepository;
 use App\Services\OpenAiService;
-use App\Services\SendMessageService;
-use App\Services\SendPollService;
+use App\Services\SenderService;
 use App\Services\TelegramService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -46,12 +45,11 @@ class StepAction implements StepConstants
     /**
      * Prepare data to sending message
      *
-     * @param Message $message
-     * @return SendMessageService
+     * @return SenderService
      */
-    public function prepareData(Message $message): SendMessageService
+    public function prepareMessageData(): SenderService
     {
-        return new SendMessageService($this->request, $this->telegramService, $message);
+        return new SenderService($this->request, $this->telegramService);
     }
 
     /**
@@ -67,18 +65,17 @@ class StepAction implements StepConstants
             ? $this->messageSender->createSimpleMessage($text)
             : $this->messageSender->createMessageWithButtons($text, $buttons);
 
-        $this->prepareData($message)->send();
+        $this->prepareMessageData()->sendMessage($message);
     }
 
     /**
      * Prepare data to sending poll
      *
-     * @param Poll $poll
-     * @return SendPollService
+     * @return SenderService
      */
-    public function preparePollData(Poll $poll): SendPollService
+    public function preparePollData(): SenderService
     {
-        return new SendPollService($this->request, $this->telegramService, $poll);
+        return new SenderService($this->request, $this->telegramService);
     }
 
     /**
@@ -103,7 +100,7 @@ class StepAction implements StepConstants
             ? $this->pollSender->createQuiz($question, $options, $isAnonymous, $correctOptionId)
             : $this->pollSender->createPoll($question, $options, $isAnonymous);
 
-        $this->preparePollData($poll)->send();
+        $this->preparePollData()->sendPoll($poll);
     }
 
     public function addToTrash(): void

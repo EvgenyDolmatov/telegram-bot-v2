@@ -5,13 +5,12 @@ namespace App\Repositories;
 use App\Dto\ChatDto;
 use App\Dto\MessageDto;
 use App\Dto\UserDto;
-use App\Models\Chat;
 use Illuminate\Http\Client\Response;
 
-class ResponseRepository
+readonly class ResponseRepository
 {
     public function __construct(
-        private readonly Response $response
+        private Response $response
     ) {
     }
 
@@ -28,7 +27,7 @@ class ResponseRepository
         if(isset($body['result'])) {
             $payload['id'] = $body['result']['message_id'];
             $payload['date'] = $body['result']['date'];
-            $payload['text'] = $body['result']['text'];
+//            $payload['text'] = $body['result']['text'];
 
             $payload['from']['id'] = $body['result']['from']['id'];
             $payload['from']['is_bot'] = $body['result']['from']['is_bot'];
@@ -50,7 +49,7 @@ class ResponseRepository
     {
         $payload = $this->getData();
 
-        return new MessageDto($payload['id'], $payload['text']);
+        return new MessageDto($payload['id'], $payload['text'] ?? null);
     }
 
     public function convertToChat(): ChatDto
