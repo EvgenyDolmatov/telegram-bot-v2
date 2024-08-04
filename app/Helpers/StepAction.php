@@ -123,7 +123,7 @@ class StepAction implements StepConstants
 
         $repository = $this->repository;
         $user = User::getOrCreate($repository);
-        $user->changeState($this->request, StateConstants::START);
+        $user->changeState($this->request);
 
         // Prepare to send message
         $buttons = [
@@ -164,7 +164,7 @@ class StepAction implements StepConstants
     public function selectSurveyType(): void
     {
         $user = User::getOrCreate($this->repository);
-        $user->changeState($this->request);
+//        $user->changeState($this->request);
 
         $buttons = [
             ButtonConstants::QUIZ,
@@ -183,7 +183,7 @@ class StepAction implements StepConstants
     public function selectAnonymity(): void
     {
         $user = User::getOrCreate($this->repository);
-        $user->changeState($this->request);
+//        $user->changeState($this->request);
 
         $buttons = [
             ButtonConstants::IS_ANON,
@@ -202,7 +202,7 @@ class StepAction implements StepConstants
     public function selectDifficulty(): void
     {
         $user = User::getOrCreate($this->repository);
-        $user->changeState($this->request);
+//        $user->changeState($this->request);
 
         $buttons = [
             ButtonConstants::LEVEL_EASY,
@@ -222,7 +222,7 @@ class StepAction implements StepConstants
     public function selectSector(): void
     {
         $user = User::getOrCreate($this->repository);
-        $user->changeState($this->request);
+//        $user->changeState($this->request);
 
         $buttons = [];
         foreach (Sector::all() as $sector) {
@@ -245,7 +245,7 @@ class StepAction implements StepConstants
     public function selectSubject(Sector $sector): void
     {
         $user = User::getOrCreate($this->repository);
-        $user->changeState($this->request);
+//        $user->changeState($this->request);
 
         $buttons = [];
         $subjects = $sector->subjects->where('parent_id', null);
@@ -270,7 +270,7 @@ class StepAction implements StepConstants
     public function selectChildSubject(Subject $subject): void
     {
         $user = User::getOrCreate($this->repository);
-        $user->changeState($this->request, TransitionConstants::SOURCE);
+//        $user->changeState($this->request, TransitionConstants::SOURCE);
 
         $buttons = [];
 
@@ -295,7 +295,7 @@ class StepAction implements StepConstants
     public function waitingThemeRequest(): void
     {
         $user = User::getOrCreate($this->repository);
-        $user->changeState($this->request);
+//        $user->changeState($this->request);
 
         $this->sendMessage(self::CUSTOM_TEXT);
     }
@@ -310,7 +310,7 @@ class StepAction implements StepConstants
     {
         // Обрабатываем
         $user = User::getOrCreate($this->repository);
-        $user->changeState($this->request);
+//        $user->changeState($this->request);
 //        $openAiService = new OpenAiService();
 //        $openAiRepository = new OpenAiRepository($openAiService);
 //        $openAiCompletion = $openAiRepository->getCompletion();

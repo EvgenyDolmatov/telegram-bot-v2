@@ -43,7 +43,7 @@ class MainController extends Controller
             }
 
             /** User steps flow */
-            $user->stateHandler($stepHelper, $messageDto->getText());
+            $user->stateHandler($request, $stepHelper, $messageDto->getText());
         }
     }
 }

@@ -57,7 +57,7 @@ class User extends Model
         return $this->flows->where('is_completed', 0)->first();
     }
 
-    public function getCurrentState(): ?State
+    public function getCurrentState(): State
     {
         return $this->states->first();
     }
@@ -77,12 +77,12 @@ class User extends Model
     /**
      * Get next user state
      *
-     * @param State $currentState
      * @param string $destination
      * @return State
      */
-    public function getNextState(State $currentState, string $destination): State
+    public function getNextStateByDestination(string $destination): State
     {
+        $currentState = $this->getCurrentState();
         $stateTransition = Transition::where(TransitionConstants::SOURCE, $currentState->code)->first();
 
         return match ($destination) {
@@ -100,7 +100,7 @@ class User extends Model
      * @param string $destination
      * @return void
      */
-    public function changeState(Request $request, string $destination = TransitionConstants::NEXT): void
+/*    public function changeState(Request $request, string $destination = TransitionConstants::NEXT): void
     {
         $requestRepository = new RequestRepository($request);
         $messageDto = $requestRepository->convertToMessage();
@@ -110,7 +110,7 @@ class User extends Model
 
         if ($userStates->count()) {
             $currentState = $this->states->first();
-            $nextState = $this->getNextState($currentState, $destination);
+            $nextState = $this->getNextStateByDestination($currentState, $destination);
 
             $this->states()->detach();
         }
@@ -122,6 +122,75 @@ class User extends Model
         } else {
             $this->states()->attach($startState->id);
         }
+    }*/
+
+    public function hasAnyState(): bool
+    {
+        return $this->states()->count();
+    }
+
+    public function changeState(Request $request, string $destination = TransitionConstants::NEXT): void
+    {
+        $requestRepository = new RequestRepository($request);
+        $messageDto = $requestRepository->convertToMessage();
+        $message = $messageDto->getText();
+
+        if ($message === CommandConstants::START) {
+            $startState = State::where('code', StateConstants::START)->first();
+
+            if ($this->hasAnyState()) {
+                $this->states()->detach();
+            }
+            $this->states()->attach($startState->id);
+
+            $userFlow = $this->getOpenedFlow();
+            if ($userFlow) {
+                $userFlow->delete();
+            }
+
+            return;
+        }
+
+        if ($destination === TransitionConstants::NEXT) {
+            $currentState = $this->getCurrentState();
+            $nextState = $this->getNextStateByDestination($destination);
+
+            // Update user flow
+            $userFlow = $this->getOpenedFlow();
+            if ($userFlow) {
+                $userFlowArray = json_decode($userFlow->flow, true);
+                $userFlowArray[$currentState->code] = $message;
+                $userFlow->flow = json_encode($userFlowArray);
+                $userFlow->save();
+            } else {
+                UserFlow::create([
+                    'user_id' => $this->id,
+                    'flow' => json_encode([$currentState->code => $message])
+                ]);
+            }
+
+            // Change user state
+            $this->states()->detach();
+            $this->states()->attach($nextState->id);
+        }
+
+        if ($destination === TransitionConstants::BACK) {
+            $currentState = $this->getCurrentState();
+            $nextState = $this->getNextStateByDestination($destination);
+
+            // Update user flow
+            $userFlow = $this->getOpenedFlow();
+            if ($userFlow) {
+                $userFlowArray = json_decode($userFlow->flow, true);
+                unset($userFlowArray[$currentState->code]);
+                $userFlow->flow = json_encode($userFlowArray);
+                $userFlow->save();
+            }
+
+            // Change user state
+            $this->states()->detach();
+            $this->states()->attach($nextState->id);
+        }
     }
 
     /**
@@ -130,7 +199,7 @@ class User extends Model
      * @param string $message
      * @return void
      */
-    public function updateFlow(string $message): void
+    /*public function updateFlow(string $message): void
     {
         $userState = $this->getCurrentState();
         $userFlow = $this->getOpenedFlow();
@@ -155,7 +224,7 @@ class User extends Model
                 'flow' => json_encode([$userState->code => $message])
             ]);
         }
-    }
+    }*/
 
 
     /**
@@ -165,7 +234,7 @@ class User extends Model
      * @param string $message
      * @return void
      */
-    public function stateHandler(StepAction $stepAction, string $message): void
+    public function stateHandler(Request $request, StepAction $stepAction, string $message): void
     {
         $currentState = $this->states->first();
 
@@ -174,43 +243,70 @@ class User extends Model
             if ($currentState->code === StateConstants::START) {
                 if (!in_array($message, [CallbackConstants::CREATE_SURVEY, CallbackConstants::SUPPORT])) {
                     $stepAction->start();
+                    $this->changeState($request);
                     return;
                 }
 
                 if ($message === CallbackConstants::SUPPORT) {
                     $stepAction->support();
+                    $this->changeState($request);
                     return;
                 }
 
                 if ($message === CallbackConstants::CREATE_SURVEY) {
                     $stepAction->selectSurveyType();
+                    $this->changeState($request);
                     return;
                 }
             }
 
             /** Step 2: Show survey type choice */
             if ($currentState->code === StateConstants::TYPE_CHOICE) {
-                switch ($message) {
-                    case CallbackConstants::TYPE_QUIZ:
-                    case CallbackConstants::TYPE_SURVEY:
-                        $stepAction->selectAnonymity();
-                        return;
-                    default:
-                        $stepAction->selectSurveyType();
-                        return;
+                if(!in_array($message, [
+                    CallbackConstants::TYPE_QUIZ,
+                    CallbackConstants::TYPE_SURVEY,
+                    TransitionConstants::BACK])
+                ) {
+                    $stepAction->selectSurveyType();
+                    $this->changeState($request, TransitionConstants::SOURCE);
+                    return;
+                }
+
+                if (in_array($message, [CallbackConstants::TYPE_QUIZ, CallbackConstants::TYPE_SURVEY])) {
+                    $stepAction->selectAnonymity();
+                    $this->changeState($request);
+                    return;
+                }
+
+                if ($message === TransitionConstants::BACK) {
+                    $stepAction->start();
+                    $this->changeState($request, TransitionConstants::BACK);
+                    return;
                 }
             }
 
             /** Step 3: Show is anonymous survey choice */
             if ($currentState->code === StateConstants::ANON_CHOICE) {
-                switch ($message) {
-                    case CallbackConstants::IS_ANON:
-                    case CallbackConstants::IS_NOT_ANON:
-                        $stepAction->selectDifficulty();
-                        return;
-                    default:
-                        $stepAction->selectAnonymity();
-                        return;
+                if(!in_array($message, [
+                    CallbackConstants::TYPE_QUIZ,
+                    CallbackConstants::TYPE_SURVEY,
+                    TransitionConstants::BACK])
+                ) {
+                    $stepAction->selectAnonymity();
+                    $this->changeState($request, TransitionConstants::SOURCE);
+                    return;
+                }
+
+                if (in_array($message, [CallbackConstants::IS_ANON, CallbackConstants::IS_NOT_ANON])) {
+                    $stepAction->selectDifficulty();
+                    $this->changeState($request);
+                    return;
+                }
+
+                if ($message === TransitionConstants::BACK) {
+                    $stepAction->selectSurveyType();
+                    $this->changeState($request, TransitionConstants::BACK);
+                    return;
                 }
             }
 
@@ -224,6 +320,7 @@ class User extends Model
                         return;
                     default:
                         $stepAction->selectDifficulty();
+                        $this->changeState($request, TransitionConstants::SOURCE);
                         return;
                 }
             }
@@ -238,10 +335,12 @@ class User extends Model
                 if (in_array($message, $callbackNames)) {
                     $sector = Sector::where('code', $message)->first();
                     $stepAction->selectSubject($sector);
+                    $this->changeState($request);
                     return;
                 }
 
                 $stepAction->selectSector();
+                $this->changeState($request, TransitionConstants::SOURCE);
                 return;
             }
 
@@ -258,20 +357,24 @@ class User extends Model
                         $parentSubject = Subject::where('code', $message)->first();
                         if ($parentSubject->hasChild()) {
                             $stepAction->selectChildSubject($parentSubject);
+                            $this->changeState($request);
                             return;
                         }
 
                         $stepAction->waitingThemeRequest();
+                        $this->changeState($request);
                         return;
                     }
 
                     $stepAction->selectSubject($userSector);
+                    $this->changeState($request, TransitionConstants::SOURCE);
                 }
             }
 
             /** Step 7: Waiting user request */
             if ($currentState->code === StateConstants::THEME_REQUEST) {
                 $stepAction->responseFromAi();
+                $this->changeState($request);
             }
         }
     }
