@@ -257,12 +257,7 @@ class User extends Model
         if ($currentState) {
             /** Step 1: Show start choice */
             if ($currentState->code === StateConstants::START) {
-                $callbacks = [
-                    CallbackConstants::CREATE_SURVEY,
-                    CallbackConstants::SUPPORT
-                ];
-
-                if (!in_array($message, $callbacks)) {
+                if (!in_array($message, $currentState->prepareButtons())) {
                     $stepAction->start();
                     $this->changeState($request);
                     return;

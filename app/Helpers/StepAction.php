@@ -122,16 +122,16 @@ class StepAction implements StepConstants
         $this->addToTrash();
 
         $repository = $this->repository;
+
         $user = User::getOrCreate($repository);
         $user->changeState($this->request);
 
-        // Prepare to send message
-        $buttons = [
-            ButtonConstants::CREATE_SURVEY,
-            ButtonConstants::SUPPORT
-        ];
+        $currentState = $user->getCurrentState();
 
-        $this->sendMessage(self::START_TEXT, $buttons);
+        $this->sendMessage(
+            text: $currentState->text,
+            buttons: $currentState->prepareButtons()
+        );
     }
 
     /**
