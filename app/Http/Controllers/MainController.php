@@ -33,12 +33,14 @@ class MainController extends Controller
             /** Select "/start" command */
             if ($messageDto->getText() === CommandConstants::START) {
                 $stepHelper->start();
+                $user->changeState($request);
                 return;
             }
 
             /** Select "/help" command */
             if ($messageDto->getText() === CommandConstants::HELP) {
                 $stepHelper->help();
+                $user->changeState($request);
                 return;
             }
 

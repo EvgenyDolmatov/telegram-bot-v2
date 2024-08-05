@@ -11,15 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('states', function (Blueprint $table) {
+        Schema::create('state_buttons', function (Blueprint $table) {
             $table->id();
-            $table->string('code');
-            $table->string('text')->nullable();
-        });
-
-        Schema::create('user_states', function (Blueprint $table) {
-            $table->foreignId('user_id')->references('id')->on('users')->cascadeOnDelete();
             $table->foreignId('state_id')->references('id')->on('states')->cascadeOnDelete();
+            $table->string('text');
+            $table->string('callback');
         });
     }
 
@@ -28,7 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_states');
-        Schema::dropIfExists('states');
+        Schema::dropIfExists('state_buttons');
     }
 };

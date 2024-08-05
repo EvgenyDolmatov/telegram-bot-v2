@@ -14,6 +14,7 @@ use App\Constants\StateConstants;
 use App\Constants\StepConstants;
 use App\Constants\TransitionConstants;
 use App\Models\Sector;
+use App\Models\State;
 use App\Models\Subject;
 use App\Models\TrashMessage;
 use App\Models\User;
@@ -123,15 +124,12 @@ class StepAction implements StepConstants
 
         $repository = $this->repository;
         $user = User::getOrCreate($repository);
-        $user->changeState($this->request);
+        $startState = State::where('code', StateConstants::START)->first();
 
-        // Prepare to send message
-        $buttons = [
-            ButtonConstants::CREATE_SURVEY,
-            ButtonConstants::SUPPORT
-        ];
-
-        $this->sendMessage(self::START_TEXT, $buttons);
+        $this->sendMessage(
+            text: $startState->text,
+            buttons: $startState->prepareButtons()
+        );
     }
 
     /**
@@ -164,14 +162,12 @@ class StepAction implements StepConstants
     public function selectSurveyType(): void
     {
         $user = User::getOrCreate($this->repository);
-//        $user->changeState($this->request);
+        $nextState = $user->getNextState();
 
-        $buttons = [
-            ButtonConstants::QUIZ,
-            ButtonConstants::SURVEY
-        ];
-
-        $this->sendMessage(self::SURVEY_TYPE_TEXT, $buttons);
+        $this->sendMessage(
+            text: $nextState->text,
+            buttons: $nextState->prepareButtons()
+        );
     }
 
     /**

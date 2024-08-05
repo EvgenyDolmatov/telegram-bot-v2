@@ -10,6 +10,7 @@ use App\Helpers\StepAction;
 use App\Repositories\RequestRepository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class User extends Model
 {
@@ -60,6 +61,22 @@ class User extends Model
     public function getCurrentState(): State
     {
         return $this->states->first();
+    }
+
+    public function getNextState(): State
+    {
+        $currentState = $this->getCurrentState();
+        $transition = Transition::where('source', $currentState->code)->first();
+
+        return State::where('code', $transition->next)->first();
+    }
+
+    public function getPrevState(): State
+    {
+        $currentState = $this->getCurrentState();
+        $transition = Transition::where('source', $currentState->code)->first();
+
+        return State::where('code', $transition->back)->first();
     }
 
     public function getSelectedSector(): ?Sector
@@ -136,17 +153,18 @@ class User extends Model
         $message = $messageDto->getText();
 
         if ($message === CommandConstants::START) {
+            Log::debug('asdasdasd');
             $startState = State::where('code', StateConstants::START)->first();
 
             if ($this->hasAnyState()) {
                 $this->states()->detach();
             }
-            $this->states()->attach($startState->id);
 
-            $userFlow = $this->getOpenedFlow();
-            if ($userFlow) {
+            if ($userFlow = $this->getOpenedFlow()) {
                 $userFlow->delete();
             }
+
+            $this->states()->attach($startState->id);
 
             return;
         }
@@ -181,10 +199,18 @@ class User extends Model
             // Update user flow
             $userFlow = $this->getOpenedFlow();
             if ($userFlow) {
+                $prevState = $this->getPrevState();
+
                 $userFlowArray = json_decode($userFlow->flow, true);
-                unset($userFlowArray[$currentState->code]);
-                $userFlow->flow = json_encode($userFlowArray);
-                $userFlow->save();
+
+                if (count($userFlowArray) > 1) {
+                    unset($userFlowArray[$prevState->code]);
+                    $userFlow->flow = json_encode($userFlowArray);
+                    $userFlow->save();
+                } else {
+                    $userFlow->delete();
+                }
+
             }
 
             // Change user state
@@ -238,22 +264,27 @@ class User extends Model
     {
         $currentState = $this->states->first();
 
+        Log::debug('BTN: ' . json_encode($currentState->prepareButtons()));
+
         if ($currentState) {
             /** Step 1: Show start choice */
             if ($currentState->code === StateConstants::START) {
-                if (!in_array($message, [CallbackConstants::CREATE_SURVEY, CallbackConstants::SUPPORT])) {
+                if (!in_array($message, $currentState->prepareCallbackItems())) {
+                    Log::debug($message);
                     $stepAction->start();
                     $this->changeState($request);
                     return;
                 }
 
                 if ($message === CallbackConstants::SUPPORT) {
+                    Log::debug('2');
                     $stepAction->support();
                     $this->changeState($request);
                     return;
                 }
 
                 if ($message === CallbackConstants::CREATE_SURVEY) {
+                    Log::debug('3');
                     $stepAction->selectSurveyType();
                     $this->changeState($request);
                     return;
@@ -262,17 +293,13 @@ class User extends Model
 
             /** Step 2: Show survey type choice */
             if ($currentState->code === StateConstants::TYPE_CHOICE) {
-                if(!in_array($message, [
-                    CallbackConstants::TYPE_QUIZ,
-                    CallbackConstants::TYPE_SURVEY,
-                    TransitionConstants::BACK])
-                ) {
+                if(!in_array($message, $currentState->prepareCallbackItems())) {
                     $stepAction->selectSurveyType();
                     $this->changeState($request, TransitionConstants::SOURCE);
                     return;
                 }
 
-                if (in_array($message, [CallbackConstants::TYPE_QUIZ, CallbackConstants::TYPE_SURVEY])) {
+                if (in_array($message, $currentState->prepareCallbackItems())) {
                     $stepAction->selectAnonymity();
                     $this->changeState($request);
                     return;
