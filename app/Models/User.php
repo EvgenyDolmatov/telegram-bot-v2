@@ -62,6 +62,14 @@ class User extends Model
         return $this->states->first();
     }
 
+    public function getPrevState(): State
+    {
+        $currentState = $this->getCurrentState();
+        $transition = Transition::where('source', $currentState->code)->first();
+
+        return State::where('code', $transition->back)->first();
+    }
+
     public function getSelectedSector(): ?Sector
     {
         $userFlowArray = json_decode($this->getOpenedFlow()->flow, true);
@@ -181,10 +189,18 @@ class User extends Model
             // Update user flow
             $userFlow = $this->getOpenedFlow();
             if ($userFlow) {
+                $prevState = $this->getPrevState();
+
                 $userFlowArray = json_decode($userFlow->flow, true);
-                unset($userFlowArray[$currentState->code]);
-                $userFlow->flow = json_encode($userFlowArray);
-                $userFlow->save();
+
+                if (count($userFlowArray) > 1) {
+                    unset($userFlowArray[$prevState->code]);
+                    $userFlow->flow = json_encode($userFlowArray);
+                    $userFlow->save();
+                } else {
+                    $userFlow->delete();
+                }
+
             }
 
             // Change user state
@@ -241,7 +257,12 @@ class User extends Model
         if ($currentState) {
             /** Step 1: Show start choice */
             if ($currentState->code === StateConstants::START) {
-                if (!in_array($message, [CallbackConstants::CREATE_SURVEY, CallbackConstants::SUPPORT])) {
+                $callbacks = [
+                    CallbackConstants::CREATE_SURVEY,
+                    CallbackConstants::SUPPORT
+                ];
+
+                if (!in_array($message, $callbacks)) {
                     $stepAction->start();
                     $this->changeState($request);
                     return;
