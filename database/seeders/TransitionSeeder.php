@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 class TransitionSeeder extends Seeder
 {
+    private const string TRIGGER = 'trigger';
     private const string SOURCE = 'source';
     private const string NEXT = 'next';
     private const string BACK = 'back';
@@ -19,6 +20,7 @@ class TransitionSeeder extends Seeder
     {
         DB::table('transitions')->insert([
             [
+                self::TRIGGER => '',
                 self::SOURCE => StateConstants::START,
                 self::NEXT => StateConstants::TYPE_CHOICE,
                 self::BACK => null

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('transitions', function (Blueprint $table) {
             $table->id();
+            $table->string('trigger');
             $table->string('source');
             $table->string('next')->nullable();
             $table->string('back')->nullable();

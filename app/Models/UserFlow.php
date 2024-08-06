@@ -13,4 +13,10 @@ class UserFlow extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function getValueByKey(string $key): mixed
+    {
+        $flowData = json_decode($this->flow, true);
+        return $flowData[$key] ?? null;
+    }
 }

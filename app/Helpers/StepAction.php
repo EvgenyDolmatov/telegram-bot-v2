@@ -128,7 +128,7 @@ class StepAction implements StepConstants
 
         $this->sendMessage(
             text: $startState->text,
-            buttons: $startState->prepareButtons()
+            buttons: $startState->prepareButtons($user)
         );
     }
 
@@ -166,7 +166,7 @@ class StepAction implements StepConstants
 
         $this->sendMessage(
             text: $nextState->text,
-            buttons: $nextState->prepareButtons()
+            buttons: $nextState->prepareButtons($user)
         );
     }
 
@@ -183,7 +183,7 @@ class StepAction implements StepConstants
 
         $this->sendMessage(
             text: $nextState->text,
-            buttons: $nextState->prepareButtons()
+            buttons: $nextState->prepareButtons($user)
         );
     }
 
@@ -200,7 +200,7 @@ class StepAction implements StepConstants
 
         $this->sendMessage(
             text: $nextState->text,
-            buttons: $nextState->prepareButtons()
+            buttons: $nextState->prepareButtons($user)
         );
     }
 
@@ -215,17 +215,9 @@ class StepAction implements StepConstants
         $user = User::getOrCreate($this->repository);
         $nextState = $user->getNextState();
 
-        $buttons = [];
-        foreach (Sector::all() as $sector) {
-            $buttons[] = [
-                ButtonKeyConstants::TEXT => $sector->title,
-                ButtonKeyConstants::CALLBACK => $sector->code
-            ];
-        }
-
         $this->sendMessage(
             text: $nextState->text,
-            buttons: $buttons
+            buttons: $nextState->prepareButtons($user)
         );
     }
 
@@ -241,19 +233,9 @@ class StepAction implements StepConstants
         $user = User::getOrCreate($this->repository);
         $nextState = $user->getNextState();
 
-        $buttons = [];
-        $subjects = $sector->subjects->where('parent_id', null);
-
-        foreach ($subjects as $subject) {
-            $buttons[] = [
-                ButtonKeyConstants::TEXT => $subject->title,
-                ButtonKeyConstants::CALLBACK => $subject->code
-            ];
-        }
-
         $this->sendMessage(
             text: $nextState->text,
-            buttons: $buttons
+            buttons: $nextState->prepareButtons($user)
         );
     }
 

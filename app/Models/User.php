@@ -231,7 +231,7 @@ class User extends Model
         if ($currentState = $this->states->first()) {
             /** Step 1: Show start choice */
             if ($currentState->code === StateConstants::START) {
-                if (!in_array($message, $currentState->prepareCallbackItems())) {
+                if (!in_array($message, $currentState->prepareCallbackItems($this))) {
                     $stepAction->start();
                     $this->changeState($request);
                     return;
@@ -252,13 +252,13 @@ class User extends Model
 
             /** Step 2: Show survey type choice */
             if ($currentState->code === StateConstants::TYPE_CHOICE) {
-                if (!in_array($message, $currentState->prepareCallbackItems())) {
+                if (!in_array($message, $currentState->prepareCallbackItems($this))) {
                     $stepAction->selectSurveyType();
                     $this->changeState($request, TransitionConstants::SOURCE);
                     return;
                 }
 
-                if (in_array($message, $currentState->prepareCallbackItems())) {
+                if (in_array($message, $currentState->prepareCallbackItems($this))) {
                     $stepAction->selectAnonymity();
                     $this->changeState($request);
                     return;
@@ -273,13 +273,13 @@ class User extends Model
 
             /** Step 3: Show is anonymous survey choice */
             if ($currentState->code === StateConstants::ANON_CHOICE) {
-                if (!in_array($message, $currentState->prepareCallbackItems())) {
+                if (!in_array($message, $currentState->prepareCallbackItems($this))) {
                     $stepAction->selectAnonymity();
                     $this->changeState($request, TransitionConstants::SOURCE);
                     return;
                 }
 
-                if (in_array($message, $currentState->prepareCallbackItems())) {
+                if (in_array($message, $currentState->prepareCallbackItems($this))) {
                     $stepAction->selectDifficulty();
                     $this->changeState($request);
                     return;
@@ -294,13 +294,13 @@ class User extends Model
 
             /** Step 4: Show survey difficulty choice */
             if ($currentState->code === StateConstants::DIFFICULTY_CHOICE) {
-                if (!in_array($message, $currentState->prepareCallbackItems())) {
+                if (!in_array($message, $currentState->prepareCallbackItems($this))) {
                     $stepAction->selectDifficulty();
                     $this->changeState($request, TransitionConstants::SOURCE);
                     return;
                 }
 
-                if (in_array($message, $currentState->prepareCallbackItems())) {
+                if (in_array($message, $currentState->prepareCallbackItems($this))) {
                     $stepAction->selectSector();
                     $this->changeState($request);
                     return;
