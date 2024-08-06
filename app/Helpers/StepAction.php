@@ -179,14 +179,12 @@ class StepAction implements StepConstants
     public function selectAnonymity(): void
     {
         $user = User::getOrCreate($this->repository);
-//        $user->changeState($this->request);
+        $nextState = $user->getNextState();
 
-        $buttons = [
-            ButtonConstants::IS_ANON,
-            ButtonConstants::IS_NOT_ANON
-        ];
-
-        $this->sendMessage(self::ANONYMITY_TEXT, $buttons);
+        $this->sendMessage(
+            text: $nextState->text,
+            buttons: $nextState->prepareButtons()
+        );
     }
 
     /**
@@ -198,15 +196,12 @@ class StepAction implements StepConstants
     public function selectDifficulty(): void
     {
         $user = User::getOrCreate($this->repository);
-//        $user->changeState($this->request);
+        $nextState = $user->getNextState();
 
-        $buttons = [
-            ButtonConstants::LEVEL_EASY,
-            ButtonConstants::LEVEL_MIDDLE,
-            ButtonConstants::LEVEL_HARD
-        ];
-
-        $this->sendMessage(self::DIFFICULTY_TEXT, $buttons);
+        $this->sendMessage(
+            text: $nextState->text,
+            buttons: $nextState->prepareButtons()
+        );
     }
 
     /**
@@ -218,7 +213,7 @@ class StepAction implements StepConstants
     public function selectSector(): void
     {
         $user = User::getOrCreate($this->repository);
-//        $user->changeState($this->request);
+        $nextState = $user->getNextState();
 
         $buttons = [];
         foreach (Sector::all() as $sector) {
@@ -228,7 +223,10 @@ class StepAction implements StepConstants
             ];
         }
 
-        $this->sendMessage(self::SECTOR_TEXT, $buttons);
+        $this->sendMessage(
+            text: $nextState->text,
+            buttons: $buttons
+        );
     }
 
     /**
@@ -241,7 +239,7 @@ class StepAction implements StepConstants
     public function selectSubject(Sector $sector): void
     {
         $user = User::getOrCreate($this->repository);
-//        $user->changeState($this->request);
+        $nextState = $user->getNextState();
 
         $buttons = [];
         $subjects = $sector->subjects->where('parent_id', null);
@@ -253,7 +251,10 @@ class StepAction implements StepConstants
             ];
         }
 
-        $this->sendMessage(self::SUBJECT_TEXT, $buttons);
+        $this->sendMessage(
+            text: $nextState->text,
+            buttons: $buttons
+        );
     }
 
     /**
@@ -266,10 +267,9 @@ class StepAction implements StepConstants
     public function selectChildSubject(Subject $subject): void
     {
         $user = User::getOrCreate($this->repository);
-//        $user->changeState($this->request, TransitionConstants::SOURCE);
+        $nextState = $user->getNextState();
 
         $buttons = [];
-
         $childSubjects = Subject::where('parent_id', $subject->id)->get();
 
         foreach ($childSubjects as $childSubject) {
@@ -279,7 +279,10 @@ class StepAction implements StepConstants
             ];
         }
 
-        $this->sendMessage(self::SUBJECT_TEXT, $buttons);
+        $this->sendMessage(
+            text: $nextState->text,
+            buttons: $buttons
+        );
     }
 
     /**
@@ -291,9 +294,9 @@ class StepAction implements StepConstants
     public function waitingThemeRequest(): void
     {
         $user = User::getOrCreate($this->repository);
-//        $user->changeState($this->request);
+        $nextState = $user->getNextState();
 
-        $this->sendMessage(self::CUSTOM_TEXT);
+        $this->sendMessage($nextState->text);
     }
 
     /**
