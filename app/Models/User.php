@@ -8,6 +8,7 @@ use App\Constants\StateConstants;
 use App\Constants\TransitionConstants;
 use App\Helpers\StepAction;
 use App\Repositories\RequestRepository;
+use App\Services\StateService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -63,7 +64,7 @@ class User extends Model
         return $this->states->first();
     }
 
-    public function getNextState(): State
+    public function getNextState(): ?State
     {
         $currentState = $this->getCurrentState();
         $transition = Transition::where('source', $currentState->code)->first();
@@ -71,7 +72,7 @@ class User extends Model
         return State::where('code', $transition->next)->first();
     }
 
-    public function getPrevState(): State
+    public function getPrevState(): ?State
     {
         $currentState = $this->getCurrentState();
         $transition = Transition::where('source', $currentState->code)->first();
@@ -228,155 +229,159 @@ class User extends Model
      */
     public function stateHandler(Request $request, StepAction $stepAction, string $message): void
     {
-        if ($currentState = $this->states->first()) {
-            /** Step 1: Show start choice */
-            if ($currentState->code === StateConstants::START) {
-                if (!in_array($message, $currentState->prepareCallbackItems($this))) {
-                    $stepAction->start();
-                    $this->changeState($request);
-                    return;
-                }
+        $stateService = new StateService($request, $this, $stepAction, $message);
+        $stateService->switchState();
 
-                if ($message === CallbackConstants::SUPPORT) {
-                    $stepAction->support();
-                    $this->changeState($request);
-                    return;
-                }
 
-                if ($message === CallbackConstants::CREATE_SURVEY) {
-                    $stepAction->selectSurveyType();
-                    $this->changeState($request);
-                    return;
-                }
-            }
-
-            /** Step 2: Show survey type choice */
-            if ($currentState->code === StateConstants::TYPE_CHOICE) {
-                if (!in_array($message, $currentState->prepareCallbackItems($this))) {
-                    $stepAction->selectSurveyType();
-                    $this->changeState($request, TransitionConstants::SOURCE);
-                    return;
-                }
-
-                if (in_array($message, $currentState->prepareCallbackItems($this))) {
-                    $stepAction->selectAnonymity();
-                    $this->changeState($request);
-                    return;
-                }
-
-                if ($message === TransitionConstants::BACK) {
-                    $stepAction->start();
-                    $this->changeState($request, TransitionConstants::BACK);
-                    return;
-                }
-            }
-
-            /** Step 3: Show is anonymous survey choice */
-            if ($currentState->code === StateConstants::ANON_CHOICE) {
-                if (!in_array($message, $currentState->prepareCallbackItems($this))) {
-                    $stepAction->selectAnonymity();
-                    $this->changeState($request, TransitionConstants::SOURCE);
-                    return;
-                }
-
-                if (in_array($message, $currentState->prepareCallbackItems($this))) {
-                    $stepAction->selectDifficulty();
-                    $this->changeState($request);
-                    return;
-                }
-
-                if ($message === TransitionConstants::BACK) {
-                    $stepAction->selectSurveyType();
-                    $this->changeState($request, TransitionConstants::BACK);
-                    return;
-                }
-            }
-
-            /** Step 4: Show survey difficulty choice */
-            if ($currentState->code === StateConstants::DIFFICULTY_CHOICE) {
-                if (!in_array($message, $currentState->prepareCallbackItems($this))) {
-                    $stepAction->selectDifficulty();
-                    $this->changeState($request, TransitionConstants::SOURCE);
-                    return;
-                }
-
-                if (in_array($message, $currentState->prepareCallbackItems($this))) {
-                    $stepAction->selectSector();
-                    $this->changeState($request);
-                    return;
-                }
-
-                if ($message === TransitionConstants::BACK) {
-                    $stepAction->selectAnonymity();
-                    $this->changeState($request, TransitionConstants::BACK);
-                    return;
-                }
-            }
-
-            /** Step 5: Show sector choice */
-            if ($currentState->code === StateConstants::SECTOR_CHOICE) {
-                $callbackNames = array_map(fn($sector) => $sector['code'], Sector::all()->toArray());
-
-                if (!in_array($message, $callbackNames)) {
-                    $stepAction->selectSector();
-                    $this->changeState($request, TransitionConstants::SOURCE);
-                    return;
-                }
-
-                if (in_array($message, $callbackNames)) {
-                    $sector = Sector::where('code', $message)->first();
-                    $stepAction->selectSubject($sector);
-                    $this->changeState($request);
-                    return;
-                }
-
-                if ($message === TransitionConstants::BACK) {
-                    $stepAction->selectDifficulty();
-                    $this->changeState($request, TransitionConstants::BACK);
-                    return;
-                }
-            }
-
-            /** Step 6: Show subject choice */
-            if ($currentState->code === StateConstants::SUBJECT_CHOICE) {
-                if ($userSector = $this->getSelectedSector()) {
-                    $callbackNames = array_map(
-                        fn($subject) => $subject['code'],
-                        $userSector->subjects()->get()->toArray()
-                    );
-
-                    if (!in_array($message, $callbackNames)) {
-                        $stepAction->selectSubject($userSector);
-                        $this->changeState($request, TransitionConstants::SOURCE);
-                        return;
-                    }
-
-                    if (in_array($message, $callbackNames)) {
-                        $parentSubject = Subject::where('code', $message)->first();
-                        if ($parentSubject->hasChild()) {
-                            $stepAction->selectChildSubject($parentSubject);
-                            $this->changeState($request);
-                            return;
-                        }
-
-                        $stepAction->waitingThemeRequest();
-                        $this->changeState($request);
-                        return;
-                    }
-
-                    if ($message === TransitionConstants::BACK) {
-                        $stepAction->selectSector();
-                        $this->changeState($request, TransitionConstants::BACK);
-                        return;
-                    }
-                }
-            }
-
-            /** Step 7: Waiting user request */
-            if ($currentState->code === StateConstants::THEME_REQUEST) {
-                $stepAction->responseFromAi();
-                $this->changeState($request);
-            }
-        }
+//        if ($currentState = $this->states->first()) {
+//            /** Step 1: Show start choice */
+//            if ($currentState->code === StateConstants::START) {
+//                if (!in_array($message, $currentState->prepareCallbackItems($this))) {
+//                    $stepAction->mainChoice();
+//                    $this->changeState($request);
+//                    return;
+//                }
+//
+//                if ($message === CallbackConstants::SUPPORT) {
+//                    $stepAction->support();
+//                    $this->changeState($request);
+//                    return;
+//                }
+//
+//                if ($message === CallbackConstants::CREATE_SURVEY) {
+//                    $stepAction->selectSurveyType();
+//                    $this->changeState($request);
+//                    return;
+//                }
+//            }
+//
+//            /** Step 2: Show survey type choice */
+//            if ($currentState->code === StateConstants::TYPE_CHOICE) {
+//                if (!in_array($message, $currentState->prepareCallbackItems($this))) {
+//                    $stepAction->selectSurveyType();
+//                    $this->changeState($request, TransitionConstants::SOURCE);
+//                    return;
+//                }
+//
+//                if (in_array($message, $currentState->prepareCallbackItems($this))) {
+//                    $stepAction->selectAnonymity();
+//                    $this->changeState($request);
+//                    return;
+//                }
+//
+//                if ($message === TransitionConstants::BACK) {
+//                    $stepAction->mainChoice();
+//                    $this->changeState($request, TransitionConstants::BACK);
+//                    return;
+//                }
+//            }
+//
+//            /** Step 3: Show is anonymous survey choice */
+//            if ($currentState->code === StateConstants::ANON_CHOICE) {
+//                if (!in_array($message, $currentState->prepareCallbackItems($this))) {
+//                    $stepAction->selectAnonymity();
+//                    $this->changeState($request, TransitionConstants::SOURCE);
+//                    return;
+//                }
+//
+//                if (in_array($message, $currentState->prepareCallbackItems($this))) {
+//                    $stepAction->selectDifficulty();
+//                    $this->changeState($request);
+//                    return;
+//                }
+//
+//                if ($message === TransitionConstants::BACK) {
+//                    $stepAction->selectSurveyType();
+//                    $this->changeState($request, TransitionConstants::BACK);
+//                    return;
+//                }
+//            }
+//
+//            /** Step 4: Show survey difficulty choice */
+//            if ($currentState->code === StateConstants::DIFFICULTY_CHOICE) {
+//                if (!in_array($message, $currentState->prepareCallbackItems($this))) {
+//                    $stepAction->selectDifficulty();
+//                    $this->changeState($request, TransitionConstants::SOURCE);
+//                    return;
+//                }
+//
+//                if (in_array($message, $currentState->prepareCallbackItems($this))) {
+//                    $stepAction->selectSector();
+//                    $this->changeState($request);
+//                    return;
+//                }
+//
+//                if ($message === TransitionConstants::BACK) {
+//                    $stepAction->selectAnonymity();
+//                    $this->changeState($request, TransitionConstants::BACK);
+//                    return;
+//                }
+//            }
+//
+//            /** Step 5: Show sector choice */
+//            if ($currentState->code === StateConstants::SECTOR_CHOICE) {
+//                $callbackNames = array_map(fn($sector) => $sector['code'], Sector::all()->toArray());
+//
+//                if (!in_array($message, $callbackNames)) {
+//                    $stepAction->selectSector();
+//                    $this->changeState($request, TransitionConstants::SOURCE);
+//                    return;
+//                }
+//
+//                if (in_array($message, $callbackNames)) {
+//                    $sector = Sector::where('code', $message)->first();
+//                    $stepAction->selectSubject($sector);
+//                    $this->changeState($request);
+//                    return;
+//                }
+//
+//                if ($message === TransitionConstants::BACK) {
+//                    $stepAction->selectDifficulty();
+//                    $this->changeState($request, TransitionConstants::BACK);
+//                    return;
+//                }
+//            }
+//
+//            /** Step 6: Show subject choice */
+//            if ($currentState->code === StateConstants::SUBJECT_CHOICE) {
+//                if ($userSector = $this->getSelectedSector()) {
+//                    $callbackNames = array_map(
+//                        fn($subject) => $subject['code'],
+//                        $userSector->subjects()->get()->toArray()
+//                    );
+//
+//                    if (!in_array($message, $callbackNames)) {
+//                        $stepAction->selectSubject($userSector);
+//                        $this->changeState($request, TransitionConstants::SOURCE);
+//                        return;
+//                    }
+//
+//                    if (in_array($message, $callbackNames)) {
+//                        $parentSubject = Subject::where('code', $message)->first();
+//                        if ($parentSubject->hasChild()) {
+//                            $stepAction->selectChildSubject($parentSubject);
+//                            $this->changeState($request);
+//                            return;
+//                        }
+//
+//                        $stepAction->waitingThemeRequest();
+//                        $this->changeState($request);
+//                        return;
+//                    }
+//
+//                    if ($message === TransitionConstants::BACK) {
+//                        $stepAction->selectSector();
+//                        $this->changeState($request, TransitionConstants::BACK);
+//                        return;
+//                    }
+//                }
+//            }
+//
+//            /** Step 7: Waiting user request */
+//            if ($currentState->code === StateConstants::THEME_REQUEST) {
+//                $stepAction->responseFromAi();
+//                $this->changeState($request);
+//            }
+//        }
     }
 }

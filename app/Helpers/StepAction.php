@@ -10,12 +10,14 @@ use App\Builder\Poll\PollBuilder;
 use App\Builder\PollSender;
 use App\Constants\ButtonConstants;
 use App\Constants\ButtonKeyConstants;
+use App\Constants\CallbackConstants;
 use App\Constants\StateConstants;
 use App\Constants\StepConstants;
 use App\Constants\TransitionConstants;
 use App\Models\Sector;
 use App\Models\State;
 use App\Models\Subject;
+use App\Models\Transition;
 use App\Models\TrashMessage;
 use App\Models\User;
 use App\Repositories\OpenAiRepository;
@@ -113,12 +115,39 @@ class StepAction implements StepConstants
         TrashMessage::add($chatDto, $messageDto, true);
     }
 
+    public function callAction(User $user, State $state, string $message)
+    {
+        if (!in_array($message, $state->prepareCallbackItems($user))) {
+            $stepAction->start();
+            call_user_func(array($this, $state->trigger));
+            $user->changeState($request);
+            return;
+        }
+
+
+
+
+
+
+        if ($message === CallbackConstants::SUPPORT) {
+            $stepAction->support();
+            $this->changeState($request);
+            return;
+        }
+
+        if ($message === CallbackConstants::CREATE_SURVEY) {
+            $stepAction->selectSurveyType();
+            $this->changeState($request);
+            return;
+        }
+    }
+
     /**
      * If user pressed "/start" button
      *
      * @return void
      */
-    public function start(): void
+    public function mainChoice(): void
     {
         $this->addToTrash();
 
@@ -228,10 +257,19 @@ class StepAction implements StepConstants
      * @param Sector $sector
      * @return void
      */
-    public function selectSubject(Sector $sector): void
+    public function selectSubject(): void
     {
         $user = User::getOrCreate($this->repository);
         $nextState = $user->getNextState();
+
+
+        $currentState = $user->getCurrentState();
+        $transition = Transition::where('source', $currentState->code)->first();
+        $flow = $user->getOpenedFlow()->flow;
+        $flow = json_decode($flow, true);
+        $sector = Sector::where('code', $flow['sector_choice'])->first();
+
+
 
         $this->sendMessage(
             text: $nextState->text,

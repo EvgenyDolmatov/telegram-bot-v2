@@ -32,7 +32,7 @@ class MainController extends Controller
 
             /** Select "/start" command */
             if ($messageDto->getText() === CommandConstants::START) {
-                $stepHelper->start();
+                $stepHelper->mainChoice();
                 $user->changeState($request);
                 return;
             }
