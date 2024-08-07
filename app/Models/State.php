@@ -39,12 +39,16 @@ class State extends Model
                     Sector::all()->toArray()
                 );
             case StateConstants::SUBJECT_CHOICE:
-                return [
-                    [
-                        ButtonKeyConstants::TEXT => 'subj',
-                        ButtonKeyConstants::CALLBACK => 'subj',
-                    ]
-                ];
+                Log::debug('123123');
+                $flow = $user->getFlowData();
+                $sector = Sector::where('code', $flow['sector_choice'])->first();
+                return array_map(
+                    fn($subject) => [
+                        ButtonKeyConstants::TEXT => $subject['title'],
+                        ButtonKeyConstants::CALLBACK => $subject['code'],
+                    ],
+                    Subject::where('sector_id', $sector->id)->where('parent_id', null)->get()->toArray()
+                );
             default:
                 return array_map(
                     fn($button) => [

@@ -115,33 +115,6 @@ class StepAction implements StepConstants
         TrashMessage::add($chatDto, $messageDto, true);
     }
 
-    public function callAction(User $user, State $state, string $message)
-    {
-        if (!in_array($message, $state->prepareCallbackItems($user))) {
-            $stepAction->start();
-            call_user_func(array($this, $state->trigger));
-            $user->changeState($request);
-            return;
-        }
-
-
-
-
-
-
-        if ($message === CallbackConstants::SUPPORT) {
-            $stepAction->support();
-            $this->changeState($request);
-            return;
-        }
-
-        if ($message === CallbackConstants::CREATE_SURVEY) {
-            $stepAction->selectSurveyType();
-            $this->changeState($request);
-            return;
-        }
-    }
-
     /**
      * If user pressed "/start" button
      *
@@ -191,11 +164,11 @@ class StepAction implements StepConstants
     public function selectSurveyType(): void
     {
         $user = User::getOrCreate($this->repository);
-        $nextState = $user->getNextState();
+        $currentState = $user->getCurrentState();
 
         $this->sendMessage(
-            text: $nextState->text,
-            buttons: $nextState->prepareButtons($user)
+            text: $currentState->text,
+            buttons: $currentState->prepareButtons($user)
         );
     }
 
@@ -261,15 +234,6 @@ class StepAction implements StepConstants
     {
         $user = User::getOrCreate($this->repository);
         $nextState = $user->getNextState();
-
-
-        $currentState = $user->getCurrentState();
-        $transition = Transition::where('source', $currentState->code)->first();
-        $flow = $user->getOpenedFlow()->flow;
-        $flow = json_decode($flow, true);
-        $sector = Sector::where('code', $flow['sector_choice'])->first();
-
-
 
         $this->sendMessage(
             text: $nextState->text,

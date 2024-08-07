@@ -57,10 +57,24 @@ class User extends Model
     public function getOpenedFlow(): ?UserFlow
     {
         return $this->flows->where('is_completed', 0)->first();
+
+    }
+
+    public function getFlowData(): ?array
+    {
+        $flow = $this->getOpenedFlow();
+
+        return $flow ? json_decode($flow->flow, true) : null;
+
     }
 
     public function getCurrentState(): State
     {
+        if (!$this->states->first()) {
+            $startState = State::where('code', StateConstants::START)->first();
+            $this->states()->attach($startState->id);
+        }
+
         return $this->states->first();
     }
 
@@ -111,37 +125,6 @@ class User extends Model
         };
     }
 
-    /**
-     * Change user state
-     *
-     * @param Request $request
-     * @param string $destination
-     * @return void
-     */
-    /*    public function changeState(Request $request, string $destination = TransitionConstants::NEXT): void
-        {
-            $requestRepository = new RequestRepository($request);
-            $messageDto = $requestRepository->convertToMessage();
-
-            $userStates = $this->states;
-            $startState = State::where('code', StateConstants::START)->first();
-
-            if ($userStates->count()) {
-                $currentState = $this->states->first();
-                $nextState = $this->getNextStateByDestination($currentState, $destination);
-
-                $this->states()->detach();
-            }
-
-            $this->updateFlow($messageDto->getText());
-
-            if (isset($nextState)) {
-                $this->states()->attach($nextState->id);
-            } else {
-                $this->states()->attach($startState->id);
-            }
-        }*/
-
     public function hasAnyState(): bool
     {
         return $this->states()->count();
@@ -152,6 +135,7 @@ class User extends Model
         $requestRepository = new RequestRepository($request);
         $messageDto = $requestRepository->convertToMessage();
         $message = $messageDto->getText();
+        $currentState = $this->getCurrentState();
 
         if ($message === CommandConstants::START) {
             $startState = State::where('code', StateConstants::START)->first();
@@ -170,20 +154,21 @@ class User extends Model
         }
 
         if ($destination === TransitionConstants::NEXT) {
-            $currentState = $this->getCurrentState();
-            $nextState = $this->getNextStateByDestination($destination);
+            Log::debug('STATE: ' . $currentState->id . '. ' . $currentState->code);
 
-            // Update user flow
-            $userFlow = $this->getOpenedFlow();
-            if ($userFlow) {
-                $userFlowArray = json_decode($userFlow->flow, true);
-                $userFlowArray[$currentState->code] = $message;
-                $userFlow->flow = json_encode($userFlowArray);
+            $nextState = $this->getNextState();
+
+
+
+            if ($userFlowData = $this->getFlowData()) {
+                $userFlowData[$nextState->code] = $message;
+                $userFlow = $this->getOpenedFlow();
+                $userFlow->flow = json_encode($userFlowData);
                 $userFlow->save();
             } else {
                 UserFlow::create([
                     'user_id' => $this->id,
-                    'flow' => json_encode([$currentState->code => $message])
+                    'flow' => json_encode([$nextState->code => $message])
                 ]);
             }
 

@@ -11,15 +11,16 @@ use App\Models\State;
 use App\Models\Transition;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 
-class StateService
+readonly class StateService
 {
     public function __construct(
-        private readonly Request    $request,
-        private readonly User       $user,
-        private readonly StepAction $stepAction,
-        private readonly string     $message
+        private Request    $request,
+        private User       $user,
+        private StepAction $stepAction,
+        private string     $message
     )
     {
 
@@ -35,38 +36,34 @@ class StateService
     public function switchState(): void
     {
         $user = $this->user;
-        $stepAction = $this->stepAction;
         $message = $this->message;
 
         if ($currentState = $user->getCurrentState()) {
-            $args = null;
-
-            if ($currentState->code === StateConstants::SUBJECT_CHOICE) {
-                $args = Sector::find(1);
-            }
-
+            Log::debug('currentState: ' . $currentState->code);
             if (!in_array($message, $currentState->prepareCallbackItems($user))) {
-                $trigger = Transition::where('source', $currentState->code)->first()->trigger;
-
-                $this->callback($stepAction, $trigger, $args);
-                $user->changeState($this->request);
+                Log::debug('step: 0');
+                $this->toNextState($currentState);
             }
 
             if (in_array($message, $currentState->prepareCallbackItems($user))) {
-                $nextState = $user->getNextState();
-                $trigger = Transition::where('source', $nextState->code)->first()->trigger;
-
-                $this->callback($stepAction, $trigger, $args);
-                $user->changeState($this->request);
+                Log::debug('step: 1');
+                $this->toNextState($user->getNextState());
             }
 
             if ($message === TransitionConstants::BACK) {
-                $prevState = $user->getPrevState();
-                $trigger = Transition::where('source', $prevState->code)->first()->trigger;
-
-                $this->callback($stepAction, $trigger, $args);
-                $user->changeState($this->request);
+                Log::debug('step: -1');
+                $this->toNextState($user->getPrevState());
             }
         }
+    }
+
+    public function toNextState(State $state): void
+    {
+        $user = $this->user;
+        $stepAction = $this->stepAction;
+        $trigger = Transition::where('source', $state->code)->first()->trigger;
+
+        $user->changeState($this->request);
+        $this->callback($stepAction, $trigger);
     }
 }
