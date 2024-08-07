@@ -24,10 +24,15 @@ class State extends Model
         return $this->hasMany(StateButton::class);
     }
 
+    public function renderButtons()
+    {
+        // ... code ...
+    }
+
     /**
      * @return array
      */
-    public function prepareButtons(User $user): array
+    public function prepareButtons(User $user, string $message): array
     {
         switch ($this->code) {
             case StateConstants::SECTOR_CHOICE:
@@ -39,9 +44,10 @@ class State extends Model
                     Sector::all()->toArray()
                 );
             case StateConstants::SUBJECT_CHOICE:
-                Log::debug('123123');
                 $flow = $user->getFlowData();
-                $sector = Sector::where('code', $flow['sector_choice'])->first();
+                $code = $flow['sector_choice'] ?? $message;
+                $sector = Sector::where('code', $code)->first();
+
                 return array_map(
                     fn($subject) => [
                         ButtonKeyConstants::TEXT => $subject['title'],
@@ -61,11 +67,11 @@ class State extends Model
     }
 
 
-    public function prepareCallbackItems(User $user): array
+    public function prepareCallbackItems(User $user, string $message): array
     {
         return array_map(
             fn($button) => $button['callback_data'],
-            $this->prepareButtons($user)
+            $this->prepareButtons($user, $message)
         );
     }
 }

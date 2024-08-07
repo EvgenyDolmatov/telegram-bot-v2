@@ -127,10 +127,11 @@ class StepAction implements StepConstants
         $repository = $this->repository;
         $user = User::getOrCreate($repository);
         $startState = State::where('code', StateConstants::START)->first();
+        $messageDto = $this->repository->convertToMessage();
 
         $this->sendMessage(
             text: $startState->text,
-            buttons: $startState->prepareButtons($user)
+            buttons: $startState->prepareButtons($user, $messageDto->getText())
         );
     }
 
@@ -165,10 +166,11 @@ class StepAction implements StepConstants
     {
         $user = User::getOrCreate($this->repository);
         $currentState = $user->getCurrentState();
+        $messageDto = $this->repository->convertToMessage();
 
         $this->sendMessage(
             text: $currentState->text,
-            buttons: $currentState->prepareButtons($user)
+            buttons: $currentState->prepareButtons($user, $messageDto->getText())
         );
     }
 
@@ -182,10 +184,11 @@ class StepAction implements StepConstants
     {
         $user = User::getOrCreate($this->repository);
         $nextState = $user->getNextState();
+        $messageDto = $this->repository->convertToMessage();
 
         $this->sendMessage(
             text: $nextState->text,
-            buttons: $nextState->prepareButtons($user)
+            buttons: $nextState->prepareButtons($user, $messageDto->getText())
         );
     }
 
@@ -199,10 +202,11 @@ class StepAction implements StepConstants
     {
         $user = User::getOrCreate($this->repository);
         $nextState = $user->getNextState();
+        $messageDto = $this->repository->convertToMessage();
 
         $this->sendMessage(
             text: $nextState->text,
-            buttons: $nextState->prepareButtons($user)
+            buttons: $nextState->prepareButtons($user, $messageDto->getText())
         );
     }
 
@@ -216,10 +220,11 @@ class StepAction implements StepConstants
     {
         $user = User::getOrCreate($this->repository);
         $nextState = $user->getNextState();
+        $messageDto = $this->repository->convertToMessage();
 
         $this->sendMessage(
             text: $nextState->text,
-            buttons: $nextState->prepareButtons($user)
+            buttons: $nextState->prepareButtons($user, $messageDto->getText())
         );
     }
 
@@ -234,10 +239,11 @@ class StepAction implements StepConstants
     {
         $user = User::getOrCreate($this->repository);
         $nextState = $user->getNextState();
+        $messageDto = $this->repository->convertToMessage();
 
         $this->sendMessage(
             text: $nextState->text,
-            buttons: $nextState->prepareButtons($user)
+            buttons: $nextState->prepareButtons($user, $messageDto->getText())
         );
     }
 

@@ -153,28 +153,64 @@ class User extends Model
             return;
         }
 
+
         if ($destination === TransitionConstants::NEXT) {
-            Log::debug('STATE: ' . $currentState->id . '. ' . $currentState->code);
-
+            $currentState = $this->getCurrentState();
             $nextState = $this->getNextState();
+            $prevState = $this->getPrevState();
 
+            Log::debug('STEPS', [
+                'current' => $currentState->code,
+//                'prev' => $prevState->code,
+                'next' => $nextState->code,
+                'message' => $message
+            ]);
+
+            $this->states()->detach();
+            $this->states()->attach($nextState->id);
 
 
             if ($userFlowData = $this->getFlowData()) {
-                $userFlowData[$nextState->code] = $message;
+                $userFlowData[$currentState->code] = $message;
                 $userFlow = $this->getOpenedFlow();
                 $userFlow->flow = json_encode($userFlowData);
                 $userFlow->save();
             } else {
                 UserFlow::create([
                     'user_id' => $this->id,
-                    'flow' => json_encode([$nextState->code => $message])
+                    'flow' => json_encode([$currentState->code => $message])
                 ]);
             }
 
-            // Change user state
-            $this->states()->detach();
-            $this->states()->attach($nextState->id);
+
+
+
+
+
+
+
+
+//            Log::debug('STATE: ' . $currentState->id . '. ' . $currentState->code);
+//
+//            $nextState = $this->getNextState();
+//
+//
+//
+//            if ($userFlowData = $this->getFlowData()) {
+//                $userFlowData[$nextState->code] = $message;
+//                $userFlow = $this->getOpenedFlow();
+//                $userFlow->flow = json_encode($userFlowData);
+//                $userFlow->save();
+//            } else {
+//                UserFlow::create([
+//                    'user_id' => $this->id,
+//                    'flow' => json_encode([$nextState->code => $message])
+//                ]);
+//            }
+//
+//            // Change user state
+//            $this->states()->detach();
+//            $this->states()->attach($nextState->id);
         }
 
         if ($destination === TransitionConstants::BACK) {

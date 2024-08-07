@@ -40,18 +40,15 @@ readonly class StateService
 
         if ($currentState = $user->getCurrentState()) {
             Log::debug('currentState: ' . $currentState->code);
-            if (!in_array($message, $currentState->prepareCallbackItems($user))) {
-                Log::debug('step: 0');
+            if (!in_array($message, $currentState->prepareCallbackItems($user, $message))) {
                 $this->toNextState($currentState);
             }
 
-            if (in_array($message, $currentState->prepareCallbackItems($user))) {
-                Log::debug('step: 1');
+            if (in_array($message, $currentState->prepareCallbackItems($user, $message))) {
                 $this->toNextState($user->getNextState());
             }
 
             if ($message === TransitionConstants::BACK) {
-                Log::debug('step: -1');
                 $this->toNextState($user->getPrevState());
             }
         }
