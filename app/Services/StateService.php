@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Constants\StateConstants;
 use App\Constants\TransitionConstants;
 use App\Helpers\StepAction;
 use App\Models\State;
@@ -33,17 +34,25 @@ readonly class StateService
         $message = $this->message;
 
         if ($currentState = $user->getCurrentState()) {
+            if ($currentState->code === StateConstants::THEME_REQUEST) {
+                $this->toNextState($user->getNextState());
+                return;
+            }
+
             if ($message === TransitionConstants::BACK) {
                 $this->toNextState($user->getPrevState());
                 return;
             }
 
-            if (!in_array($message, $currentState->prepareCallbackItems($user))) {
+            if (
+                $currentState->prepareCallbackItems($user)
+                && !in_array($message, $currentState->prepareCallbackItems($user))
+            ) {
                 $this->toNextState($currentState);
                 return;
             }
 
-            if (in_array($message, $currentState->prepareCallbackItems($user))) {
+            if (in_array($message, $currentState->prepareCallbackItems($user)) ) {
                 $this->toNextState($user->getNextState());
             }
         }

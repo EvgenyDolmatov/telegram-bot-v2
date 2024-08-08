@@ -268,7 +268,7 @@ class StepAction implements StepConstants
 
         $this->sendMessage(
             text: $currentState->text,
-            buttons: $currentState->prepareButtons($user)
+            buttons: $currentState->prepareButtons($user, true)
         );
     }
 
@@ -280,17 +280,20 @@ class StepAction implements StepConstants
      */
     public function responseFromAi(): void
     {
+        Log::debug('responseFromAi');
 
-        Log::debug('TTTTT');
         // Обрабатываем
         $user = User::getOrCreate($this->repository);
-//        $user->changeState($this->request);
+        $currentState = $user->getCurrentState();
+
+        // Выводим сообщение
+        $this->sendMessage($currentState->text);
+
+        //        $user->changeState($this->request);
 //        $openAiService = new OpenAiService();
 //        $openAiRepository = new OpenAiRepository($openAiService);
 //        $openAiCompletion = $openAiRepository->getCompletion();
 
-
-        // Выводим сообщение
         $this->sendMessage('Вы получили ответ от AI...');
         $this->sendPoll(
             question: 'TEST:',
