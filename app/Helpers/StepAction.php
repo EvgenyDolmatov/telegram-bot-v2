@@ -96,7 +96,7 @@ class StepAction implements StepConstants
         array  $options,
         bool   $isAnonymous,
         bool   $isQuiz = false,
-        ?int    $correctOptionId = null
+        ?int   $correctOptionId = null
     ): void
     {
         $poll = $isQuiz
@@ -127,11 +127,10 @@ class StepAction implements StepConstants
         $repository = $this->repository;
         $user = User::getOrCreate($repository);
         $startState = State::where('code', StateConstants::START)->first();
-        $messageDto = $this->repository->convertToMessage();
 
         $this->sendMessage(
             text: $startState->text,
-            buttons: $startState->prepareButtons($user, $messageDto->getText())
+            buttons: $startState->prepareButtons($user)
         );
     }
 
@@ -169,7 +168,7 @@ class StepAction implements StepConstants
 
         $this->sendMessage(
             text: $currentState->text,
-            buttons: $currentState->prepareButtons($user)
+            buttons: $currentState->prepareButtons($user, true)
         );
     }
 
@@ -186,7 +185,7 @@ class StepAction implements StepConstants
 
         $this->sendMessage(
             text: $currentState->text,
-            buttons: $currentState->prepareButtons($user)
+            buttons: $currentState->prepareButtons($user, true)
         );
     }
 
@@ -203,7 +202,7 @@ class StepAction implements StepConstants
 
         $this->sendMessage(
             text: $currentState->text,
-            buttons: $currentState->prepareButtons($user)
+            buttons: $currentState->prepareButtons($user, true)
         );
     }
 
@@ -220,7 +219,7 @@ class StepAction implements StepConstants
 
         $this->sendMessage(
             text: $currentState->text,
-            buttons: $currentState->prepareButtons($user)
+            buttons: $currentState->prepareButtons($user, true)
         );
     }
 
@@ -228,7 +227,6 @@ class StepAction implements StepConstants
      * If user pressed to "sector" button
      * Show all subjects
      *
-     * @param Sector $sector
      * @return void
      */
     public function selectSubject(): void
@@ -238,37 +236,7 @@ class StepAction implements StepConstants
 
         $this->sendMessage(
             text: $currentState->text,
-            buttons: $currentState->prepareButtons($user)
-        );
-    }
-
-    /**
-     * TODO: Check how is it works
-     *
-     * If user pressed to "parent subject" button
-     * Show child subjects
-     *
-     * @param Subject $subject
-     * @return void
-     */
-    public function selectChildSubject(Subject $subject): void
-    {
-        $user = User::getOrCreate($this->repository);
-        $nextState = $user->getNextState();
-
-        $buttons = [];
-        $childSubjects = Subject::where('parent_id', $subject->id)->get();
-
-        foreach ($childSubjects as $childSubject) {
-            $buttons[] = [
-                ButtonKeyConstants::TEXT => $childSubject->title,
-                ButtonKeyConstants::CALLBACK => $childSubject->code
-            ];
-        }
-
-        $this->sendMessage(
-            text: $nextState->text,
-            buttons: $buttons
+            buttons: $currentState->prepareButtons($user, true)
         );
     }
 
@@ -283,7 +251,25 @@ class StepAction implements StepConstants
         $user = User::getOrCreate($this->repository);
         $currentState = $user->getCurrentState();
 
-        $this->sendMessage($currentState->text);
+        $flow = $user->getFlowData();
+        if (isset($flow[StateConstants::SUBJECT_CHOICE])) {
+            $subject = Subject::where('code', $flow[StateConstants::SUBJECT_CHOICE])->first();
+
+            if ($subject->has_child) {
+                $previousState = $user->getPrevState();
+
+                $user->states()->detach();
+                $user->states()->attach($previousState->id);
+
+                $this->selectSubject();
+                return;
+            }
+        }
+
+        $this->sendMessage(
+            text: $currentState->text,
+            buttons: $currentState->prepareButtons($user)
+        );
     }
 
     /**
@@ -294,13 +280,14 @@ class StepAction implements StepConstants
      */
     public function responseFromAi(): void
     {
+
+        Log::debug('TTTTT');
         // Обрабатываем
         $user = User::getOrCreate($this->repository);
 //        $user->changeState($this->request);
 //        $openAiService = new OpenAiService();
 //        $openAiRepository = new OpenAiRepository($openAiService);
 //        $openAiCompletion = $openAiRepository->getCompletion();
-
 
 
         // Выводим сообщение

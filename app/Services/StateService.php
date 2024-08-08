@@ -22,11 +22,9 @@ readonly class StateService
 
     }
 
-    public function callback(StepAction $stepAction, string $trigger, array $args = null)
+    public function callback(StepAction $stepAction, string $trigger)
     {
-        return $args
-            ? call_user_func([$stepAction, $trigger], $args)
-            : call_user_func([$stepAction, $trigger]);
+        return call_user_func([$stepAction, $trigger]);
     }
 
     public function switchState(): void
