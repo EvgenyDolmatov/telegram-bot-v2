@@ -33,16 +33,18 @@ readonly class StateService
         $message = $this->message;
 
         if ($currentState = $user->getCurrentState()) {
+            if ($message === TransitionConstants::BACK) {
+                $this->toNextState($user->getPrevState());
+                return;
+            }
+
             if (!in_array($message, $currentState->prepareCallbackItems($user))) {
                 $this->toNextState($currentState);
+                return;
             }
 
             if (in_array($message, $currentState->prepareCallbackItems($user))) {
                 $this->toNextState($user->getNextState());
-            }
-
-            if ($message === TransitionConstants::BACK) {
-                $this->toNextState($user->getPrevState());
             }
         }
     }

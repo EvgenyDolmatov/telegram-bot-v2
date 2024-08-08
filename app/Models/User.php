@@ -10,7 +10,6 @@ use App\Repositories\RequestRepository;
 use App\Services\StateService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class User extends Model
 {
@@ -153,50 +152,44 @@ class User extends Model
 
                 $this->states()->attach($startState->id);
                 break;
-            case TransitionConstants::BACK:
-                // ... code ...
-                /*if ($destination === TransitionConstants::BACK) {
-                    $currentState = $this->getCurrentState();
-                    $nextState = $this->getNextStateByDestination($destination);
-
-                    // Update user flow
-                    $userFlow = $this->getOpenedFlow();
-                    if ($userFlow) {
-                        $prevState = $this->getPrevState();
-
-                        $userFlowArray = json_decode($userFlow->flow, true);
-
-                        if (count($userFlowArray) > 1) {
-                            unset($userFlowArray[$prevState->code]);
-                            $userFlow->flow = json_encode($userFlowArray);
-                            $userFlow->save();
-                        } else {
-                            $userFlow->delete();
-                        }
-
-                    }*/
-                break;
-            default: // from second to last steps
+            default:
                 $previousState = $this->getCurrentState();
                 $currentState = $this->getNextState();
 
-                Log::debug("Previous state: " . $previousState->code);
-                Log::debug("Current state: " . $currentState->code);
+                if ($message === TransitionConstants::BACK) {
+                    if ($userFlowData = $this->getFlowData()) {
+                        if (isset($userFlowData[$this->getPrevState()->code])) {
+                            unset($userFlowData[$this->getPrevState()->code]);
 
-                if ($userFlowData = $this->getFlowData()) {
-                    $userFlowData[$previousState->code] = $message;
-                    $userFlow = $this->getOpenedFlow();
-                    $userFlow->flow = json_encode($userFlowData);
-                    $userFlow->save();
+                            $userFlow = $this->getOpenedFlow();
+                            if (empty($userFlowData && $userFlow)) {
+                                $userFlow->delete();
+                            } else {
+                                $userFlow->flow = json_encode($userFlowData);
+                                $userFlow->save();
+                            }
+                        }
+                    }
+
+                    $this->states()->detach();
+                    $this->states()->attach($this->getPrevState()->id);
+                    return;
                 } else {
-                    UserFlow::create([
-                        'user_id' => $this->id,
-                        'flow' => json_encode([$previousState->code => $message])
-                    ]);
-                }
+                    if ($userFlowData = $this->getFlowData()) {
+                        $userFlowData[$previousState->code] = $message;
+                        $userFlow = $this->getOpenedFlow();
+                        $userFlow->flow = json_encode($userFlowData);
+                        $userFlow->save();
+                    } else {
+                        UserFlow::create([
+                            'user_id' => $this->id,
+                            'flow' => json_encode([$previousState->code => $message])
+                        ]);
+                    }
 
-                $this->states()->detach();
-                $this->states()->attach($currentState->id);
+                    $this->states()->detach();
+                    $this->states()->attach($currentState->id);
+                }
         }
     }
 
