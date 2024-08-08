@@ -166,11 +166,10 @@ class StepAction implements StepConstants
     {
         $user = User::getOrCreate($this->repository);
         $currentState = $user->getCurrentState();
-        $messageDto = $this->repository->convertToMessage();
 
         $this->sendMessage(
             text: $currentState->text,
-            buttons: $currentState->prepareButtons($user, $messageDto->getText())
+            buttons: $currentState->prepareButtons($user)
         );
     }
 
@@ -183,12 +182,11 @@ class StepAction implements StepConstants
     public function selectAnonymity(): void
     {
         $user = User::getOrCreate($this->repository);
-        $nextState = $user->getNextState();
-        $messageDto = $this->repository->convertToMessage();
+        $currentState = $user->getCurrentState();
 
         $this->sendMessage(
-            text: $nextState->text,
-            buttons: $nextState->prepareButtons($user, $messageDto->getText())
+            text: $currentState->text,
+            buttons: $currentState->prepareButtons($user)
         );
     }
 
@@ -201,12 +199,11 @@ class StepAction implements StepConstants
     public function selectDifficulty(): void
     {
         $user = User::getOrCreate($this->repository);
-        $nextState = $user->getNextState();
-        $messageDto = $this->repository->convertToMessage();
+        $currentState = $user->getCurrentState();
 
         $this->sendMessage(
-            text: $nextState->text,
-            buttons: $nextState->prepareButtons($user, $messageDto->getText())
+            text: $currentState->text,
+            buttons: $currentState->prepareButtons($user)
         );
     }
 
@@ -219,12 +216,11 @@ class StepAction implements StepConstants
     public function selectSector(): void
     {
         $user = User::getOrCreate($this->repository);
-        $nextState = $user->getNextState();
-        $messageDto = $this->repository->convertToMessage();
+        $currentState = $user->getCurrentState();
 
         $this->sendMessage(
-            text: $nextState->text,
-            buttons: $nextState->prepareButtons($user, $messageDto->getText())
+            text: $currentState->text,
+            buttons: $currentState->prepareButtons($user)
         );
     }
 
@@ -238,16 +234,17 @@ class StepAction implements StepConstants
     public function selectSubject(): void
     {
         $user = User::getOrCreate($this->repository);
-        $nextState = $user->getNextState();
-        $messageDto = $this->repository->convertToMessage();
+        $currentState = $user->getCurrentState();
 
         $this->sendMessage(
-            text: $nextState->text,
-            buttons: $nextState->prepareButtons($user, $messageDto->getText())
+            text: $currentState->text,
+            buttons: $currentState->prepareButtons($user)
         );
     }
 
     /**
+     * TODO: Check how is it works
+     *
      * If user pressed to "parent subject" button
      * Show child subjects
      *
@@ -284,9 +281,9 @@ class StepAction implements StepConstants
     public function waitingThemeRequest(): void
     {
         $user = User::getOrCreate($this->repository);
-        $nextState = $user->getNextState();
+        $currentState = $user->getCurrentState();
 
-        $this->sendMessage($nextState->text);
+        $this->sendMessage($currentState->text);
     }
 
     /**

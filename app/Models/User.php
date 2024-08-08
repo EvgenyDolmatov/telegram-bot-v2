@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Constants\CallbackConstants;
 use App\Constants\CommandConstants;
 use App\Constants\StateConstants;
 use App\Constants\TransitionConstants;
@@ -130,113 +129,74 @@ class User extends Model
         return $this->states()->count();
     }
 
-    public function changeState(Request $request, string $destination = TransitionConstants::NEXT): void
+    /**
+     * TODO: Write code for "BACK" callback
+     *
+     * @param Request $request
+     * @return void
+     */
+    public function changeState(Request $request)
     {
         $requestRepository = new RequestRepository($request);
         $messageDto = $requestRepository->convertToMessage();
         $message = $messageDto->getText();
-        $currentState = $this->getCurrentState();
 
-        if ($message === CommandConstants::START) {
-            $startState = State::where('code', StateConstants::START)->first();
+        switch ($message) {
+            case CommandConstants::START:
+                $startState = State::where('code', StateConstants::START)->first();
 
-            if ($this->hasAnyState()) {
-                $this->states()->detach();
-            }
+                if ($this->hasAnyState())
+                    $this->states()->detach();
 
-            if ($userFlow = $this->getOpenedFlow()) {
-                $userFlow->delete();
-            }
+                if ($userFlow = $this->getOpenedFlow())
+                    $userFlow->delete();
 
-            $this->states()->attach($startState->id);
+                $this->states()->attach($startState->id);
+                break;
+            case TransitionConstants::BACK:
+                // ... code ...
+                /*if ($destination === TransitionConstants::BACK) {
+                    $currentState = $this->getCurrentState();
+                    $nextState = $this->getNextStateByDestination($destination);
 
-            return;
-        }
+                    // Update user flow
+                    $userFlow = $this->getOpenedFlow();
+                    if ($userFlow) {
+                        $prevState = $this->getPrevState();
 
+                        $userFlowArray = json_decode($userFlow->flow, true);
 
-        if ($destination === TransitionConstants::NEXT) {
-            $currentState = $this->getCurrentState();
-            $nextState = $this->getNextState();
-            $prevState = $this->getPrevState();
+                        if (count($userFlowArray) > 1) {
+                            unset($userFlowArray[$prevState->code]);
+                            $userFlow->flow = json_encode($userFlowArray);
+                            $userFlow->save();
+                        } else {
+                            $userFlow->delete();
+                        }
 
-            Log::debug('STEPS', [
-                'current' => $currentState->code,
-//                'prev' => $prevState->code,
-                'next' => $nextState->code,
-                'message' => $message
-            ]);
+                    }*/
+                break;
+            default: // from second to last steps
+                $previousState = $this->getCurrentState();
+                $currentState = $this->getNextState();
 
-            $this->states()->detach();
-            $this->states()->attach($nextState->id);
+                Log::debug("Previous state: " . $previousState->code);
+                Log::debug("Current state: " . $currentState->code);
 
-
-            if ($userFlowData = $this->getFlowData()) {
-                $userFlowData[$currentState->code] = $message;
-                $userFlow = $this->getOpenedFlow();
-                $userFlow->flow = json_encode($userFlowData);
-                $userFlow->save();
-            } else {
-                UserFlow::create([
-                    'user_id' => $this->id,
-                    'flow' => json_encode([$currentState->code => $message])
-                ]);
-            }
-
-
-
-
-
-
-
-
-
-//            Log::debug('STATE: ' . $currentState->id . '. ' . $currentState->code);
-//
-//            $nextState = $this->getNextState();
-//
-//
-//
-//            if ($userFlowData = $this->getFlowData()) {
-//                $userFlowData[$nextState->code] = $message;
-//                $userFlow = $this->getOpenedFlow();
-//                $userFlow->flow = json_encode($userFlowData);
-//                $userFlow->save();
-//            } else {
-//                UserFlow::create([
-//                    'user_id' => $this->id,
-//                    'flow' => json_encode([$nextState->code => $message])
-//                ]);
-//            }
-//
-//            // Change user state
-//            $this->states()->detach();
-//            $this->states()->attach($nextState->id);
-        }
-
-        if ($destination === TransitionConstants::BACK) {
-            $currentState = $this->getCurrentState();
-            $nextState = $this->getNextStateByDestination($destination);
-
-            // Update user flow
-            $userFlow = $this->getOpenedFlow();
-            if ($userFlow) {
-                $prevState = $this->getPrevState();
-
-                $userFlowArray = json_decode($userFlow->flow, true);
-
-                if (count($userFlowArray) > 1) {
-                    unset($userFlowArray[$prevState->code]);
-                    $userFlow->flow = json_encode($userFlowArray);
+                if ($userFlowData = $this->getFlowData()) {
+                    $userFlowData[$previousState->code] = $message;
+                    $userFlow = $this->getOpenedFlow();
+                    $userFlow->flow = json_encode($userFlowData);
                     $userFlow->save();
                 } else {
-                    $userFlow->delete();
+                    UserFlow::create([
+                        'user_id' => $this->id,
+                        'flow' => json_encode([$previousState->code => $message])
+                    ]);
                 }
 
-            }
-
-            // Change user state
-            $this->states()->detach();
-            $this->states()->attach($nextState->id);
+                $this->states()->detach();
+                $this->states()->attach($currentState->id);
         }
     }
 
@@ -252,157 +212,5 @@ class User extends Model
     {
         $stateService = new StateService($request, $this, $stepAction, $message);
         $stateService->switchState();
-
-
-//        if ($currentState = $this->states->first()) {
-//            /** Step 1: Show start choice */
-//            if ($currentState->code === StateConstants::START) {
-//                if (!in_array($message, $currentState->prepareCallbackItems($this))) {
-//                    $stepAction->mainChoice();
-//                    $this->changeState($request);
-//                    return;
-//                }
-//
-//                if ($message === CallbackConstants::SUPPORT) {
-//                    $stepAction->support();
-//                    $this->changeState($request);
-//                    return;
-//                }
-//
-//                if ($message === CallbackConstants::CREATE_SURVEY) {
-//                    $stepAction->selectSurveyType();
-//                    $this->changeState($request);
-//                    return;
-//                }
-//            }
-//
-//            /** Step 2: Show survey type choice */
-//            if ($currentState->code === StateConstants::TYPE_CHOICE) {
-//                if (!in_array($message, $currentState->prepareCallbackItems($this))) {
-//                    $stepAction->selectSurveyType();
-//                    $this->changeState($request, TransitionConstants::SOURCE);
-//                    return;
-//                }
-//
-//                if (in_array($message, $currentState->prepareCallbackItems($this))) {
-//                    $stepAction->selectAnonymity();
-//                    $this->changeState($request);
-//                    return;
-//                }
-//
-//                if ($message === TransitionConstants::BACK) {
-//                    $stepAction->mainChoice();
-//                    $this->changeState($request, TransitionConstants::BACK);
-//                    return;
-//                }
-//            }
-//
-//            /** Step 3: Show is anonymous survey choice */
-//            if ($currentState->code === StateConstants::ANON_CHOICE) {
-//                if (!in_array($message, $currentState->prepareCallbackItems($this))) {
-//                    $stepAction->selectAnonymity();
-//                    $this->changeState($request, TransitionConstants::SOURCE);
-//                    return;
-//                }
-//
-//                if (in_array($message, $currentState->prepareCallbackItems($this))) {
-//                    $stepAction->selectDifficulty();
-//                    $this->changeState($request);
-//                    return;
-//                }
-//
-//                if ($message === TransitionConstants::BACK) {
-//                    $stepAction->selectSurveyType();
-//                    $this->changeState($request, TransitionConstants::BACK);
-//                    return;
-//                }
-//            }
-//
-//            /** Step 4: Show survey difficulty choice */
-//            if ($currentState->code === StateConstants::DIFFICULTY_CHOICE) {
-//                if (!in_array($message, $currentState->prepareCallbackItems($this))) {
-//                    $stepAction->selectDifficulty();
-//                    $this->changeState($request, TransitionConstants::SOURCE);
-//                    return;
-//                }
-//
-//                if (in_array($message, $currentState->prepareCallbackItems($this))) {
-//                    $stepAction->selectSector();
-//                    $this->changeState($request);
-//                    return;
-//                }
-//
-//                if ($message === TransitionConstants::BACK) {
-//                    $stepAction->selectAnonymity();
-//                    $this->changeState($request, TransitionConstants::BACK);
-//                    return;
-//                }
-//            }
-//
-//            /** Step 5: Show sector choice */
-//            if ($currentState->code === StateConstants::SECTOR_CHOICE) {
-//                $callbackNames = array_map(fn($sector) => $sector['code'], Sector::all()->toArray());
-//
-//                if (!in_array($message, $callbackNames)) {
-//                    $stepAction->selectSector();
-//                    $this->changeState($request, TransitionConstants::SOURCE);
-//                    return;
-//                }
-//
-//                if (in_array($message, $callbackNames)) {
-//                    $sector = Sector::where('code', $message)->first();
-//                    $stepAction->selectSubject($sector);
-//                    $this->changeState($request);
-//                    return;
-//                }
-//
-//                if ($message === TransitionConstants::BACK) {
-//                    $stepAction->selectDifficulty();
-//                    $this->changeState($request, TransitionConstants::BACK);
-//                    return;
-//                }
-//            }
-//
-//            /** Step 6: Show subject choice */
-//            if ($currentState->code === StateConstants::SUBJECT_CHOICE) {
-//                if ($userSector = $this->getSelectedSector()) {
-//                    $callbackNames = array_map(
-//                        fn($subject) => $subject['code'],
-//                        $userSector->subjects()->get()->toArray()
-//                    );
-//
-//                    if (!in_array($message, $callbackNames)) {
-//                        $stepAction->selectSubject($userSector);
-//                        $this->changeState($request, TransitionConstants::SOURCE);
-//                        return;
-//                    }
-//
-//                    if (in_array($message, $callbackNames)) {
-//                        $parentSubject = Subject::where('code', $message)->first();
-//                        if ($parentSubject->hasChild()) {
-//                            $stepAction->selectChildSubject($parentSubject);
-//                            $this->changeState($request);
-//                            return;
-//                        }
-//
-//                        $stepAction->waitingThemeRequest();
-//                        $this->changeState($request);
-//                        return;
-//                    }
-//
-//                    if ($message === TransitionConstants::BACK) {
-//                        $stepAction->selectSector();
-//                        $this->changeState($request, TransitionConstants::BACK);
-//                        return;
-//                    }
-//                }
-//            }
-//
-//            /** Step 7: Waiting user request */
-//            if ($currentState->code === StateConstants::THEME_REQUEST) {
-//                $stepAction->responseFromAi();
-//                $this->changeState($request);
-//            }
-//        }
     }
 }

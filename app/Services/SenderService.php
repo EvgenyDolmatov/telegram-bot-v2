@@ -42,8 +42,8 @@ readonly class SenderService
             foreach ($buttons as $button) {
                 $body['reply_markup']['inline_keyboard'][] = [
                     [
-                        'text' => $button['text'],
-                        'callback_data' => $button['callback_data'],
+                        'text' => $button->getText(),
+                        'callback_data' => $button->getCallbackData()
                     ]
                 ];
             }

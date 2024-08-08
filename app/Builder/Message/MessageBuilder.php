@@ -2,6 +2,8 @@
 
 namespace App\Builder\Message;
 
+use App\Dto\ButtonDto;
+
 class MessageBuilder implements MessageBuilderInterface
 {
     private Message $message;
@@ -21,7 +23,7 @@ class MessageBuilder implements MessageBuilderInterface
         $this->message->setText($text);
     }
 
-    public function setButton(array $button): void
+    public function setButton(ButtonDto $button): void
     {
         $this->message->setButton($button);
     }

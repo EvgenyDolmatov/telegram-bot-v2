@@ -2,6 +2,8 @@
 
 namespace App\Builder\Message;
 
+use App\Dto\ButtonDto;
+
 class Message
 {
     private string $text;
@@ -17,7 +19,7 @@ class Message
         return $this->text;
     }
 
-    public function setButton(array $button): void
+    public function setButton(ButtonDto $button): void
     {
         $this->buttons[] = $button;
     }
