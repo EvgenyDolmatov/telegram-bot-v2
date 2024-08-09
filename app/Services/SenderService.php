@@ -79,7 +79,7 @@ readonly class SenderService
         }
 
         $response = Http::post($url, $body);
-        $this->updateChatMessages($response);
+        $this->updateChatMessages($response, false);
 
         Log::debug('BOT: ' . $response);
     }
@@ -90,7 +90,7 @@ readonly class SenderService
      * @param $response
      * @return void
      */
-    public function updateChatMessages($response): void
+    public function updateChatMessages($response, bool $isTrash = true): void
     {
         if (json_decode($response, true)['ok']) {
             $responseRepository = new ResponseRepository($response);
@@ -118,7 +118,7 @@ readonly class SenderService
             }
 
             // Prepare trash messages for next step
-            TrashMessage::add($chatDto, $messageDto, true);
+            TrashMessage::add($chatDto, $messageDto, $isTrash);
         }
     }
 }
