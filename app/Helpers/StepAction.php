@@ -285,7 +285,7 @@ class StepAction implements StepConstants
         // Выводим сообщение
         $this->sendMessage($currentState->text);
 
-        $openAiService = new OpenAiService();
+        $openAiService = new OpenAiService($user);
         $openAiRepository = new OpenAiRepository($openAiService);
 
         /** @var OpenAiCompletionDto $openAiCompletion */
