@@ -21,7 +21,7 @@ class PollBuilder implements PollBuilderInterface
         $this->poll->setQuestion($question);
     }
 
-    public function setOption(array $option): void
+    public function setOption(string $option): void
     {
         $this->poll->setOption($option);
     }

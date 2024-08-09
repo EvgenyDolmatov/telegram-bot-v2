@@ -6,7 +6,6 @@ use App\Dto\OpenAi\OpenAiQuestionDto;
 use App\Dto\OpenAi\OpenAiUsageDto;
 use App\Dto\OpenAiCompletionDto;
 use App\Services\OpenAiService;
-use Illuminate\Support\Facades\Log;
 
 readonly class OpenAiRepository
 {
@@ -41,15 +40,10 @@ readonly class OpenAiRepository
 
     public function getQuestions(string $content): array
     {
-        $questions = [];
-        foreach (json_decode($content, true) as $item) {
-            $questions[] = new OpenAiQuestionDto(
-                text: $item['question_text'],
-                options: array_map(fn($option) => [$option], $item['options']),
-                answer: $item['correct_answer']
-            );
-        }
-
-        return $questions;
+        return array_map(fn($question) => new OpenAiQuestionDto(
+            text: $question['question_text'],
+            options: $question['options'],
+            answer: $question['correct_answer']
+        ), json_decode($content, true));
     }
 }

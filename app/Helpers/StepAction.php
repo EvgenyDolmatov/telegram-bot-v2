@@ -2,22 +2,15 @@
 
 namespace App\Helpers;
 
-use App\Builder\Message\Message;
 use App\Builder\Message\MessageBuilder;
 use App\Builder\MessageSender;
-use App\Builder\Poll\Poll;
 use App\Builder\Poll\PollBuilder;
 use App\Builder\PollSender;
-use App\Constants\ButtonConstants;
-use App\Constants\ButtonKeyConstants;
-use App\Constants\CallbackConstants;
 use App\Constants\StateConstants;
 use App\Constants\StepConstants;
-use App\Constants\TransitionConstants;
-use App\Models\Sector;
+use App\Dto\OpenAiCompletionDto;
 use App\Models\State;
 use App\Models\Subject;
-use App\Models\Transition;
 use App\Models\TrashMessage;
 use App\Models\User;
 use App\Repositories\OpenAiRepository;
@@ -26,7 +19,6 @@ use App\Services\OpenAiService;
 use App\Services\SenderService;
 use App\Services\TelegramService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class StepAction implements StepConstants
 {
@@ -41,7 +33,7 @@ class StepAction implements StepConstants
         $this->telegramService = $telegramService;
         $this->request = $request;
         $this->messageSender = (new MessageSender())->setBuilder(new MessageBuilder());
-        $this->pollSender = (new PollSender())->setBuilder(new PollBuilder());
+        $this->pollSender = new PollSender();
         $this->repository = new RequestRepository($request);
     }
 
@@ -100,8 +92,14 @@ class StepAction implements StepConstants
     ): void
     {
         $poll = $isQuiz
-            ? $this->pollSender->createQuiz($question, $options, $isAnonymous, $correctOptionId)
-            : $this->pollSender->createPoll($question, $options, $isAnonymous);
+            ? $this
+                ->pollSender
+                ->setBuilder(new PollBuilder())
+                ->createQuiz($question, $options, $isAnonymous, $correctOptionId)
+            : $this
+                ->pollSender
+                ->setBuilder(new PollBuilder())
+                ->createPoll($question, $options, $isAnonymous);
 
         $this->preparePollData()->sendPoll($poll);
     }
@@ -280,8 +278,6 @@ class StepAction implements StepConstants
      */
     public function responseFromAi(): void
     {
-        Log::debug('responseFromAi');
-
         // Обрабатываем
         $user = User::getOrCreate($this->repository);
         $currentState = $user->getCurrentState();
@@ -289,20 +285,23 @@ class StepAction implements StepConstants
         // Выводим сообщение
         $this->sendMessage($currentState->text);
 
-        //        $user->changeState($this->request);
-//        $openAiService = new OpenAiService();
-//        $openAiRepository = new OpenAiRepository($openAiService);
-//        $openAiCompletion = $openAiRepository->getCompletion();
+        $openAiService = new OpenAiService();
+        $openAiRepository = new OpenAiRepository($openAiService);
+
+        /** @var OpenAiCompletionDto $openAiCompletion */
+        $openAiCompletion = $openAiRepository->getCompletion();
 
         $this->sendMessage('Вы получили ответ от AI...');
-        $this->sendPoll(
-            question: 'TEST:',
-            options: [
-                ["text" => "Ответ 1"],
-                ["text" => "Ответ 2"],
-                ["text" => "Ответ 3"],
-            ],
-            isAnonymous: true
-        );
+        if ($openAiCompletion) {
+            if ($questions = $openAiCompletion->getQuestions()) {
+                foreach ($questions as $question) {
+                    $this->sendPoll(
+                        question: $question->getText(),
+                        options: $question->getOptions(),
+                        isAnonymous: true
+                    );
+                }
+            }
+        }
     }
 }

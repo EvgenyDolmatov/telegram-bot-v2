@@ -20,9 +20,9 @@ class Poll
         return $this->question;
     }
 
-    public function setOption(array $option): void
+    public function setOption(string $option): void
     {
-        $this->options[] = $option;
+        $this->options[] = ['text' => $option];
     }
 
     public function getOptions(): array
