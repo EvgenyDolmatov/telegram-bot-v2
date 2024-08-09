@@ -10,6 +10,7 @@ use App\Repositories\RequestRepository;
 use App\Services\StateService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class User extends Model
 {
@@ -175,6 +176,12 @@ class User extends Model
                     $this->states()->attach($this->getPrevState()->id);
                     return;
                 } else {
+                    // если ввели что-то непонятное
+                    if (
+                        $previousState->code !== StateConstants::THEME_REQUEST &&
+                        !in_array($message, $previousState->prepareCallbackItems($this))
+                    ) { Log::debug('HERE'); return; }
+
                     if ($userFlowData = $this->getFlowData()) {
                         $userFlowData[$previousState->code] = $message;
                         $userFlow = $this->getOpenedFlow();
