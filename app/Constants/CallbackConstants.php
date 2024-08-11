@@ -13,4 +13,5 @@ interface CallbackConstants
     public const string LEVEL_EASY = 'level_easy';
     public const string LEVEL_MIDDLE = 'level_middle';
     public const string LEVEL_HARD = 'level_hard';
+    public const string REPEAT_FLOW = 'repeat_flow';
 }

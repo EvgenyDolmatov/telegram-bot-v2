@@ -6,9 +6,13 @@ use App\Builder\Message\MessageBuilder;
 use App\Builder\MessageSender;
 use App\Builder\Poll\PollBuilder;
 use App\Builder\PollSender;
+use App\Constants\CallbackConstants;
+use App\Constants\CommandConstants;
 use App\Constants\StateConstants;
 use App\Constants\StepConstants;
+use App\Dto\ButtonDto;
 use App\Dto\OpenAiCompletionDto;
+use App\Models\AiRequest;
 use App\Models\State;
 use App\Models\Subject;
 use App\Models\TrashMessage;
@@ -19,6 +23,7 @@ use App\Services\OpenAiService;
 use App\Services\SenderService;
 use App\Services\TelegramService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class StepAction implements StepConstants
 {
@@ -54,13 +59,13 @@ class StepAction implements StepConstants
      * @param array|null $buttons
      * @return void
      */
-    public function sendMessage(string $text, ?array $buttons = null): void
+    public function sendMessage(string $text, ?array $buttons = null, bool $isTrash = true): void
     {
         $message = $buttons === null
             ? $this->messageSender->createSimpleMessage($text)
             : $this->messageSender->createMessageWithButtons($text, $buttons);
 
-        $this->prepareMessageData()->sendMessage($message);
+        $this->prepareMessageData()->sendMessage($message, $isTrash);
     }
 
     /**
@@ -80,15 +85,17 @@ class StepAction implements StepConstants
      * @param array $options
      * @param bool $isAnonymous
      * @param bool $isQuiz
-     * @param int|null $correctOptionId
+     * @param string|null $correctOptionId
+     * @param bool $isTrash
      * @return void
      */
     public function sendPoll(
-        string $question,
-        array  $options,
-        bool   $isAnonymous,
-        bool   $isQuiz = false,
-        ?int   $correctOptionId = null
+        string  $question,
+        array   $options,
+        bool    $isAnonymous,
+        bool    $isQuiz = false,
+        ?string $correctOptionId = null,
+        bool    $isTrash = true
     ): void
     {
         $poll = $isQuiz
@@ -101,7 +108,7 @@ class StepAction implements StepConstants
                 ->setBuilder(new PollBuilder())
                 ->createPoll($question, $options, $isAnonymous);
 
-        $this->preparePollData()->sendPoll($poll);
+        $this->preparePollData()->sendPoll($poll, $isTrash);
     }
 
     public function addToTrash(): void
@@ -291,17 +298,63 @@ class StepAction implements StepConstants
         /** @var OpenAiCompletionDto $openAiCompletion */
         $openAiCompletion = $openAiRepository->getCompletion();
 
-        $this->sendMessage('Вы получили ответ от AI...');
+        $flow = $user->getOpenedFlow();
+
         if ($openAiCompletion) {
             if ($questions = $openAiCompletion->getQuestions()) {
+                $correctAnswers = '';
+                $questionNumber = 0;
                 foreach ($questions as $question) {
                     $this->sendPoll(
                         question: $question->getText(),
                         options: $question->getOptions(),
-                        isAnonymous: true
+                        isAnonymous: $flow->isAnonymous(),
+                        isQuiz: $flow->isQuiz(),
+                        correctOptionId: $question->getAnswer(),
+                        isTrash: false
                     );
+
+                    if ($flow->isQuiz()) {
+                        $questionNumber++;
+                        $questionText = trim($question->getText(), ':');
+                        $correctAnswers .= "\n\nВопрос № $questionNumber. $questionText";
+                        $correctAnswers .= "\nПравильный ответ: {$question->getOptions()[$question->getAnswer()]}";
+                    }
+                }
+
+                // Show right answers
+                if ($correctAnswers !== '') {
+                    $this->sendMessage($correctAnswers, null, false);
                 }
             }
+
+            // Save result to DB
+            AiRequest::create([
+                'tg_chat_id' => $user->tg_chat_id,
+                'user_flow_id' => $flow->id,
+                'ai_survey' => json_encode($openAiCompletion),
+                'usage_prompt_tokens' => $openAiCompletion->getUsage()->getPromptTokens(),
+                'usage_completion_tokens' => $openAiCompletion->getUsage()->getCompletionTokens(),
+                'usage_total_tokens' => $openAiCompletion->getUsage()->getTotalTokens(),
+            ]);
+
+            // Close current flow
+            $flow->update(['is_completed', true]);
+
+            // Show message about next action
+            $message = "Выберите, что делать дальше:";
+            $buttons = [
+                new ButtonDto(
+                    callbackData: CommandConstants::START,
+                    text: 'Выбрать другую тему'
+                ),
+                new ButtonDto(
+                    callbackData: CallbackConstants::REPEAT_FLOW,
+                    text: 'Создать еще 5 вопросов'
+                )
+            ];
+
+            $this->sendMessage($message, $buttons);
         }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\CallbackConstants;
 use App\Constants\CommandConstants;
 use App\Helpers\StepAction;
 use App\Models\TrashMessage;
@@ -46,6 +47,10 @@ class MainController extends Controller
 
             /** User steps flow */
             $user->stateHandler($request, $stepHelper, $messageDto->getText());
+
+            if ($messageDto->getText() === CallbackConstants::REPEAT_FLOW) {
+                // ... code for repeat previous flow
+            }
         }
     }
 }

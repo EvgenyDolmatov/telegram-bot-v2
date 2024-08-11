@@ -26,6 +26,7 @@ class State extends Model
 
     /**
      * @param User $user
+     * @param bool $hasBackButton
      * @return array
      */
     public function prepareButtons(User $user, bool $hasBackButton = false): array

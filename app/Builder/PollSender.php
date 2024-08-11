@@ -4,10 +4,17 @@ namespace App\Builder;
 
 use App\Builder\Poll\Poll;
 use App\Builder\Poll\PollBuilderInterface;
+use Illuminate\Support\Facades\Log;
 
 class PollSender
 {
     private PollBuilderInterface $builder;
+    private const array OPTION_INDEXES = [
+        'a' => 0,
+        'b' => 1,
+        'c' => 2,
+        'd' => 3,
+    ];
 
     public function setBuilder(PollBuilderInterface $builder): self
     {
@@ -36,14 +43,16 @@ class PollSender
         string $question,
         array  $options,
         bool   $isAnonymous,
-        int    $correctOptionId
+        string $correctOptionId
     ): Poll
     {
         $builder = $this->getBuilder();
         $builder->setQuestion($question);
         $builder->setIsAnonymous($isAnonymous);
         $builder->setIsQuiz(true);
-        $builder->setCorrectOptionId($correctOptionId);
+        $builder->setCorrectOptionId(self::OPTION_INDEXES[$correctOptionId]);
+
+        Log::debug('setCorrectOptionId: ' . self::OPTION_INDEXES[$correctOptionId]);
 
         array_map(fn($option) => $builder->setOption($option), $options);
 

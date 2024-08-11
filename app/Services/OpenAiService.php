@@ -45,29 +45,27 @@ class OpenAiService
     {
         $user = $this->user;
         $data = $user->getFlowData();
+        $difficultyData = [
+            CallbackConstants::LEVEL_EASY => 'низкой',
+            CallbackConstants::LEVEL_MIDDLE => 'средней',
+            CallbackConstants::LEVEL_HARD => 'высокой',
+        ];
 
         $sector = Sector::where('code', $data[StateConstants::SECTOR_CHOICE])->first()->title;
         $subject = Subject::where('code', $data[StateConstants::SUBJECT_CHOICE])->first()->title;
         $theme = $data[StateConstants::THEME_REQUEST];
-
-        $difficultyData = [
-            CallbackConstants::LEVEL_EASY => 'легких',
-            CallbackConstants::LEVEL_MIDDLE => 'средних',
-            CallbackConstants::LEVEL_HARD => 'сложных',
-        ];
-
         $difficulty = $difficultyData[$data[StateConstants::DIFFICULTY_CHOICE]];
 
         $url = 'https://api.openai.com/v1/chat/completions';
-        $template = json_encode([
+        $template = [
             'question1' => [
                 'question_text' => 'Что обозначает аббревиатура HTML?',
                 'options' => [
                     'a' => 'Hyper Text Markup Language',
                     'b' => 'Hyperlinks and Text Markup Language',
                     'c' => 'High Traffic Management Language',
-                ],
-                'correct_answer' => 'a'
+                    'd' => 'High Traffic Language',
+                ]
             ],
             'question2' => [
                 'question_text' => 'Какой язык программирования чаще всего используется для создания динамических веб-сайтов?',
@@ -75,10 +73,18 @@ class OpenAiService
                     'a' => 'Python',
                     'b' => 'JavaScript',
                     'c' => 'C++',
-                ],
-                'correct_answer' => 'b'
+                    'd' => 'C#',
+                ]
             ],
-        ]);
+        ];
+
+        $hasCorrectAnswer = '';
+        if ($data[StateConstants::TYPE_CHOICE] === CallbackConstants::TYPE_QUIZ) {
+            $template['question1']['correct_answer'] = 'c';
+            $template['question2']['correct_answer'] = 'a';
+
+            $hasCorrectAnswer = ', с одним правильным ответом';
+        }
 
         $body = [
             'model' => 'gpt-3.5-turbo-0125',
@@ -88,8 +94,8 @@ class OpenAiService
             'messages' => [
                 [
                     'role' => 'system',
-                    'content' => "Ты специалист в сфере $sector. Тебе нужно сгенерировать 5 $difficulty вопросов по сложности, состоящие из 4 вариантов ответов, с одним правильным ответом. Вопрос должен быть понятным и емким,
-                    но не превышать 255 символов. Ответы должны быть понятны отвечающим, но не превышать 100 символов. Ответ пришли в формате JSON. Пример JSON ответа: " . $template
+                    'content' => "Ты преподаватель в сфере $sector. Тебе нужно сгенерировать 5 вопросов $difficulty сложности, состоящие из 4 вариантов ответов$hasCorrectAnswer. Вопрос должен быть понятным и емким,
+                    но не превышать 255 символов. Ответы должны быть понятны отвечающим, но не превышать 100 символов. Ответ пришли в формате JSON. Пример JSON ответа: " . json_encode($template)
                 ],
                 [
                     'role' => 'user',

@@ -26,7 +26,7 @@ readonly class SenderService
      * @param Message $message
      * @return void
      */
-    public function sendMessage(Message $message): void
+    public function sendMessage(Message $message, bool $isTrash = true): void
     {
         $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/sendMessage';
         $chat = (new RequestRepository($this->request))->convertToChat();
@@ -50,7 +50,10 @@ readonly class SenderService
         }
 
         $response = Http::post($url, $body);
-        $this->updateChatMessages($response);
+        $this->updateChatMessages(
+            response: $response,
+            isTrash: $isTrash
+        );
 
         Log::debug('BOT: ' . $response);
     }
@@ -59,9 +62,10 @@ readonly class SenderService
      * Send poll or quiz
      *
      * @param Poll $poll
+     * @param bool $isTrash
      * @return void
      */
-    public function sendPoll(Poll $poll): void
+    public function sendPoll(Poll $poll, bool $isTrash = true): void
     {
         $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/sendPoll';
         $chat = (new RequestRepository($this->request))->convertToChat();
@@ -79,7 +83,10 @@ readonly class SenderService
         }
 
         $response = Http::post($url, $body);
-        $this->updateChatMessages($response, false);
+        $this->updateChatMessages(
+            response: $response,
+            isTrash: $isTrash
+        );
 
         Log::debug('BOT: ' . $response);
     }
@@ -88,6 +95,7 @@ readonly class SenderService
      * Remove old messages and prepare messages for removing for next step
      *
      * @param $response
+     * @param bool $isTrash
      * @return void
      */
     public function updateChatMessages($response, bool $isTrash = true): void

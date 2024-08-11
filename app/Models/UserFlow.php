@@ -2,7 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Constants\CallbackConstants;
+use App\Constants\StateConstants;
 use Illuminate\Database\Eloquent\Model;
 
 class UserFlow extends Model
@@ -14,9 +15,26 @@ class UserFlow extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function getValueByKey(string $key): mixed
+    public function getFlowData(): array
     {
-        $flowData = json_decode($this->flow, true);
-        return $flowData[$key] ?? null;
+        return json_decode($this->flow, true);
+    }
+
+    public function isAnonymous(): bool
+    {
+        $flowData = $this->getFlowData();
+
+        return
+            isset($flowData[StateConstants::ANON_CHOICE])
+            && $flowData[StateConstants::ANON_CHOICE] === CallbackConstants::IS_ANON;
+    }
+
+    public function isQuiz(): bool
+    {
+        $flowData = $this->getFlowData();
+
+        return
+            isset($flowData[StateConstants::TYPE_CHOICE])
+            && $flowData[StateConstants::TYPE_CHOICE] === CallbackConstants::TYPE_QUIZ;
     }
 }

@@ -43,7 +43,7 @@ readonly class OpenAiRepository
         return array_map(fn($question) => new OpenAiQuestionDto(
             text: $question['question_text'],
             options: $question['options'],
-            answer: $question['correct_answer']
+            answer: $question['correct_answer'] ?? null
         ), json_decode($content, true));
     }
 }
