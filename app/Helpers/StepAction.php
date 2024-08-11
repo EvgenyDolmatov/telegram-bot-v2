@@ -23,7 +23,6 @@ use App\Services\OpenAiService;
 use App\Services\SenderService;
 use App\Services\TelegramService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class StepAction implements StepConstants
 {
@@ -339,7 +338,8 @@ class StepAction implements StepConstants
             ]);
 
             // Close current flow
-            $flow->update(['is_completed', true]);
+            $flow->is_completed = 1;
+            $flow->save();
 
             // Show message about next action
             $message = "Выберите, что делать дальше:";

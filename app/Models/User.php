@@ -56,7 +56,11 @@ class User extends Model
     public function getOpenedFlow(): ?UserFlow
     {
         return $this->flows->where('is_completed', 0)->first();
+    }
 
+    public function getLastFlow(): UserFlow
+    {
+        return UserFlow::where('user_id', $this->id)->where('is_completed', 1)->latest()->first();
     }
 
     public function getFlowData(): ?array
@@ -64,7 +68,6 @@ class User extends Model
         $flow = $this->getOpenedFlow();
 
         return $flow ? json_decode($flow->flow, true) : null;
-
     }
 
     public function getCurrentState(): State
@@ -103,25 +106,6 @@ class User extends Model
         }
 
         return null;
-    }
-
-    /**
-     * Get next user state
-     *
-     * @param string $destination
-     * @return State
-     */
-    public function getNextStateByDestination(string $destination): State
-    {
-        $currentState = $this->getCurrentState();
-        $stateTransition = Transition::where(TransitionConstants::SOURCE, $currentState->code)->first();
-
-        return match ($destination) {
-            TransitionConstants::SOURCE => State::where('code', $stateTransition->source)->first(),
-            TransitionConstants::NEXT => State::where('code', $stateTransition->next)->first(),
-            TransitionConstants::BACK => State::where('code', $stateTransition->back)->first(),
-            default => State::where('code', StateConstants::START)->first(),
-        };
     }
 
     public function hasAnyState(): bool

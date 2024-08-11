@@ -7,6 +7,7 @@ use App\Constants\CommandConstants;
 use App\Helpers\StepAction;
 use App\Models\TrashMessage;
 use App\Models\User;
+use App\Models\UserFlow;
 use App\Repositories\RequestRepository;
 use App\Services\TelegramService;
 use Illuminate\Http\Request;
@@ -49,7 +50,14 @@ class MainController extends Controller
             $user->stateHandler($request, $stepHelper, $messageDto->getText());
 
             if ($messageDto->getText() === CallbackConstants::REPEAT_FLOW) {
-                // ... code for repeat previous flow
+                $lastFlow = $user->getLastFlow();
+                UserFlow::create([
+                    'user_id' => $lastFlow->user_id,
+                    'flow' => $lastFlow->flow,
+                    'is_completed' => 0,
+                ]);
+
+                $stepHelper->responseFromAi();
             }
         }
     }
