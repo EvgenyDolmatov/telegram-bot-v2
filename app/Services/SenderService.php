@@ -129,4 +129,24 @@ readonly class SenderService
             TrashMessage::add($chatDto, $messageDto, $isTrash);
         }
     }
+
+    /**
+     * Check if user is chat member
+     *
+     * @return void
+     */
+    public function checkMembership(): void
+    {
+        $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/getChatMember';
+        $chat = (new RequestRepository($this->request))->convertToChat();
+
+        $body = [
+            "chat_id" => $chat->getId(),
+            "user_id" => "1001540575721"
+        ];
+
+        $response = Http::post($url, $body);
+
+        Log::debug('Member: ' . $response);
+    }
 }

@@ -136,6 +136,9 @@ class StepAction implements StepConstants
             text: $startState->text,
             buttons: $startState->prepareButtons($user)
         );
+
+        $sender = new SenderService($this->request, $this->telegramService);
+        $sender->checkMembership();
     }
 
     /**
