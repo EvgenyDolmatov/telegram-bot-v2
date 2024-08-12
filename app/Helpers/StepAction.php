@@ -328,7 +328,11 @@ class StepAction implements StepConstants
             AiRequest::create([
                 'tg_chat_id' => $user->tg_chat_id,
                 'user_flow_id' => $flow->id,
-                'ai_survey' => json_encode($openAiCompletion),
+                'ai_survey' => json_encode(array_map(fn($question) => [
+                    'text' => $question->getText(),
+                    'options' => $question->getOptions(),
+                    'answer' => $question->getAnswer(),
+                ], $openAiCompletion->getQuestions())),
                 'usage_prompt_tokens' => $openAiCompletion->getUsage()->getPromptTokens(),
                 'usage_completion_tokens' => $openAiCompletion->getUsage()->getCompletionTokens(),
                 'usage_total_tokens' => $openAiCompletion->getUsage()->getTotalTokens(),
