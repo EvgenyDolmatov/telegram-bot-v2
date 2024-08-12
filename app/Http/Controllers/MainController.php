@@ -34,6 +34,11 @@ class MainController extends Controller
 
             /** Select "/start" command */
             if ($messageDto->getText() === CommandConstants::START) {
+                if (!$stepHelper->canContinue()) {
+                    $stepHelper->subscribeToCommunity();
+                    return;
+                }
+
                 $stepHelper->mainChoice();
                 $user->changeState($request);
                 return;

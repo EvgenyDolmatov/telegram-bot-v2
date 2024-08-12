@@ -24,6 +24,7 @@ readonly class SenderService
      * Send simple message or message with buttons
      *
      * @param Message $message
+     * @param bool $isTrash
      * @return void
      */
     public function sendMessage(Message $message, bool $isTrash = true): void
@@ -135,7 +136,7 @@ readonly class SenderService
      *
      * @return bool
      */
-    public function checkMembership(): bool
+    public function isMembership(): bool
     {
         $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/getChatMember';
         $user = (new RequestRepository($this->request))->convertToUser();

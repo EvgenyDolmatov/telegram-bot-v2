@@ -56,6 +56,7 @@ class StepAction implements StepConstants
      *
      * @param string $text
      * @param array|null $buttons
+     * @param bool $isTrash
      * @return void
      */
     public function sendMessage(string $text, ?array $buttons = null, bool $isTrash = true): void
@@ -113,6 +114,16 @@ class StepAction implements StepConstants
         TrashMessage::add($chatDto, $messageDto, true);
     }
 
+    public function canContinue(): bool
+    {
+        $user = User::getOrCreate($this->repository);
+        $aiRequest = AiRequest::where('tg_chat_id', $user->tg_chat_id)->get();
+
+        // TODO: remove this
+        return true;
+//        return $aiRequest->count() && $this->prepareMessageData()->isMembership();
+    }
+
     /**
      * If user pressed "/start" button
      *
@@ -130,9 +141,6 @@ class StepAction implements StepConstants
             text: $startState->text,
             buttons: $startState->prepareButtons($user)
         );
-
-        $sender = new SenderService($this->request, $this->telegramService);
-        $sender->checkMembership();
     }
 
     /**
@@ -342,6 +350,11 @@ class StepAction implements StepConstants
             $flow->is_completed = 1;
             $flow->save();
 
+            if (!$this->canContinue()) {
+                $this->subscribeToCommunity();
+                return;
+            }
+
             // Show message about next action
             $message = "Выберите, что делать дальше:";
             $buttons = [
@@ -357,5 +370,14 @@ class StepAction implements StepConstants
 
             $this->sendMessage($message, $buttons);
         }
+    }
+
+    public function subscribeToCommunity(): void
+    {
+        $message = "Подпишись на <a href='https://t.me/corgish_ru'>наш канал</a>, чтобы продолжить...";
+        $this->sendMessage(
+            $message,
+            [new ButtonDto(CommandConstants::START, 'Я подписался')]
+        );
     }
 }
