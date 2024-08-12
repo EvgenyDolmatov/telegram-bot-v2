@@ -21,6 +21,30 @@ readonly class SenderService
     }
 
     /**
+     * Send photo
+     *
+     * @param string $imageUrl
+     * @param bool $isTrash
+     * @return void
+     */
+    public function sendPhoto(string $imageUrl, bool $isTrash = true): void
+    {
+        $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/sendPhoto';
+        $chat = (new RequestRepository($this->request))->convertToChat();
+
+        $body = [
+            'chat_id' => $chat->getId(),
+            'photo' => $imageUrl
+        ];
+
+        $response = Http::post($url, $body);
+        $this->updateChatMessages(
+            response: $response,
+            isTrash: $isTrash
+        );
+    }
+
+    /**
      * Send simple message or message with buttons
      *
      * @param Message $message

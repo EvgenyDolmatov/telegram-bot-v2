@@ -52,6 +52,18 @@ class StepAction implements StepConstants
     }
 
     /**
+     * Send photo
+     *
+     * @param string $imageUrl
+     * @param bool $isTrash
+     * @return void
+     */
+    public function sendPhoto(string $imageUrl, bool $isTrash = true): void
+    {
+        $this->prepareMessageData()->sendPhoto($imageUrl, $isTrash);
+    }
+
+    /**
      * Send simple message or message with buttons
      *
      * @param string $text
@@ -137,6 +149,7 @@ class StepAction implements StepConstants
         $user = User::getOrCreate($repository);
         $startState = State::where('code', StateConstants::START)->first();
 
+        $this->sendPhoto(asset('assets/img/start.png'), false);
         $this->sendMessage(
             text: $startState->text,
             buttons: $startState->prepareButtons($user)
