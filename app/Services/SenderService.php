@@ -133,20 +133,20 @@ readonly class SenderService
     /**
      * Check if user is chat member
      *
-     * @return void
+     * @return bool
      */
-    public function checkMembership(): void
+    public function checkMembership(): bool
     {
         $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/getChatMember';
-        $chat = (new RequestRepository($this->request))->convertToChat();
+        $user = (new RequestRepository($this->request))->convertToUser();
 
         $body = [
-            "chat_id" => $chat->getId(),
-            "user_id" => "1001540575721"
+            "chat_id" => -1001540575721,
+            "user_id" => $user->getId()
         ];
 
-        $response = Http::post($url, $body);
+        $data = json_decode(Http::post($url, $body), true);
 
-        Log::debug('Member: ' . $response);
+        return isset($data['ok']) && $data['ok'];
     }
 }
