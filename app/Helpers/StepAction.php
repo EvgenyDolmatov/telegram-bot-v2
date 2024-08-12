@@ -97,15 +97,9 @@ class StepAction implements StepConstants
         bool    $isTrash = true
     ): void
     {
-        $poll = $isQuiz
-            ? $this
-                ->pollSender
-                ->setBuilder(new PollBuilder())
-                ->createQuiz($question, $options, $isAnonymous, $correctOptionId)
-            : $this
-                ->pollSender
-                ->setBuilder(new PollBuilder())
-                ->createPoll($question, $options, $isAnonymous);
+        $poll = $this->pollSender
+            ->setBuilder(new PollBuilder())
+            ->createPoll($question, $options, $isAnonymous, $isQuiz, $correctOptionId);
 
         $this->preparePollData()->sendPoll($poll, $isTrash);
     }
