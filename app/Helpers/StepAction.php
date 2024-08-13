@@ -137,9 +137,7 @@ class StepAction implements StepConstants
         $user = User::getOrCreate($this->repository);
         $aiRequest = AiRequest::where('tg_chat_id', $user->tg_chat_id)->get();
 
-        // TODO: remove this
-        return true;
-//        return $aiRequest->count() && $this->prepareMessageData()->isMembership();
+        return $aiRequest->count() && $this->prepareMessageData()->isMembership();
     }
 
     /**
@@ -170,7 +168,11 @@ class StepAction implements StepConstants
     public function help(): void
     {
         $this->addToTrash();
-        $this->sendMessage(self::HELP_TEXT);
+
+        $this->sendMessage(
+            text: self::HELP_TEXT,
+            buttons: [new ButtonDto(CommandConstants::START, 'Назад')]
+        );
     }
 
     /**
@@ -180,7 +182,12 @@ class StepAction implements StepConstants
      */
     public function support(): void
     {
-        $this->sendMessage(self::SUPPORT_TEXT);
+        $this->addToTrash();
+
+        $this->sendMessage(
+            text: self::SUPPORT_TEXT,
+            buttons: [new ButtonDto(CommandConstants::START, 'Назад')]
+        );
     }
 
     /**

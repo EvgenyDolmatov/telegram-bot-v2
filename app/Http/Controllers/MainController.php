@@ -51,6 +51,12 @@ class MainController extends Controller
                 return;
             }
 
+            /** Support button */
+            if ($messageDto->getText() === CallbackConstants::SUPPORT) {
+                $stepHelper->support();
+                return;
+            }
+
             /** User steps flow */
             $user->stateHandler($request, $stepHelper, $messageDto->getText());
 

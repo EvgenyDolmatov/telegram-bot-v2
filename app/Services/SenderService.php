@@ -83,6 +83,8 @@ readonly class SenderService
     }
 
     /**
+     * Add buttons to body if exists
+     *
      * @param array $buttons
      * @param array $body
      * @return array
