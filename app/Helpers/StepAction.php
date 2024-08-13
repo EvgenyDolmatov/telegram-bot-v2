@@ -52,10 +52,29 @@ class StepAction implements StepConstants
     }
 
     /**
+     * Send photo
+     *
+     * @param string $imageUrl
+     * @param string $text
+     * @param array|null $buttons
+     * @param bool $isTrash
+     * @return void
+     */
+    public function sendPhoto(string $imageUrl, string $text, ?array $buttons = null, bool $isTrash = true): void
+    {
+        $message = $buttons === null
+            ? $this->messageSender->createSimpleMessage($text)
+            : $this->messageSender->createMessageWithButtons($text, $buttons);
+
+        $this->prepareMessageData()->sendPhoto($message, $imageUrl, $isTrash);
+    }
+
+    /**
      * Send simple message or message with buttons
      *
      * @param string $text
      * @param array|null $buttons
+     * @param bool $isTrash
      * @return void
      */
     public function sendMessage(string $text, ?array $buttons = null, bool $isTrash = true): void
@@ -97,15 +116,9 @@ class StepAction implements StepConstants
         bool    $isTrash = true
     ): void
     {
-        $poll = $isQuiz
-            ? $this
-                ->pollSender
-                ->setBuilder(new PollBuilder())
-                ->createQuiz($question, $options, $isAnonymous, $correctOptionId)
-            : $this
-                ->pollSender
-                ->setBuilder(new PollBuilder())
-                ->createPoll($question, $options, $isAnonymous);
+        $poll = $this->pollSender
+            ->setBuilder(new PollBuilder())
+            ->createPoll($question, $options, $isAnonymous, $isQuiz, $correctOptionId);
 
         $this->preparePollData()->sendPoll($poll, $isTrash);
     }
@@ -117,6 +130,16 @@ class StepAction implements StepConstants
         $messageDto = $repository->convertToMessage();
 
         TrashMessage::add($chatDto, $messageDto, true);
+    }
+
+    public function canContinue(): bool
+    {
+        return true;
+
+//        $user = User::getOrCreate($this->repository);
+//        $aiRequest = AiRequest::where('tg_chat_id', $user->tg_chat_id)->get();
+//
+//        return $aiRequest->count() && $this->prepareMessageData()->isMembership();
     }
 
     /**
@@ -132,13 +155,11 @@ class StepAction implements StepConstants
         $user = User::getOrCreate($repository);
         $startState = State::where('code', StateConstants::START)->first();
 
-        $this->sendMessage(
+        $this->sendPhoto(
+            imageUrl: asset('assets/img/start.png'),
             text: $startState->text,
             buttons: $startState->prepareButtons($user)
         );
-
-        $sender = new SenderService($this->request, $this->telegramService);
-        $sender->checkMembership();
     }
 
     /**
@@ -149,7 +170,11 @@ class StepAction implements StepConstants
     public function help(): void
     {
         $this->addToTrash();
-        $this->sendMessage(self::HELP_TEXT);
+
+        $this->sendMessage(
+            text: self::HELP_TEXT,
+            buttons: [new ButtonDto(CommandConstants::START, 'Назад')]
+        );
     }
 
     /**
@@ -159,7 +184,12 @@ class StepAction implements StepConstants
      */
     public function support(): void
     {
-        $this->sendMessage(self::SUPPORT_TEXT);
+        $this->addToTrash();
+
+        $this->sendMessage(
+            text: self::SUPPORT_TEXT,
+            buttons: [new ButtonDto(CommandConstants::START, 'Назад')]
+        );
     }
 
     /**
@@ -300,64 +330,92 @@ class StepAction implements StepConstants
         /** @var OpenAiCompletionDto $openAiCompletion */
         $openAiCompletion = $openAiRepository->getCompletion();
 
+        if ($openAiCompletion === null) {
+            $this->someProblemMessage();
+            return;
+        }
+
         $flow = $user->getOpenedFlow();
+        if ($questions = $openAiCompletion->getQuestions()) {
+            $correctAnswers = '';
+            $questionNumber = 0;
+            foreach ($questions as $question) {
+                $this->sendPoll(
+                    question: $question->getText(),
+                    options: $question->getOptions(),
+                    isAnonymous: $flow->isAnonymous(),
+                    isQuiz: $flow->isQuiz(),
+                    correctOptionId: $question->getAnswer(),
+                    isTrash: false
+                );
 
-        if ($openAiCompletion) {
-            if ($questions = $openAiCompletion->getQuestions()) {
-                $correctAnswers = '';
-                $questionNumber = 0;
-                foreach ($questions as $question) {
-                    $this->sendPoll(
-                        question: $question->getText(),
-                        options: $question->getOptions(),
-                        isAnonymous: $flow->isAnonymous(),
-                        isQuiz: $flow->isQuiz(),
-                        correctOptionId: $question->getAnswer(),
-                        isTrash: false
-                    );
-
-                    if ($flow->isQuiz()) {
-                        $questionNumber++;
-                        $questionText = trim($question->getText(), ':');
-                        $correctAnswers .= "\n\nВопрос № $questionNumber. $questionText";
-                        $correctAnswers .= "\nПравильный ответ: {$question->getOptions()[$question->getAnswer()]}";
-                    }
-                }
-
-                // Show right answers
-                if ($correctAnswers !== '') {
-                    $this->sendMessage($correctAnswers, null, false);
+                if ($flow->isQuiz()) {
+                    $questionNumber++;
+                    $questionText = trim($question->getText(), ':');
+                    $correctAnswers .= "\n\nВопрос № $questionNumber. $questionText";
+                    $correctAnswers .= "\nПравильный ответ: {$question->getOptions()[$question->getAnswer()]}";
                 }
             }
 
-            // Save result to DB
-            AiRequest::create([
-                'tg_chat_id' => $user->tg_chat_id,
-                'user_flow_id' => $flow->id,
-                'ai_survey' => json_encode($openAiCompletion),
-                'usage_prompt_tokens' => $openAiCompletion->getUsage()->getPromptTokens(),
-                'usage_completion_tokens' => $openAiCompletion->getUsage()->getCompletionTokens(),
-                'usage_total_tokens' => $openAiCompletion->getUsage()->getTotalTokens(),
-            ]);
-
-            // Close current flow
-            $flow->is_completed = 1;
-            $flow->save();
-
-            // Show message about next action
-            $message = "Выберите, что делать дальше:";
-            $buttons = [
-                new ButtonDto(
-                    callbackData: CommandConstants::START,
-                    text: 'Выбрать другую тему'
-                ),
-                new ButtonDto(
-                    callbackData: CallbackConstants::REPEAT_FLOW,
-                    text: 'Создать еще 5 вопросов'
-                )
-            ];
-
-            $this->sendMessage($message, $buttons);
+            // Show right answers
+            if ($correctAnswers !== '') {
+                $this->sendMessage($correctAnswers, null, false);
+            }
         }
+
+        // Save result to DB
+        AiRequest::create([
+            'tg_chat_id' => $user->tg_chat_id,
+            'user_flow_id' => $flow->id,
+            'ai_survey' => json_encode(array_map(fn($question) => [
+                'text' => $question->getText(),
+                'options' => $question->getOptions(),
+                'answer' => $question->getAnswer(),
+            ], $openAiCompletion->getQuestions())),
+            'usage_prompt_tokens' => $openAiCompletion->getUsage()->getPromptTokens(),
+            'usage_completion_tokens' => $openAiCompletion->getUsage()->getCompletionTokens(),
+            'usage_total_tokens' => $openAiCompletion->getUsage()->getTotalTokens(),
+        ]);
+
+        // Close current flow
+        $flow->is_completed = 1;
+        $flow->save();
+
+        if (!$this->canContinue()) {
+            $this->subscribeToCommunity();
+            return;
+        }
+
+        // Show message about next action
+        $message = "Выберите, что делать дальше:";
+        $buttons = [
+            new ButtonDto(
+                callbackData: CommandConstants::START,
+                text: 'Выбрать другую тему'
+            ),
+            new ButtonDto(
+                callbackData: CallbackConstants::REPEAT_FLOW,
+                text: 'Создать еще 5 вопросов'
+            )
+        ];
+
+        $this->sendMessage($message, $buttons);
+    }
+
+    public function someProblemMessage(): void
+    {
+        $this->sendMessage(
+            'Что-то пошло не так. Попробуйте еще раз',
+            [new ButtonDto(CommandConstants::START, 'Начать сначала')]
+        );
+    }
+
+    public function subscribeToCommunity(): void
+    {
+        $message = "Подпишись на <a href='https://t.me/corgish_ru'>наш канал</a>, чтобы продолжить...";
+        $this->sendMessage(
+            $message,
+            [new ButtonDto(CommandConstants::START, 'Я подписался')]
+        );
     }
 }

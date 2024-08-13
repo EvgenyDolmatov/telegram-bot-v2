@@ -49,6 +49,7 @@ class OpenAiService
             CallbackConstants::LEVEL_EASY => 'низкой',
             CallbackConstants::LEVEL_MIDDLE => 'средней',
             CallbackConstants::LEVEL_HARD => 'высокой',
+            CallbackConstants::LEVEL_ANY => 'любой',
         ];
 
         $sector = Sector::where('code', $data[StateConstants::SECTOR_CHOICE])->first()->title;

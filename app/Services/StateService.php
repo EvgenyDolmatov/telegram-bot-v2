@@ -62,6 +62,12 @@ readonly class StateService
     {
         $user = $this->user;
         $stepAction = $this->stepAction;
+
+        if (!$stepAction->canContinue()) {
+            $stepAction->subscribeToCommunity();
+            return;
+        }
+
         $trigger = Transition::where('source', $state->code)->first()->trigger;
 
         $user->changeState($this->request);

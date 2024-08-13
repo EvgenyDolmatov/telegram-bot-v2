@@ -34,6 +34,11 @@ class MainController extends Controller
 
             /** Select "/start" command */
             if ($messageDto->getText() === CommandConstants::START) {
+                if (!$stepHelper->canContinue()) {
+                    $stepHelper->subscribeToCommunity();
+                    return;
+                }
+
                 $stepHelper->mainChoice();
                 $user->changeState($request);
                 return;
@@ -43,6 +48,12 @@ class MainController extends Controller
             if ($messageDto->getText() === CommandConstants::HELP) {
                 $stepHelper->help();
                 $user->changeState($request);
+                return;
+            }
+
+            /** Support button */
+            if ($messageDto->getText() === CallbackConstants::SUPPORT) {
+                $stepHelper->support();
                 return;
             }
 

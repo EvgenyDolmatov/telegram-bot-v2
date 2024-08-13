@@ -24,35 +24,21 @@ class PollSender
     }
 
     public function createPoll(
-        string $question,
-        array  $options,
-        bool   $isAnonymous
+        string  $question,
+        array   $options,
+        bool    $isAnonymous,
+        bool    $isQuiz,
+        ?string $correctOptionId = null
     ): Poll
     {
         $builder = $this->getBuilder();
         $builder->setQuestion($question);
         $builder->setIsAnonymous($isAnonymous);
-        $builder->setIsQuiz(false);
+        $builder->setIsQuiz($isQuiz);
 
-        array_map(fn($option) => $builder->setOption($option), $options);
-
-        return $builder->getPoll();
-    }
-
-    public function createQuiz(
-        string $question,
-        array  $options,
-        bool   $isAnonymous,
-        string $correctOptionId
-    ): Poll
-    {
-        $builder = $this->getBuilder();
-        $builder->setQuestion($question);
-        $builder->setIsAnonymous($isAnonymous);
-        $builder->setIsQuiz(true);
-        $builder->setCorrectOptionId(self::OPTION_INDEXES[$correctOptionId]);
-
-        Log::debug('setCorrectOptionId: ' . self::OPTION_INDEXES[$correctOptionId]);
+        if ($correctOptionId) {
+            $builder->setCorrectOptionId(self::OPTION_INDEXES[$correctOptionId]);
+        }
 
         array_map(fn($option) => $builder->setOption($option), $options);
 

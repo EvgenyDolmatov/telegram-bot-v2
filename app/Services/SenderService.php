@@ -21,9 +21,42 @@ readonly class SenderService
     }
 
     /**
+     * Send photo
+     *
+     * @param Message $message
+     * @param string $imageUrl
+     * @param bool $isTrash
+     * @return void
+     */
+    public function sendPhoto(Message $message, string $imageUrl, bool $isTrash = true): void
+    {
+        $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/sendPhoto';
+        $chat = (new RequestRepository($this->request))->convertToChat();
+        $buttons = $message->getButtons();
+
+        $body = [
+            'chat_id' => $chat->getId(),
+            'parse_mode' => 'html',
+            'photo' => $imageUrl,
+            'caption' => $message->getText()
+        ];
+
+        $body = $this->addButtonsToBody($buttons, $body);
+
+        $response = Http::post($url, $body);
+        $this->updateChatMessages(
+            response: $response,
+            isTrash: $isTrash
+        );
+
+        Log::debug('BOT: ' . $response);
+    }
+
+    /**
      * Send simple message or message with buttons
      *
      * @param Message $message
+     * @param bool $isTrash
      * @return void
      */
     public function sendMessage(Message $message, bool $isTrash = true): void
@@ -38,6 +71,26 @@ readonly class SenderService
             'text' => $message->getText()
         ];
 
+        $body = $this->addButtonsToBody($buttons, $body);
+
+        $response = Http::post($url, $body);
+        $this->updateChatMessages(
+            response: $response,
+            isTrash: $isTrash
+        );
+
+        Log::debug('BOT: ' . $response);
+    }
+
+    /**
+     * Add buttons to body if exists
+     *
+     * @param array $buttons
+     * @param array $body
+     * @return array
+     */
+    public function addButtonsToBody(array $buttons, array $body): array
+    {
         if (count($buttons) !== 0) {
             foreach ($buttons as $button) {
                 $body['reply_markup']['inline_keyboard'][] = [
@@ -49,13 +102,7 @@ readonly class SenderService
             }
         }
 
-        $response = Http::post($url, $body);
-        $this->updateChatMessages(
-            response: $response,
-            isTrash: $isTrash
-        );
-
-        Log::debug('BOT: ' . $response);
+        return $body;
     }
 
     /**
@@ -133,20 +180,20 @@ readonly class SenderService
     /**
      * Check if user is chat member
      *
-     * @return void
+     * @return bool
      */
-    public function checkMembership(): void
+    public function isMembership(): bool
     {
         $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/getChatMember';
-        $chat = (new RequestRepository($this->request))->convertToChat();
+        $user = (new RequestRepository($this->request))->convertToUser();
 
         $body = [
-            "chat_id" => $chat->getId(),
-            "user_id" => "1001540575721"
+            "chat_id" => -1001540575721,
+            "user_id" => $user->getId()
         ];
 
-        $response = Http::post($url, $body);
+        $data = json_decode(Http::post($url, $body), true);
 
-        Log::debug('Member: ' . $response);
+        return isset($data['ok']) && $data['ok'];
     }
 }
