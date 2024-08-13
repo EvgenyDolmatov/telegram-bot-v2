@@ -134,12 +134,14 @@ class StepAction implements StepConstants
 
     public function canContinue(): bool
     {
-        return true;
+        $user = User::getOrCreate($this->repository);
+        $aiRequest = AiRequest::where('tg_chat_id', $user->tg_chat_id)->get();
 
-//        $user = User::getOrCreate($this->repository);
-//        $aiRequest = AiRequest::where('tg_chat_id', $user->tg_chat_id)->get();
-//
-//        return $aiRequest->count() && $this->prepareMessageData()->isMembership();
+        if ($aiRequest->count()) {
+            return $this->prepareMessageData()->isMembership();
+        }
+
+        return true;
     }
 
     /**
