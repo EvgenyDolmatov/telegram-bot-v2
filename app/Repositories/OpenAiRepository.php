@@ -19,15 +19,15 @@ readonly class OpenAiRepository
         $responseArray = json_decode($this->service->getCompletions(), true);
 
         if (isset($responseArray['object']) && $responseArray['object'] === 'chat.completion') {
+            if (!isset($responseArray['choices'][0]['message']['content'])) {
+                return null;
+            }
+
             $openAiUsage = new OpenAiUsageDto(
                 promptTokens: $responseArray['usage']['prompt_tokens'],
                 completionTokens: $responseArray['usage']['completion_tokens'],
                 totalTokens: $responseArray['usage']['total_tokens']
             );
-
-            if (!isset($responseArray['choices'][0]['message']['content'])) {
-                return null;
-            }
 
             return new OpenAiCompletionDto(
                 id: $responseArray['id'],

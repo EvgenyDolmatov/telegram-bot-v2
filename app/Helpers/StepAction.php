@@ -330,75 +330,80 @@ class StepAction implements StepConstants
         /** @var OpenAiCompletionDto $openAiCompletion */
         $openAiCompletion = $openAiRepository->getCompletion();
 
-        $flow = $user->getOpenedFlow();
-
-        if ($openAiCompletion) {
-            if ($questions = $openAiCompletion->getQuestions()) {
-                $correctAnswers = '';
-                $questionNumber = 0;
-                foreach ($questions as $question) {
-                    $this->sendPoll(
-                        question: $question->getText(),
-                        options: $question->getOptions(),
-                        isAnonymous: $flow->isAnonymous(),
-                        isQuiz: $flow->isQuiz(),
-                        correctOptionId: $question->getAnswer(),
-                        isTrash: false
-                    );
-
-                    if ($flow->isQuiz()) {
-                        $questionNumber++;
-                        $questionText = trim($question->getText(), ':');
-                        $correctAnswers .= "\n\nВопрос № $questionNumber. $questionText";
-                        $correctAnswers .= "\nПравильный ответ: {$question->getOptions()[$question->getAnswer()]}";
-                    }
-                }
-
-                // Show right answers
-                if ($correctAnswers !== '') {
-                    $this->sendMessage($correctAnswers, null, false);
-                }
-            }
-
-            // Save result to DB
-            AiRequest::create([
-                'tg_chat_id' => $user->tg_chat_id,
-                'user_flow_id' => $flow->id,
-                'ai_survey' => json_encode(array_map(fn($question) => [
-                    'text' => $question->getText(),
-                    'options' => $question->getOptions(),
-                    'answer' => $question->getAnswer(),
-                ], $openAiCompletion->getQuestions())),
-                'usage_prompt_tokens' => $openAiCompletion->getUsage()->getPromptTokens(),
-                'usage_completion_tokens' => $openAiCompletion->getUsage()->getCompletionTokens(),
-                'usage_total_tokens' => $openAiCompletion->getUsage()->getTotalTokens(),
-            ]);
-
-            // Close current flow
-            $flow->is_completed = 1;
-            $flow->save();
-
-            if (!$this->canContinue()) {
-                $this->subscribeToCommunity();
-                return;
-            }
-
-            // Show message about next action
-            $message = "Выберите, что делать дальше:";
-            $buttons = [
-                new ButtonDto(
-                    callbackData: CommandConstants::START,
-                    text: 'Выбрать другую тему'
-                ),
-                new ButtonDto(
-                    callbackData: CallbackConstants::REPEAT_FLOW,
-                    text: 'Создать еще 5 вопросов'
-                )
-            ];
-
-            $this->sendMessage($message, $buttons);
+        if ($openAiCompletion === null) {
+            $this->someProblemMessage();
+            return;
         }
 
+        $flow = $user->getOpenedFlow();
+        if ($questions = $openAiCompletion->getQuestions()) {
+            $correctAnswers = '';
+            $questionNumber = 0;
+            foreach ($questions as $question) {
+                $this->sendPoll(
+                    question: $question->getText(),
+                    options: $question->getOptions(),
+                    isAnonymous: $flow->isAnonymous(),
+                    isQuiz: $flow->isQuiz(),
+                    correctOptionId: $question->getAnswer(),
+                    isTrash: false
+                );
+
+                if ($flow->isQuiz()) {
+                    $questionNumber++;
+                    $questionText = trim($question->getText(), ':');
+                    $correctAnswers .= "\n\nВопрос № $questionNumber. $questionText";
+                    $correctAnswers .= "\nПравильный ответ: {$question->getOptions()[$question->getAnswer()]}";
+                }
+            }
+
+            // Show right answers
+            if ($correctAnswers !== '') {
+                $this->sendMessage($correctAnswers, null, false);
+            }
+        }
+
+        // Save result to DB
+        AiRequest::create([
+            'tg_chat_id' => $user->tg_chat_id,
+            'user_flow_id' => $flow->id,
+            'ai_survey' => json_encode(array_map(fn($question) => [
+                'text' => $question->getText(),
+                'options' => $question->getOptions(),
+                'answer' => $question->getAnswer(),
+            ], $openAiCompletion->getQuestions())),
+            'usage_prompt_tokens' => $openAiCompletion->getUsage()->getPromptTokens(),
+            'usage_completion_tokens' => $openAiCompletion->getUsage()->getCompletionTokens(),
+            'usage_total_tokens' => $openAiCompletion->getUsage()->getTotalTokens(),
+        ]);
+
+        // Close current flow
+        $flow->is_completed = 1;
+        $flow->save();
+
+        if (!$this->canContinue()) {
+            $this->subscribeToCommunity();
+            return;
+        }
+
+        // Show message about next action
+        $message = "Выберите, что делать дальше:";
+        $buttons = [
+            new ButtonDto(
+                callbackData: CommandConstants::START,
+                text: 'Выбрать другую тему'
+            ),
+            new ButtonDto(
+                callbackData: CallbackConstants::REPEAT_FLOW,
+                text: 'Создать еще 5 вопросов'
+            )
+        ];
+
+        $this->sendMessage($message, $buttons);
+    }
+
+    public function someProblemMessage(): void
+    {
         $this->sendMessage(
             'Что-то пошло не так. Попробуйте еще раз',
             [new ButtonDto(CommandConstants::START, 'Начать сначала')]
