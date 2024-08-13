@@ -18,7 +18,7 @@ class TelegramService
     {
         $url = CommonConstants::TELEGRAM_BASE_URL. $this->token . '/setWebhook';
         $data = [
-            'url' => 'https://transsyberia.su/webhook',
+            'url' => env('APP_URL') . '/webhook',
             'drop_pending_updates' => true
         ];
 
