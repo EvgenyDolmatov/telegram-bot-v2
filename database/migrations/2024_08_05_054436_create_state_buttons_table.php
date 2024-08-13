@@ -89,6 +89,11 @@ return new class extends Migration
                         self::TEXT => 'Высокая сложность',
                         self::CALLBACK => CallbackConstants::LEVEL_HARD,
                     ],
+                    [
+                        self::STATE_ID => $state->id,
+                        self::TEXT => 'Любая сложность',
+                        self::CALLBACK => CallbackConstants::LEVEL_HARD,
+                    ],
                 ]);
             }
         }
