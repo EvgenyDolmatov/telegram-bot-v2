@@ -25,7 +25,7 @@ readonly class OpenAiRepository
                 totalTokens: $responseArray['usage']['total_tokens']
             );
 
-            if (isset($responseArray['choices'][0]['message']['content'])) {
+            if (!isset($responseArray['choices'][0]['message']['content'])) {
                 return null;
             }
 
