@@ -11,12 +11,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call([
-            StateSeeder::class,
-            StateButtonSeeder::class,
-            TransitionSeeder::class,
-            SectorSeeder::class,
-            SubjectSeeder::class,
-        ]);
+        //
     }
 }
