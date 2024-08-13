@@ -194,6 +194,6 @@ readonly class SenderService
 
         $data = json_decode(Http::post($url, $body), true);
 
-        return isset($data['ok']) && $data['ok'];
+        return isset($data['result']['status']) && $data['result']['status'] === "member";
     }
 }
