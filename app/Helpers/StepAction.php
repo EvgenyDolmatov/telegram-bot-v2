@@ -134,10 +134,12 @@ class StepAction implements StepConstants
 
     public function canContinue(): bool
     {
-        $user = User::getOrCreate($this->repository);
-        $aiRequest = AiRequest::where('tg_chat_id', $user->tg_chat_id)->get();
+        return true;
 
-        return $aiRequest->count() && $this->prepareMessageData()->isMembership();
+//        $user = User::getOrCreate($this->repository);
+//        $aiRequest = AiRequest::where('tg_chat_id', $user->tg_chat_id)->get();
+//
+//        return $aiRequest->count() && $this->prepareMessageData()->isMembership();
     }
 
     /**
@@ -396,6 +398,11 @@ class StepAction implements StepConstants
 
             $this->sendMessage($message, $buttons);
         }
+
+        $this->sendMessage(
+            'Что-то пошло не так. Попробуйте еще раз',
+            [new ButtonDto(CommandConstants::START, 'Начать сначала')]
+        );
     }
 
     public function subscribeToCommunity(): void
