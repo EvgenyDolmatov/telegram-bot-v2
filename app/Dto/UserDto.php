@@ -7,15 +7,15 @@ class UserDto
     private int $id;
     private string $username;
     private bool $isBot;
-    private string $firstName;
-    private string $lastName;
+    private ?string $firstName;
+    private ?string $lastName;
 
     public function __construct(
         int $id,
         string $username,
         bool $isBot = false,
-        string $firstName = null,
-        string $lastName = null)
+        ?string $firstName = null,
+        ?string $lastName = null)
     {
         $this->id = $id;
         $this->username = $username;
@@ -39,12 +39,12 @@ class UserDto
         return $this->isBot;
     }
 
-    public function getFirstName(): string
+    public function getFirstName(): ?string
     {
         return $this->firstName;
     }
 
-    public function getLastName(): string
+    public function getLastName(): ?string
     {
         return $this->lastName;
     }

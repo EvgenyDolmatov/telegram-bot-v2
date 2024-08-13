@@ -27,7 +27,6 @@ readonly class ResponseRepository
         if(isset($body['result'])) {
             $payload['id'] = $body['result']['message_id'];
             $payload['date'] = $body['result']['date'];
-//            $payload['text'] = $body['result']['text'];
 
             $payload['from']['id'] = $body['result']['from']['id'];
             $payload['from']['is_bot'] = $body['result']['from']['is_bot'];
