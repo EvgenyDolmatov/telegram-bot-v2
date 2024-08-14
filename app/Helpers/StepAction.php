@@ -28,27 +28,15 @@ class StepAction implements StepConstants
 {
     private MessageSender $messageSender;
     private PollSender $pollSender;
-    private TelegramService $telegramService;
-    private Request $request;
+    private SenderService $senderService;
     private RequestRepository $repository;
 
     public function __construct(TelegramService $telegramService, Request $request)
     {
-        $this->telegramService = $telegramService;
-        $this->request = $request;
+        $this->senderService = new SenderService($request, $telegramService);
         $this->messageSender = (new MessageSender())->setBuilder(new MessageBuilder());
         $this->pollSender = new PollSender();
         $this->repository = new RequestRepository($request);
-    }
-
-    /**
-     * Prepare data to sending message
-     *
-     * @return SenderService
-     */
-    public function prepareMessageData(): SenderService
-    {
-        return new SenderService($this->request, $this->telegramService);
     }
 
     /**
@@ -66,7 +54,7 @@ class StepAction implements StepConstants
             ? $this->messageSender->createSimpleMessage($text)
             : $this->messageSender->createMessageWithButtons($text, $buttons);
 
-        $this->prepareMessageData()->sendPhoto($message, $imageUrl, $isTrash);
+        $this->senderService->sendPhoto($message, $imageUrl, $isTrash);
     }
 
     /**
@@ -83,17 +71,7 @@ class StepAction implements StepConstants
             ? $this->messageSender->createSimpleMessage($text)
             : $this->messageSender->createMessageWithButtons($text, $buttons);
 
-        $this->prepareMessageData()->sendMessage($message, $isTrash);
-    }
-
-    /**
-     * Prepare data to sending poll
-     *
-     * @return SenderService
-     */
-    public function preparePollData(): SenderService
-    {
-        return new SenderService($this->request, $this->telegramService);
+        $this->senderService->sendMessage($message, $isTrash);
     }
 
     /**
@@ -120,7 +98,7 @@ class StepAction implements StepConstants
             ->setBuilder(new PollBuilder())
             ->createPoll($question, $options, $isAnonymous, $isQuiz, $correctOptionId);
 
-        $this->preparePollData()->sendPoll($poll, $isTrash);
+        $this->senderService->sendPoll($poll, $isTrash);
     }
 
     public function addToTrash(): void
@@ -138,7 +116,7 @@ class StepAction implements StepConstants
         $aiRequest = AiRequest::where('tg_chat_id', $user->tg_chat_id)->get();
 
         if ($aiRequest->count()) {
-            return $this->prepareMessageData()->isMembership();
+            return $this->senderService->isMembership();
         }
 
         return true;
