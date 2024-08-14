@@ -7,61 +7,53 @@ use App\Dto\MessageDto;
 use App\Dto\UserDto;
 use Illuminate\Http\Request;
 
-class RequestRepository
+readonly class RequestRepository
 {
-    private string $body;
-
-    public function __construct(private readonly Request $request)
-    {
-        $this->body = json_encode($this->request->all());
-    }
-
-    public function toArray(): array
-    {
-        return json_decode($this->body, true);
-    }
+    public function __construct(
+        private Request $request
+    ) {}
 
     public function getData(): array
     {
         $payload = array();
-        $body = $this->toArray();
+        $data = $this->request->all();
 
         // Response from user request after send simple message
-        if (isset($body['message'])) {
-            $payload['id'] = $body['message']['message_id'];
-            $payload['date'] = $body['message']['date'];
-            $payload['text'] = $body['message']['text'];
+        if (isset($data['message'])) {
+            $payload['id'] = $data['message']['message_id'];
+            $payload['date'] = $data['message']['date'];
+            $payload['text'] = $data['message']['text'];
 
-            $payload['from']['id'] = $body['message']['from']['id'];
-            $payload['from']['is_bot'] = $body['message']['from']['is_bot'];
-            $payload['from']['first_name'] = $body['message']['from']['first_name'] ?? null;
-            $payload['from']['last_name'] = $body['message']['from']['last_name'] ?? null;
-            $payload['from']['username'] = $body['message']['from']['username'];
+            $payload['from']['id'] = $data['message']['from']['id'];
+            $payload['from']['is_bot'] = $data['message']['from']['is_bot'];
+            $payload['from']['first_name'] = $data['message']['from']['first_name'] ?? null;
+            $payload['from']['last_name'] = $data['message']['from']['last_name'] ?? null;
+            $payload['from']['username'] = $data['message']['from']['username'];
 
-            $payload['chat']['id'] = $body['message']['chat']['id'];
-            $payload['chat']['first_name'] = $body['message']['chat']['first_name'] ?? null;
-            $payload['chat']['last_name'] = $body['message']['chat']['last_name'] ?? null;
-            $payload['chat']['username'] = $body['message']['chat']['username'];
-            $payload['chat']['type'] = $body['message']['chat']['type'];
+            $payload['chat']['id'] = $data['message']['chat']['id'];
+            $payload['chat']['first_name'] = $data['message']['chat']['first_name'] ?? null;
+            $payload['chat']['last_name'] = $data['message']['chat']['last_name'] ?? null;
+            $payload['chat']['username'] = $data['message']['chat']['username'];
+            $payload['chat']['type'] = $data['message']['chat']['type'];
         }
 
         // Response from user request after click by button
-        if(isset($body['callback_query'])) {
-            $payload['id'] = $body['callback_query']['message']['message_id'];
-            $payload['date'] = $body['callback_query']['message']['date'];
-            $payload['text'] = $body['callback_query']['data'];
+        if(isset($data['callback_query'])) {
+            $payload['id'] = $data['callback_query']['message']['message_id'];
+            $payload['date'] = $data['callback_query']['message']['date'];
+            $payload['text'] = $data['callback_query']['data'];
 
-            $payload['from']['id'] = $body['callback_query']['from']['id'];
-            $payload['from']['is_bot'] = $body['callback_query']['from']['is_bot'];
-            $payload['from']['first_name'] = $body['callback_query']['from']['first_name'] ?? null;
-            $payload['from']['last_name'] = $body['callback_query']['from']['last_name'] ?? null;
-            $payload['from']['username'] = $body['callback_query']['from']['username'];
+            $payload['from']['id'] = $data['callback_query']['from']['id'];
+            $payload['from']['is_bot'] = $data['callback_query']['from']['is_bot'];
+            $payload['from']['first_name'] = $data['callback_query']['from']['first_name'] ?? null;
+            $payload['from']['last_name'] = $data['callback_query']['from']['last_name'] ?? null;
+            $payload['from']['username'] = $data['callback_query']['from']['username'];
 
-            $payload['chat']['id'] = $body['callback_query']['message']['chat']['id'];
-            $payload['chat']['first_name'] = $body['callback_query']['message']['chat']['first_name'] ?? null;
-            $payload['chat']['last_name'] = $body['callback_query']['message']['chat']['last_name'] ?? null;
-            $payload['chat']['username'] = $body['callback_query']['message']['chat']['username'];
-            $payload['chat']['type'] = $body['callback_query']['message']['chat']['type'];
+            $payload['chat']['id'] = $data['callback_query']['message']['chat']['id'];
+            $payload['chat']['first_name'] = $data['callback_query']['message']['chat']['first_name'] ?? null;
+            $payload['chat']['last_name'] = $data['callback_query']['message']['chat']['last_name'] ?? null;
+            $payload['chat']['username'] = $data['callback_query']['message']['chat']['username'];
+            $payload['chat']['type'] = $data['callback_query']['message']['chat']['type'];
         }
 
         return $payload;

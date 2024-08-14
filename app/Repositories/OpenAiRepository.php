@@ -11,8 +11,7 @@ readonly class OpenAiRepository
 {
     public function __construct(
         private OpenAiService $service
-    ) {
-    }
+    ) {}
 
     public function getCompletion(): ?OpenAiCompletionDto
     {

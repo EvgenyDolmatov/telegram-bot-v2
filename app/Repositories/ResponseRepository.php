@@ -11,34 +11,28 @@ readonly class ResponseRepository
 {
     public function __construct(
         private Response $response
-    ) {
-    }
-
-    public function toArray(): array
-    {
-        return json_decode($this->response, true);
-    }
+    ) {}
 
     public function getData(): array
     {
         $payload = array();
-        $body = $this->toArray();
+        $data = json_decode($this->response, true);
 
-        if(isset($body['result'])) {
-            $payload['id'] = $body['result']['message_id'];
-            $payload['date'] = $body['result']['date'];
+        if(isset($data['result'])) {
+            $payload['id'] = $data['result']['message_id'];
+            $payload['date'] = $data['result']['date'];
 
-            $payload['from']['id'] = $body['result']['from']['id'];
-            $payload['from']['is_bot'] = $body['result']['from']['is_bot'];
-            $payload['from']['first_name'] = $body['result']['from']['first_name'] ?? null;
-            $payload['from']['last_name'] = $body['result']['from']['last_name'] ?? null;
-            $payload['from']['username'] = $body['result']['from']['username'];
+            $payload['from']['id'] = $data['result']['from']['id'];
+            $payload['from']['is_bot'] = $data['result']['from']['is_bot'];
+            $payload['from']['first_name'] = $data['result']['from']['first_name'] ?? null;
+            $payload['from']['last_name'] = $data['result']['from']['last_name'] ?? null;
+            $payload['from']['username'] = $data['result']['from']['username'];
 
-            $payload['chat']['id'] = $body['result']['chat']['id'];
-            $payload['chat']['first_name'] = $body['result']['chat']['first_name'] ?? null;
-            $payload['chat']['last_name'] = $body['result']['chat']['last_name'] ?? null;
-            $payload['chat']['username'] = $body['result']['chat']['username'];
-            $payload['chat']['type'] = $body['result']['chat']['type'];
+            $payload['chat']['id'] = $data['result']['chat']['id'];
+            $payload['chat']['first_name'] = $data['result']['chat']['first_name'] ?? null;
+            $payload['chat']['last_name'] = $data['result']['chat']['last_name'] ?? null;
+            $payload['chat']['username'] = $data['result']['chat']['username'];
+            $payload['chat']['type'] = $data['result']['chat']['type'];
         }
 
         return $payload;
