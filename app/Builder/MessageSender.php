@@ -16,21 +16,15 @@ class MessageSender
         return $this;
     }
 
-    public function createSimpleMessage(string $text): Message
+    public function createMessage(string $text, ?array $buttons = null): Message
     {
         $builder = $this->getBuilder();
         $builder->setText($text);
 
-        return $builder->getMessage();
-    }
-
-    public function createMessageWithButtons(string $text, array $buttons): Message
-    {
-        $builder = $this->getBuilder();
-        $builder->setText($text);
-
-        foreach ($buttons as $button) {
-            $builder->setButton($button);
+        if ($buttons) {
+            foreach ($buttons as $button) {
+                $builder->setButton($button);
+            }
         }
 
         return $builder->getMessage();

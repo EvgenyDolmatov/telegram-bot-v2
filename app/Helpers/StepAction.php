@@ -50,10 +50,7 @@ class StepAction implements StepConstants
      */
     public function sendPhoto(string $imageUrl, string $text, ?array $buttons = null, bool $isTrash = true): void
     {
-        $message = $buttons === null
-            ? $this->messageSender->createSimpleMessage($text)
-            : $this->messageSender->createMessageWithButtons($text, $buttons);
-
+        $message = $this->messageSender->createMessage($text, $buttons);
         $this->senderService->sendPhoto($message, $imageUrl, $isTrash);
     }
 
@@ -67,10 +64,7 @@ class StepAction implements StepConstants
      */
     public function sendMessage(string $text, ?array $buttons = null, bool $isTrash = true): void
     {
-        $message = $buttons === null
-            ? $this->messageSender->createSimpleMessage($text)
-            : $this->messageSender->createMessageWithButtons($text, $buttons);
-
+        $message = $this->messageSender->createMessage($text, $buttons);
         $this->senderService->sendMessage($message, $isTrash);
     }
 
