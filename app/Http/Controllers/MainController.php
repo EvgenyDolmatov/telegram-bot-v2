@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Constants\CallbackConstants;
-use App\Constants\CommandConstants;
 use App\Helpers\StepAction;
 use App\Models\TrashMessage;
 use App\Models\User;
@@ -23,44 +22,33 @@ class MainController extends Controller
 
         if ($request->hasAny(['message', 'callback_query'])) {
             $stepHelper = new StepAction($telegram, $request);
-            $messageDto = $requestRepository->convertToMessage();
-            $chatDto = $requestRepository->convertToChat();
 
-            Log::debug('USER: ' . $messageDto->getId() . ' : ' . $messageDto->getText());
+            $chatDto = $requestRepository->convertToChat();
+            $messageDto = $requestRepository->convertToMessage();
+            $message = $messageDto->getText();
+
+            Log::debug('USER: ' . $messageDto->getId() . ' : ' . $message);
 
             TrashMessage::add($chatDto, $messageDto, true);
 
             $user = User::getOrCreate($requestRepository);
 
-            /** Select "/start" command */
-            if ($messageDto->getText() === CommandConstants::START) {
-                if (!$stepHelper->canContinue()) {
-                    $stepHelper->subscribeToCommunity();
-                    return;
-                }
-
-                $stepHelper->mainChoice();
-                $user->changeState($request);
-                return;
-            }
-
-            /** Select "/help" command */
-            if ($messageDto->getText() === CommandConstants::HELP) {
-                $stepHelper->help();
-                $user->changeState($request);
+            /** Command handler */
+            if (str_starts_with($message, '/')) {
+                $user->commandHandler($request, $stepHelper, $message);
                 return;
             }
 
             /** Support button */
-            if ($messageDto->getText() === CallbackConstants::SUPPORT) {
+            if ($message === CallbackConstants::SUPPORT) {
                 $stepHelper->support();
                 return;
             }
 
             /** User steps flow */
-            $user->stateHandler($request, $stepHelper, $messageDto->getText());
+            $user->stateHandler($request, $stepHelper, $message);
 
-            if ($messageDto->getText() === CallbackConstants::REPEAT_FLOW) {
+            if ($message === CallbackConstants::REPEAT_FLOW) {
                 $lastFlow = $user->getLastFlow();
                 UserFlow::create([
                     'user_id' => $lastFlow->user_id,

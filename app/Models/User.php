@@ -197,4 +197,33 @@ class User extends Model
         $stateService = new StateService($request, $this, $stepAction, $message);
         $stateService->switchState();
     }
+
+    /**
+     * Commands handler for messages which starts with "/"
+     *
+     * @param Request $request
+     * @param StepAction $stepAction
+     * @param string $message
+     * @return void
+     */
+    public function commandHandler(Request $request, StepAction $stepAction, string $message): void
+    {
+        switch ($message) {
+            case CommandConstants::START:
+                if ($stepAction->canContinue()) {
+                    $stepAction->mainChoice();
+                    $this->changeState($request);
+                    return;
+                }
+
+                $stepAction->subscribeToCommunity();
+                return;
+            case CommandConstants::HELP:
+                $stepAction->help();
+                $this->changeState($request);
+                return;
+            default:
+                $stepAction->someProblemMessage();
+        }
+    }
 }
