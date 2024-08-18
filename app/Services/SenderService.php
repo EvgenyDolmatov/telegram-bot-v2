@@ -192,8 +192,9 @@ readonly class SenderService
             "user_id" => $user->getId()
         ];
 
+        $allowedUserStatuses = ['administrator', 'creator', 'member'];
         $data = json_decode(Http::post($url, $body), true);
 
-        return isset($data['result']['status']) && (in_array($data['result']['status'], ['member', 'creator']));
+        return isset($data['result']['status']) && (in_array($data['result']['status'], $allowedUserStatuses));
     }
 }
