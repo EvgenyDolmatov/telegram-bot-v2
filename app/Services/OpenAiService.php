@@ -45,17 +45,6 @@ class OpenAiService
     {
         $user = $this->user;
         $data = $user->getFlowData();
-        $difficultyData = [
-            CallbackConstants::LEVEL_EASY => 'низкой',
-            CallbackConstants::LEVEL_MIDDLE => 'средней',
-            CallbackConstants::LEVEL_HARD => 'высокой',
-            CallbackConstants::LEVEL_ANY => 'любой',
-        ];
-
-        $sector = Sector::where('code', $data[StateConstants::SECTOR_CHOICE])->first()->title;
-        $subject = Subject::where('code', $data[StateConstants::SUBJECT_CHOICE])->first()->title;
-        $theme = $data[StateConstants::THEME_REQUEST];
-        $difficulty = $difficultyData[$data[StateConstants::DIFFICULTY_CHOICE]];
 
         $url = 'https://api.openai.com/v1/chat/completions';
         $template = [
@@ -87,6 +76,16 @@ class OpenAiService
             $hasCorrectAnswer = ', с одним правильным ответом';
         }
 
+        $difficultyData = [
+            CallbackConstants::LEVEL_EASY => 'низкой',
+            CallbackConstants::LEVEL_MIDDLE => 'средней',
+            CallbackConstants::LEVEL_HARD => 'высокой',
+            CallbackConstants::LEVEL_ANY => 'любой',
+        ];
+
+        $sector = Sector::where('code', $data[StateConstants::SECTOR_CHOICE])->first()->title;
+        $difficulty = $difficultyData[$data[StateConstants::DIFFICULTY_CHOICE]];
+
         $body = [
             'model' => 'gpt-3.5-turbo-0125',
             'response_format' => [
@@ -97,17 +96,27 @@ class OpenAiService
                     'role' => 'system',
                     'content' => "Ты преподаватель в сфере $sector. Тебе нужно сгенерировать 5 вопросов $difficulty сложности, состоящие из 4 вариантов ответов$hasCorrectAnswer. Вопрос должен быть понятным и емким,
                     но не превышать 255 символов. Ответы должны быть понятны отвечающим, но не превышать 100 символов. Ответ пришли в формате JSON. Пример JSON ответа: " . json_encode($template)
-                ],
-                [
-                    'role' => 'user',
-                    'content' => "Предмет: $subject"
-                ],
-                [
-                    'role' => 'user',
-                    'content' => "Тема: $theme"
                 ]
             ]
         ];
+
+        // If subject choice exists
+        if (isset($data[StateConstants::SUBJECT_CHOICE])) {
+            $subject = Subject::where('code', $data[StateConstants::SUBJECT_CHOICE])->first()->title;
+            $body['messages'][] = [
+                'role' => 'user',
+                'content' => "Предмет: $subject"
+            ];
+        }
+
+        // If theme request exists
+        if (isset($data[StateConstants::THEME_REQUEST])) {
+            $theme = $data[StateConstants::THEME_REQUEST];
+            $body['messages'][] = [
+                'role' => 'user',
+                'content' => "Тема: $theme"
+            ];
+        }
 
         return Http::withHeaders($this->headers)
             ->withOptions(['proxy' => $this->proxy])
