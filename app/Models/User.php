@@ -58,7 +58,7 @@ class User extends Model
         return $this->flows->where('is_completed', 0)->first();
     }
 
-    public function getLastFlow(): UserFlow
+    public function getLastFlow(): ?UserFlow
     {
         return UserFlow::where('user_id', $this->id)->where('is_completed', 1)->latest()->first();
     }

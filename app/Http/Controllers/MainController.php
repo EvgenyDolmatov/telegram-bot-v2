@@ -50,13 +50,18 @@ class MainController extends Controller
 
             if ($message === CallbackConstants::REPEAT_FLOW) {
                 $lastFlow = $user->getLastFlow();
-                UserFlow::create([
-                    'user_id' => $lastFlow->user_id,
-                    'flow' => $lastFlow->flow,
-                    'is_completed' => 0,
-                ]);
 
-                $stepHelper->responseFromAi();
+                if ($lastFlow) {
+                    UserFlow::create([
+                        'user_id' => $lastFlow->user_id,
+                        'flow' => $lastFlow->flow,
+                        'is_completed' => 0,
+                    ]);
+
+                    $stepHelper->responseFromAi();
+                }
+
+                // TODO: Create some message about quiz repeat...
             }
         }
     }

@@ -34,13 +34,13 @@ readonly class StateService
         $message = $this->message;
 
         if ($currentState = $user->getCurrentState()) {
-            if ($currentState->code === StateConstants::THEME_REQUEST) {
-                $this->toNextState($user->getNextState());
+            if ($message === TransitionConstants::BACK) {
+                $this->toNextState($user->getPrevState());
                 return;
             }
 
-            if ($message === TransitionConstants::BACK) {
-                $this->toNextState($user->getPrevState());
+            if ($currentState->code === StateConstants::THEME_REQUEST) {
+                $this->toNextState($user->getNextState());
                 return;
             }
 
