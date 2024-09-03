@@ -188,7 +188,7 @@ readonly class SenderService
         $user = (new RequestRepository($this->request))->convertToUser();
 
         $body = [
-            "chat_id" => -1001540575721,
+            "chat_id" => config('services.telegram.chatId'),
             "user_id" => $user->getId()
         ];
 

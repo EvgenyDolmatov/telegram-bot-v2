@@ -37,6 +37,7 @@ return [
 
     'telegram' => [
         'token' => env('TELEGRAM_TOKEN'),
+        'chatId' => env('TELEGRAM_CHAT_ID'),
     ],
 
     'openai' => [
