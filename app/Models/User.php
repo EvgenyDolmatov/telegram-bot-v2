@@ -20,7 +20,7 @@ class User extends Model
         'username',
         'first_name',
         'last_name',
-        'is_bot'
+        'referrer_link'
     ];
 
     public function states()
