@@ -208,6 +208,17 @@ class User extends Model
      */
     public function commandHandler(Request $request, StepAction $stepAction, string $message): void
     {
+        // Check if the user followed the referral link
+        if (str_contains($message, ' ')) {
+            $message = explode(' ', $message)[0];
+            $referralCode = explode(' ', $message)[1];
+
+            $user = User::where('referrer_link', $referralCode)->first();
+            if ($user) {
+                // TODO: To finish code
+            }
+        }
+
         switch ($message) {
             case CommandConstants::START:
                 if ($stepAction->canContinue()) {

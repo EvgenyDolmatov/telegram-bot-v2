@@ -14,7 +14,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('referrer_link')->nullable()->after('last_name');
+            $table->string('referrer_link')->unique()->nullable()->after('last_name');
         });
 
         foreach (User::all() as $user) {
