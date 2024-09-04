@@ -51,6 +51,12 @@ class MainController extends Controller
                 return;
             }
 
+            /** Referred users */
+            if ($message === CallbackConstants::ACCOUNT_REFERRED_USERS) {
+                $stepHelper->showReferredUsers();
+                return;
+            }
+
             /** User steps flow */
             $user->stateHandler($request, $stepHelper, $message);
 

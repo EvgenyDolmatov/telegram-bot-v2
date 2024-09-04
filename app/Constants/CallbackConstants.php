@@ -5,6 +5,8 @@ namespace App\Constants;
 interface CallbackConstants
 {
     public const string SUPPORT = 'support';
+
+    /** Survey callback constants  */
     public const string CREATE_SURVEY = 'create_survey';
     public const string TYPE_QUIZ = 'type_quiz';
     public const string TYPE_SURVEY = 'type_survey';
@@ -18,4 +20,5 @@ interface CallbackConstants
 
     /** Account callback constants */
     public const string ACCOUNT_REFERRAL_LINK = 'account_referral_link';
+    public const string ACCOUNT_REFERRED_USERS = 'account_referred_users';
 }

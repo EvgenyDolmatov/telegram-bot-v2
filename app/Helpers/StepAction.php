@@ -162,7 +162,8 @@ class StepAction implements StepConstants
         $this->addToTrash();
 
         $buttons = [
-            new ButtonDto(CallbackConstants::ACCOUNT_REFERRAL_LINK, 'Реферальная ссылка'),
+            new ButtonDto(CallbackConstants::ACCOUNT_REFERRED_USERS, 'Приглашенные пользователи'),
+            new ButtonDto(CallbackConstants::ACCOUNT_REFERRAL_LINK, 'Моя реферальная ссылка'),
             new ButtonDto(CommandConstants::START, 'Назад'),
         ];
 
@@ -173,8 +174,6 @@ class StepAction implements StepConstants
     }
 
     /**
-     * If user pressed to "support" button
-     *
      * @return void
      */
     public function showReferralLink(): void
@@ -184,7 +183,30 @@ class StepAction implements StepConstants
 
         $this->sendMessage(
             text: "Ваша реферальная ссылка:\n\n{$referrerLink}",
-            buttons: [new ButtonDto(CommandConstants::START, 'Назад')]
+            buttons: [new ButtonDto(CommandConstants::ACCOUNT, 'Назад')]
+        );
+    }
+
+    /**
+     * @return void
+     */
+    public function showReferredUsers(): void
+    {
+        $text = 'У вас пока нет приглашенных пользователей.';
+
+        $user = User::getOrCreate($this->repository);
+        $referredUsers = $user->referredUsers;
+        if ($referredUsers->count()) {
+            $text = "Ваши приглашенные пользователи:\n";
+            foreach ($referredUsers as $referredUser) {
+                $refUser = User::find($referredUser->referred_user_id);
+                $text .= "\n<a href='https://t.me/{$refUser->username}'>{$refUser->username}</a>\n";
+            }
+        }
+
+        $this->sendMessage(
+            text: $text,
+            buttons: [new ButtonDto(CommandConstants::ACCOUNT, 'Назад')]
         );
     }
 

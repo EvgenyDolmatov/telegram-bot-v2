@@ -18,7 +18,7 @@ return new class extends Migration
         });
 
         foreach (User::all() as $user) {
-            $user->referrer_link = Str::random(30);
+            $user->referrer_link = Str::random(40);
             $user->save();
         }
     }

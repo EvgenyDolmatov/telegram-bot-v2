@@ -34,6 +34,11 @@ class User extends Model
         return $this->hasMany(UserFlow::class, 'user_id');
     }
 
+    public function referredUsers()
+    {
+        return $this->hasMany(UserReferral::class, 'user_id');
+    }
+
     public static function getOrCreate(RequestRepository $repository): User
     {
         $userDto = $repository->convertToUser();
