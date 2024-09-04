@@ -11,6 +11,7 @@ use App\Services\Traits\Proxy;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class OpenAiService
 {
@@ -41,6 +42,9 @@ class OpenAiService
         Log::debug('Open AI: ' . $response);
     }
 
+    /**
+     * @return Response
+     */
     public function getCompletions(): Response
     {
         $user = $this->user;
@@ -118,8 +122,16 @@ class OpenAiService
             ];
         }
 
-        return Http::withHeaders($this->headers)
-            ->withOptions(['proxy' => $this->proxy])
-            ->post($url, $body);
+        try {
+            $response = Http::withHeaders($this->headers)
+                ->withOptions(['proxy' => $this->proxy])
+                ->post($url, $body);
+        } catch (Throwable $throwable) {
+            Log::error('Can\'t send request to OpenAI API. Maybe some problems with token.', [
+                'message' => $throwable->getMessage()
+            ]);
+        }
+
+        return $response;
     }
 }
