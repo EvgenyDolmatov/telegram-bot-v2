@@ -242,6 +242,8 @@ class User extends Model
     /**
      * Add referred user if followed by referral link
      *
+     * TODO: Table "users" have not to contain this user
+     *
      * @param string $message
      * @return void
      */
