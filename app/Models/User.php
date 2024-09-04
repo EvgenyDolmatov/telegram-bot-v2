@@ -253,7 +253,9 @@ class User extends Model
             $referralCode = $messageData[1];
             $parentUser = User::where('referrer_link', $referralCode)->first();
 
-            if ($parentUser && $parentUser->id !== $this->id) {
+            $isUserReferred = UserReferral::where('referred_user_id', $this->id)->first();
+
+            if ($parentUser && $parentUser->id !== $this->id && !$isUserReferred) {
                 UserReferral::create([
                     'user_id' => $parentUser->id,
                     'referred_user_id' => $this->id,
