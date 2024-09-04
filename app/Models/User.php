@@ -208,15 +208,8 @@ class User extends Model
      */
     public function commandHandler(Request $request, StepAction $stepAction, string $message): void
     {
-        // Check if the user followed the referral link
-        if (str_contains($message, ' ')) {
-            $message = explode(' ', $message)[0];
-            $referralCode = explode(' ', $message)[1];
-
-            $user = User::where('referrer_link', $referralCode)->first();
-            if ($user) {
-                // TODO: To finish code
-            }
+        if (str_starts_with($message, CommandConstants::START)) {
+            $this->addReferredUser($message);
         }
 
         switch ($message) {
@@ -235,6 +228,29 @@ class User extends Model
                 return;
             default:
                 $stepAction->someProblemMessage();
+        }
+    }
+
+    /**
+     * Add referred user if followed by referral link
+     *
+     * @param string $message
+     * @return void
+     */
+    public function addReferredUser(string &$message): void
+    {
+        if (str_contains($message, ' ')) {
+            $messageData = explode(' ', $message);
+            $message = $messageData[0];
+            $referralCode = $messageData[1];
+            $parentUser = User::where('referrer_link', $referralCode)->first();
+
+            if ($parentUser && $parentUser->id !== $this->id) {
+                UserReferral::create([
+                    'user_id' => $parentUser->id,
+                    'referred_user_id' => $this->id,
+                ]);
+            }
         }
     }
 }
