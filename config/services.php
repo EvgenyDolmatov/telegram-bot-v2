@@ -38,6 +38,7 @@ return [
     'telegram' => [
         'token' => env('TELEGRAM_TOKEN'),
         'chatId' => env('TELEGRAM_CHAT_ID'),
+        'botLink' => env('TELEGRAM_BOT'),
     ],
 
     'openai' => [

@@ -179,7 +179,7 @@ class StepAction implements StepConstants
     public function showReferralLink(): void
     {
         $user = User::getOrCreate($this->repository);
-        $referrerLink = CommonConstants::TELEGRAM_BOT_URL . '?start=' . $user->referrer_link;
+        $referrerLink = config('services.telegram.botLink') . '?start=' . $user->referrer_link;
 
         $this->sendMessage(
             text: "Ваша реферальная ссылка:\n\n{$referrerLink}",
