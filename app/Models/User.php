@@ -11,6 +11,7 @@ use App\Services\StateService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class User extends Model
 {
@@ -44,9 +45,9 @@ class User extends Model
                 'tg_user_id' => $userDto->getId(),
                 'tg_chat_id' => $chatDto->getId(),
                 'username' => $userDto->getUsername(),
-                'is_bot' => $userDto->getIsBot(),
                 'first_name' => $userDto->getFirstName(),
                 'last_name' => $userDto->getLastName(),
+                'referrer_link' => Str::random(40)
             ]);
         }
 
@@ -224,7 +225,9 @@ class User extends Model
                 return;
             case CommandConstants::HELP:
                 $stepAction->help();
-                $this->changeState($request);
+                return;
+            case CommandConstants::ACCOUNT:
+                $stepAction->account();
                 return;
             default:
                 $stepAction->someProblemMessage();

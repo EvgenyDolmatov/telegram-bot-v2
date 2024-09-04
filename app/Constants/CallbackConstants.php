@@ -15,4 +15,7 @@ interface CallbackConstants
     public const string LEVEL_HARD = 'level_hard';
     public const string LEVEL_ANY = 'level_any';
     public const string REPEAT_FLOW = 'repeat_flow';
+
+    /** Account callback constants */
+    public const string ACCOUNT_REFERRAL_LINK = 'account_referral_link';
 }

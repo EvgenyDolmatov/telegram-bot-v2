@@ -4,6 +4,7 @@ namespace App\Constants;
 
 interface CommandConstants
 {
-    public const string START = '/start';
+    public const string ACCOUNT = '/account';
     public const string HELP = '/help';
+    public const string START = '/start';
 }

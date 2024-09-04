@@ -8,6 +8,7 @@ use App\Builder\Poll\PollBuilder;
 use App\Builder\PollSender;
 use App\Constants\CallbackConstants;
 use App\Constants\CommandConstants;
+use App\Constants\CommonConstants;
 use App\Constants\StateConstants;
 use App\Constants\StepConstants;
 use App\Dto\ButtonDto;
@@ -147,6 +148,42 @@ class StepAction implements StepConstants
 
         $this->sendMessage(
             text: self::HELP_TEXT,
+            buttons: [new ButtonDto(CommandConstants::START, 'Назад')]
+        );
+    }
+
+    /**
+     * If user pressed "/account" button
+     *
+     * @return void
+     */
+    public function account(): void
+    {
+        $this->addToTrash();
+
+        $buttons = [
+            new ButtonDto(CallbackConstants::ACCOUNT_REFERRAL_LINK, 'Реферальная ссылка'),
+            new ButtonDto(CommandConstants::START, 'Назад'),
+        ];
+
+        $this->sendMessage(
+            text: self::ACCOUNT_TEXT,
+            buttons: $buttons
+        );
+    }
+
+    /**
+     * If user pressed to "support" button
+     *
+     * @return void
+     */
+    public function showReferralLink(): void
+    {
+        $user = User::getOrCreate($this->repository);
+        $referrerLink = CommonConstants::TELEGRAM_BOT_URL . '?start=' . $user->referrer_link;
+
+        $this->sendMessage(
+            text: "Ваша реферальная ссылка:\n\n{$referrerLink}",
             buttons: [new ButtonDto(CommandConstants::START, 'Назад')]
         );
     }

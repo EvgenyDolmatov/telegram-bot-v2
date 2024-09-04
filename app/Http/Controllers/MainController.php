@@ -45,6 +45,12 @@ class MainController extends Controller
                 return;
             }
 
+            /** Referral link button */
+            if ($message === CallbackConstants::ACCOUNT_REFERRAL_LINK) {
+                $stepHelper->showReferralLink();
+                return;
+            }
+
             /** User steps flow */
             $user->stateHandler($request, $stepHelper, $message);
 
