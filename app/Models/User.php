@@ -93,12 +93,14 @@ class User extends Model
 
     public function getCurrentState(): State
     {
-        if (!$this->states->first()) {
-            $startState = State::where('code', StateConstants::START)->first();
-            $this->states()->attach($startState->id);
+        if ($currentState = $this->states->first()) {
+            return $currentState;
         }
 
-        return $this->states->first();
+        $startState = State::where('code', StateConstants::START)->first();
+        $this->states()->attach($startState->id);
+
+        return $startState;
     }
 
     public function getNextState(): ?State
