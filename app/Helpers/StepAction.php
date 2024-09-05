@@ -181,8 +181,13 @@ class StepAction implements StepConstants
         $user = User::getOrCreate($this->repository);
         $referrerLink = config('services.telegram.botLink') . '?start=' . $user->referrer_link;
 
-        $this->sendMessage(
-            text: "Ваша реферальная ссылка:\n\n{$referrerLink}",
+        $text = "🎓 Создавай тесты, играй в квиз с друзьями не выходя из телеграмма. ";
+        $text .= "Участвуй в акциях и выигрывай ценные призы!\n\n";
+        $text .= "🎲 Присоединяйся сейчас\n\n{$referrerLink}";
+
+        $this->sendPhoto(
+            imageUrl: asset('assets/img/referral.png'),
+            text: $text,
             buttons: [new ButtonDto(CommandConstants::ACCOUNT, 'Назад')]
         );
     }
