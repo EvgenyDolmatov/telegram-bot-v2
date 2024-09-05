@@ -39,22 +39,37 @@ class User extends Model
         return $this->hasMany(UserReferral::class, 'user_id');
     }
 
-    public static function getOrCreate(RequestRepository $repository): User
+    public static function getByRequestRepository(RequestRepository $repository): ?User
+    {
+        return User::where('tg_user_id', $repository->convertToUser()->getId())->first();
+    }
+
+    public static function createFromRequestRepository(RequestRepository $repository): User
     {
         $userDto = $repository->convertToUser();
         $chatDto = $repository->convertToChat();
-        $user = User::where('tg_user_id', $userDto->getId())->first();
 
-        if ($user === null) {
-            $user = User::create([
-                'tg_user_id' => $userDto->getId(),
-                'tg_chat_id' => $chatDto->getId(),
-                'username' => $userDto->getUsername(),
-                'first_name' => $userDto->getFirstName(),
-                'last_name' => $userDto->getLastName(),
-                'referrer_link' => Str::random(40)
-            ]);
+        return self::create([
+            'tg_user_id' => $userDto->getId(),
+            'tg_chat_id' => $chatDto->getId(),
+            'username' => $userDto->getUsername(),
+            'first_name' => $userDto->getFirstName(),
+            'last_name' => $userDto->getLastName(),
+            'referrer_link' => Str::random(40)
+        ]);
+    }
+
+    public static function getOrCreate(RequestRepository $repository): User
+    {
+        if ($user = self::getByRequestRepository($repository)) {
+            return $user;
         }
+
+        $user = self::createFromRequestRepository($repository);
+
+        // Check if the user has referral link
+        $message = $repository->convertToMessage()->getText();
+        $user->addReferredUser($message);
 
         return $user;
     }
@@ -120,8 +135,6 @@ class User extends Model
     }
 
     /**
-     * TODO: Write code for "BACK" callback
-     *
      * @param Request $request
      * @return void
      */
@@ -166,11 +179,13 @@ class User extends Model
                     $this->states()->attach($this->getPrevState()->id);
                     return;
                 } else {
-                    // если ввели что-то непонятное
+                    // TODO: Make handler about unexpected text
                     if (
                         $previousState->code !== StateConstants::THEME_REQUEST &&
                         !in_array($message, $previousState->prepareCallbackItems($this))
-                    ) { Log::debug('HERE'); return; }
+                    ) {
+                        Log::debug('Unexpected text'); return;
+                    }
 
                     if ($userFlowData = $this->getFlowData()) {
                         $userFlowData[$previousState->code] = $message;
@@ -214,9 +229,7 @@ class User extends Model
      */
     public function commandHandler(Request $request, StepAction $stepAction, string $message): void
     {
-        if (str_starts_with($message, CommandConstants::START)) {
-            $this->addReferredUser($message);
-        }
+        $message = $this->clearCommand($message);
 
         switch ($message) {
             case CommandConstants::START:
@@ -242,16 +255,13 @@ class User extends Model
     /**
      * Add referred user if followed by referral link
      *
-     * TODO: Table "users" have not to contain this user
-     *
      * @param string $message
      * @return void
      */
-    public function addReferredUser(string &$message): void
+    public function addReferredUser(string $message): void
     {
-        if (str_contains($message, ' ')) {
+        if (str_starts_with($message, CommandConstants::START) && str_contains($message, ' ')) {
             $messageData = explode(' ', $message);
-            $message = $messageData[0];
             $referralCode = $messageData[1];
             $parentUser = User::where('referrer_link', $referralCode)->first();
 
@@ -264,5 +274,21 @@ class User extends Model
                 ]);
             }
         }
+    }
+
+    /**
+     * Remove from "/start" command referral code
+     *
+     * @param string $message
+     * @return string
+     */
+    public function clearCommand(string $message): string
+    {
+        if (str_starts_with($message, CommandConstants::START) && str_contains($message, ' ')) {
+            $messageData = explode(' ', $message);
+            $message = $messageData[0];
+        }
+
+        return $message;
     }
 }
