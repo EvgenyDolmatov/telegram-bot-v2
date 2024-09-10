@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use App\Constants\CommandConstants;
 use App\Constants\StateConstants;
 use App\Constants\TransitionConstants;
+use App\Enums\CommandEnum;
 use App\Helpers\StepAction;
 use App\Repositories\RequestRepository;
 use App\Services\StateService;
@@ -147,7 +147,7 @@ class User extends Model
         $message = $messageDto->getText();
 
         switch ($message) {
-            case CommandConstants::START:
+            case CommandEnum::START->value:
                 $startState = State::where('code', StateConstants::START)->first();
 
                 if ($this->hasAnyState())
@@ -234,7 +234,7 @@ class User extends Model
         $message = $this->clearCommand($message);
 
         switch ($message) {
-            case CommandConstants::START:
+            case CommandEnum::START->value:
                 if ($stepAction->canContinue()) {
                     $stepAction->mainChoice();
                     $this->changeState($request);
@@ -243,11 +243,14 @@ class User extends Model
 
                 $stepAction->subscribeToCommunity();
                 return;
-            case CommandConstants::HELP:
+            case CommandEnum::HELP->value:
                 $stepAction->help();
                 return;
-            case CommandConstants::ACCOUNT:
+            case CommandEnum::ACCOUNT->value:
                 $stepAction->account();
+                return;
+            case CommandEnum::ADMIN->value:
+                $stepAction->adminMenu();
                 return;
             default:
                 $stepAction->someProblemMessage();
@@ -262,7 +265,7 @@ class User extends Model
      */
     public function addReferredUser(string $message): void
     {
-        if (str_starts_with($message, CommandConstants::START) && str_contains($message, ' ')) {
+        if (str_starts_with($message, CommandEnum::START->value) && str_contains($message, ' ')) {
             $messageData = explode(' ', $message);
             $referralCode = $messageData[1];
             $parentUser = User::where('referrer_link', $referralCode)->first();
@@ -286,7 +289,7 @@ class User extends Model
      */
     public function clearCommand(string $message): string
     {
-        if (str_starts_with($message, CommandConstants::START) && str_contains($message, ' ')) {
+        if (str_starts_with($message, CommandEnum::START->value) && str_contains($message, ' ')) {
             $messageData = explode(' ', $message);
             $message = $messageData[0];
         }

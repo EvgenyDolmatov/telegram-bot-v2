@@ -7,12 +7,11 @@ use App\Builder\MessageSender;
 use App\Builder\Poll\PollBuilder;
 use App\Builder\PollSender;
 use App\Constants\CallbackConstants;
-use App\Constants\CommandConstants;
-use App\Constants\CommonConstants;
 use App\Constants\StateConstants;
 use App\Constants\StepConstants;
 use App\Dto\ButtonDto;
 use App\Dto\OpenAiCompletionDto;
+use App\Enums\CommandEnum;
 use App\Models\AiRequest;
 use App\Models\State;
 use App\Models\Subject;
@@ -148,7 +147,7 @@ class StepAction implements StepConstants
 
         $this->sendMessage(
             text: self::HELP_TEXT,
-            buttons: [new ButtonDto(CommandConstants::START, 'Назад')]
+            buttons: [new ButtonDto(CommandEnum::START->value, 'Назад')]
         );
     }
 
@@ -164,7 +163,7 @@ class StepAction implements StepConstants
         $buttons = [
             new ButtonDto(CallbackConstants::ACCOUNT_REFERRED_USERS, 'Приглашенные пользователи'),
             new ButtonDto(CallbackConstants::ACCOUNT_REFERRAL_LINK, 'Моя реферальная ссылка'),
-            new ButtonDto(CommandConstants::START, 'Назад'),
+            new ButtonDto(CommandEnum::START->value, 'Назад'),
         ];
 
         $this->sendMessage(
@@ -188,7 +187,7 @@ class StepAction implements StepConstants
         $this->sendPhoto(
             imageUrl: asset('assets/img/referral.png'),
             text: $text,
-            buttons: [new ButtonDto(CommandConstants::ACCOUNT, 'Назад')]
+            buttons: [new ButtonDto(CommandEnum::ACCOUNT->value, 'Назад')]
         );
     }
 
@@ -211,8 +210,23 @@ class StepAction implements StepConstants
 
         $this->sendMessage(
             text: $text,
-            buttons: [new ButtonDto(CommandConstants::ACCOUNT, 'Назад')]
+            buttons: [new ButtonDto(CommandEnum::ACCOUNT->value, 'Назад')]
         );
+    }
+
+    public function adminMenu(): void
+    {
+        $user = User::getOrCreate($this->repository);
+
+        if ($user->is_admin) {
+            $this->sendMessage(
+                text: 'Меню администратора:',
+                buttons: [new ButtonDto(CommandEnum::START->value, 'Вернуться в начало')]
+            );
+            return;
+        }
+
+        $this->someProblemMessage();
     }
 
     /**
@@ -226,7 +240,7 @@ class StepAction implements StepConstants
 
         $this->sendMessage(
             text: self::SUPPORT_TEXT,
-            buttons: [new ButtonDto(CommandConstants::START, 'Назад')]
+            buttons: [new ButtonDto(CommandEnum::START->value, 'Назад')]
         );
     }
 
@@ -428,7 +442,7 @@ class StepAction implements StepConstants
         $message = "Выберите, что делать дальше:";
         $buttons = [
             new ButtonDto(
-                callbackData: CommandConstants::START,
+                callbackData: CommandEnum::START->value,
                 text: 'Выбрать другую тему'
             ),
             new ButtonDto(
@@ -444,7 +458,7 @@ class StepAction implements StepConstants
     {
         $this->sendMessage(
             'Что-то пошло не так. Попробуйте еще раз',
-            [new ButtonDto(CommandConstants::START, 'Начать сначала')]
+            [new ButtonDto(CommandEnum::START->value, 'Начать сначала')]
         );
     }
 
@@ -453,7 +467,7 @@ class StepAction implements StepConstants
         $message = "Подпишись на <a href='https://t.me/corgish_ru'>наш канал</a>, чтобы продолжить...";
         $this->sendMessage(
             $message,
-            [new ButtonDto(CommandConstants::START, 'Я подписался')]
+            [new ButtonDto(CommandEnum::START->value, 'Я подписался')]
         );
     }
 }
