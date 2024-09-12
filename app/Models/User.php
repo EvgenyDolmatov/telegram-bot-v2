@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Constants\StateConstants;
 use App\Constants\TransitionConstants;
 use App\Enums\CommandEnum;
+use App\Enums\CommonCallbackEnum;
 use App\Helpers\StepAction;
 use App\Repositories\RequestRepository;
 use App\Services\StateService;
@@ -254,6 +255,28 @@ class User extends Model
                 return;
             default:
                 $stepAction->someProblemMessage();
+        }
+    }
+
+    /**
+     * Handler for static button callbacks
+     *
+     * @param StepAction $stepAction
+     * @param string $callback
+     * @return void
+     */
+    public function callbackHandler(StepAction $stepAction, string $callback): void
+    {
+        switch ($callback) {
+            case CommonCallbackEnum::SUPPORT:
+                $stepAction->support();
+                return;
+            case CommonCallbackEnum::ACCOUNT_REFERRAL_LINK->value:
+                $stepAction->showReferralLink();
+                return;
+            case CommonCallbackEnum::ACCOUNT_REFERRED_USERS->value:
+                $stepAction->showReferredUsers();
+                return;
         }
     }
 

@@ -6,12 +6,13 @@ use App\Builder\Message\MessageBuilder;
 use App\Builder\MessageSender;
 use App\Builder\Poll\PollBuilder;
 use App\Builder\PollSender;
-use App\Constants\CallbackConstants;
 use App\Constants\StateConstants;
 use App\Constants\StepConstants;
 use App\Dto\ButtonDto;
 use App\Dto\OpenAiCompletionDto;
 use App\Enums\CommandEnum;
+use App\Enums\CommonCallbackEnum;
+use App\Enums\SurveyCallbackEnum;
 use App\Models\AiRequest;
 use App\Models\State;
 use App\Models\Subject;
@@ -161,8 +162,8 @@ class StepAction implements StepConstants
         $this->addToTrash();
 
         $buttons = [
-            new ButtonDto(CallbackConstants::ACCOUNT_REFERRED_USERS, 'Приглашенные пользователи'),
-            new ButtonDto(CallbackConstants::ACCOUNT_REFERRAL_LINK, 'Моя реферальная ссылка'),
+            new ButtonDto(CommonCallbackEnum::ACCOUNT_REFERRED_USERS->value, 'Приглашенные пользователи'),
+            new ButtonDto(CommonCallbackEnum::ACCOUNT_REFERRAL_LINK->value, 'Моя реферальная ссылка'),
             new ButtonDto(CommandEnum::START->value, 'Назад'),
         ];
 
@@ -217,11 +218,15 @@ class StepAction implements StepConstants
     public function adminMenu(): void
     {
         $user = User::getOrCreate($this->repository);
+        $buttons = [
+            new ButtonDto(CommonCallbackEnum::ADMIN_CREATE_NEWSLETTER->value, 'Создать рассылку'),
+            new ButtonDto(CommandEnum::START->value, 'Вернуться в начало')
+        ];
 
         if ($user->is_admin) {
             $this->sendMessage(
                 text: 'Меню администратора:',
-                buttons: [new ButtonDto(CommandEnum::START->value, 'Вернуться в начало')]
+                buttons: $buttons
             );
             return;
         }
@@ -446,7 +451,7 @@ class StepAction implements StepConstants
                 text: 'Выбрать другую тему'
             ),
             new ButtonDto(
-                callbackData: CallbackConstants::REPEAT_FLOW,
+                callbackData: SurveyCallbackEnum::REPEAT_FLOW->value,
                 text: 'Создать еще 5 вопросов'
             )
         ];
