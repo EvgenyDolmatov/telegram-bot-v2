@@ -5,14 +5,14 @@ namespace App\Dto;
 class UserDto
 {
     private int $id;
-    private string $username;
+    private ?string $username;
     private bool $isBot;
     private ?string $firstName;
     private ?string $lastName;
 
     public function __construct(
         int $id,
-        string $username,
+        ?string $username = null,
         bool $isBot = false,
         ?string $firstName = null,
         ?string $lastName = null)
@@ -29,7 +29,7 @@ class UserDto
         return $this->id;
     }
 
-    public function getUsername(): string
+    public function getUsername(): ?string
     {
         return $this->username;
     }

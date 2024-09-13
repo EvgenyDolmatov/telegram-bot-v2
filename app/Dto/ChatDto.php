@@ -5,7 +5,7 @@ namespace App\Dto;
 class ChatDto
 {
     private int $id;
-    private string $username;
+    private ?string $username;
     private string $type;
     private ?string $firstName;
     private ?string $lastName;
@@ -29,7 +29,7 @@ class ChatDto
         return $this->id;
     }
 
-    public function getUsername(): string
+    public function getUsername(): ?string
     {
         return $this->username;
     }
