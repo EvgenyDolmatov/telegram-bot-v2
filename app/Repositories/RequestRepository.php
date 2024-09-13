@@ -33,7 +33,7 @@ readonly class RequestRepository
             $payload['chat']['id'] = $data['message']['chat']['id'];
             $payload['chat']['first_name'] = $data['message']['chat']['first_name'] ?? null;
             $payload['chat']['last_name'] = $data['message']['chat']['last_name'] ?? null;
-            $payload['chat']['username'] = $data['message']['chat']['username'];
+            $payload['chat']['username'] = $data['message']['chat']['username'] ?? null;
             $payload['chat']['type'] = $data['message']['chat']['type'];
         }
 
@@ -47,12 +47,12 @@ readonly class RequestRepository
             $payload['from']['is_bot'] = $data['callback_query']['from']['is_bot'];
             $payload['from']['first_name'] = $data['callback_query']['from']['first_name'] ?? null;
             $payload['from']['last_name'] = $data['callback_query']['from']['last_name'] ?? null;
-            $payload['from']['username'] = $data['callback_query']['from']['username'];
+            $payload['from']['username'] = $data['callback_query']['from']['username'] ?? null;
 
             $payload['chat']['id'] = $data['callback_query']['message']['chat']['id'];
             $payload['chat']['first_name'] = $data['callback_query']['message']['chat']['first_name'] ?? null;
             $payload['chat']['last_name'] = $data['callback_query']['message']['chat']['last_name'] ?? null;
-            $payload['chat']['username'] = $data['callback_query']['message']['chat']['username'];
+            $payload['chat']['username'] = $data['callback_query']['message']['chat']['username'] ?? null;
             $payload['chat']['type'] = $data['callback_query']['message']['chat']['type'];
         }
 
