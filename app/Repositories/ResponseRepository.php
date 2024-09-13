@@ -26,12 +26,12 @@ readonly class ResponseRepository
             $payload['from']['is_bot'] = $data['result']['from']['is_bot'];
             $payload['from']['first_name'] = $data['result']['from']['first_name'] ?? null;
             $payload['from']['last_name'] = $data['result']['from']['last_name'] ?? null;
-            $payload['from']['username'] = $data['result']['from']['username'];
+            $payload['from']['username'] = $data['result']['from']['username'] ?? null;
 
             $payload['chat']['id'] = $data['result']['chat']['id'];
             $payload['chat']['first_name'] = $data['result']['chat']['first_name'] ?? null;
             $payload['chat']['last_name'] = $data['result']['chat']['last_name'] ?? null;
-            $payload['chat']['username'] = $data['result']['chat']['username'];
+            $payload['chat']['username'] = $data['result']['chat']['username'] ?? null;
             $payload['chat']['type'] = $data['result']['chat']['type'];
         }
 
