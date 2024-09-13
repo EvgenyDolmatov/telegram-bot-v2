@@ -28,7 +28,7 @@ readonly class RequestRepository
             $payload['from']['is_bot'] = $data['message']['from']['is_bot'];
             $payload['from']['first_name'] = $data['message']['from']['first_name'] ?? null;
             $payload['from']['last_name'] = $data['message']['from']['last_name'] ?? null;
-            $payload['from']['username'] = $data['message']['from']['username'];
+            $payload['from']['username'] = $data['message']['from']['username'] ?? null;
 
             $payload['chat']['id'] = $data['message']['chat']['id'];
             $payload['chat']['first_name'] = $data['message']['chat']['first_name'] ?? null;
