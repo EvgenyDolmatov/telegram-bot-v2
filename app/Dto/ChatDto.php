@@ -12,7 +12,7 @@ class ChatDto
 
     public function __construct(
         int $id,
-        string $username,
+        string $username = null,
         string $type = 'private',
         ?string $firstName = null,
         ?string $lastName = null)
