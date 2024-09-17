@@ -277,6 +277,9 @@ class User extends Model
             case CommonCallbackEnum::ACCOUNT_REFERRED_USERS->value:
                 $stepAction->showReferredUsers();
                 return;
+            case CommonCallbackEnum::ADMIN_CREATE_NEWSLETTER->value:
+                $stepAction->adminNewsletterWaiting();
+                return;
         }
     }
 

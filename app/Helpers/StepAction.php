@@ -234,6 +234,58 @@ class StepAction implements StepConstants
         $this->someProblemMessage();
     }
 
+    public function adminNewsletterWaiting(): void
+    {
+        $user = User::getOrCreate($this->repository);
+        if ($user->is_admin) {
+            $newsletterWaitingState = State::where('code', StateConstants::NEWSLETTER_WAITING)->first();
+
+            if ($user->hasAnyState())
+                $user->states()->detach();
+
+            if ($userFlow = $user->getOpenedFlow())
+                $userFlow->delete();
+
+            $user->states()->attach($newsletterWaitingState->id);
+
+            $message = "Введите сообщение и прикрепите файлы (если необходимо) для рассылки пользователям:\n\n";
+            $message .= "❗️После отправки сообщения отменить или удалить его будет невозможно!!!";
+
+            $this->sendMessage(
+                text: $message,
+                buttons: [new ButtonDto(CommandEnum::ADMIN->value, 'Назад')]
+            );
+
+            return;
+        }
+
+        $this->someProblemMessage();
+    }
+
+    public function adminNewsletterConfirm(): void
+    {
+        $user = User::getOrCreate($this->repository);
+        $newsletterWaitingState = State::where('code', StateConstants::NEWSLETTER_WAITING)->first();
+        if (
+            $user->is_admin
+            && ($newsletterWaitingState && $user->states->contains($newsletterWaitingState->id))
+        ) {
+            if ($user->hasAnyState())
+                $user->states()->detach();
+
+            $this->sendMessage(
+                text: 'Проверка сообщения...',
+                buttons: [
+                    new ButtonDto('accept', 'Все верно, разослать сообщения'),
+                    new ButtonDto('cancel', 'Отмена'),
+                ]
+            );
+            return;
+        }
+
+        $this->someProblemMessage();
+    }
+
     /**
      * If user pressed to "support" button
      *

@@ -21,6 +21,8 @@ class MainController extends Controller
         $telegram->resetQueue();
         $requestRepository = new RequestRepository($request);
 
+        Log::debug(json_encode($request->all()));
+
         if ($request->hasAny(['message', 'callback_query'])) {
             $stepHelper = new StepAction($telegram, $request);
 
@@ -64,6 +66,10 @@ class MainController extends Controller
                 }
 
                 // TODO: Create some message about quiz repeat...
+            }
+
+            if ($user->states->contains(9)) {
+                $stepHelper->adminNewsletterConfirm();
             }
         }
     }

@@ -13,6 +13,13 @@ readonly class RequestRepository
         private Request $request
     ) {}
 
+    private function isPhoto(): bool
+    {
+        $data = $this->request->all();
+
+        return isset($data['message']['photo']);
+    }
+
     public function getData(): array
     {
         $payload = array();
@@ -22,7 +29,12 @@ readonly class RequestRepository
         if (isset($data['message'])) {
             $payload['id'] = $data['message']['message_id'];
             $payload['date'] = $data['message']['date'];
-            $payload['text'] = $data['message']['text'];
+
+            if ($this->isPhoto()) {
+                $payload['text'] = $data['message']['caption'];
+            } else {
+                $payload['text'] = $data['message']['text'];
+            }
 
             $payload['from']['id'] = $data['message']['from']['id'];
             $payload['from']['is_bot'] = $data['message']['from']['is_bot'];
