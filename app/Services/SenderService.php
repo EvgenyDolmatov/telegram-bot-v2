@@ -11,6 +11,7 @@ use App\Repositories\ResponseRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 readonly class SenderService
 {
@@ -196,5 +197,31 @@ readonly class SenderService
         $data = json_decode(Http::post($url, $body), true);
 
         return isset($data['result']['status']) && (in_array($data['result']['status'], $allowedUserStatuses));
+    }
+
+    /**
+     * Upload photo from telegram by file ID
+     *
+     * @param string $fileId
+     * @return string|null
+     */
+    public function uploadPhoto(string $fileId): ?string
+    {
+        $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/getFile?file_id=' . $fileId;
+        $response = Http::get($url);
+        $path = null;
+
+        if ($response->successful()) {
+            $fileInfo = json_decode($response, true);
+            $filePath = $fileInfo['result']['file_path'];
+            $photoUrl = CommonConstants::TELEGRAM_ROOT_URL . '/file/bot' . $this->telegramService->token . '/' . $filePath;
+
+            $path = 'newsletters/' . time() . '.jpg';
+            $file = Http::get($photoUrl)->body();
+
+            Storage::disk('uploads')->put($path, $file);
+        }
+
+        return $path;
     }
 }

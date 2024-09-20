@@ -14,6 +14,7 @@ use App\Enums\CommandEnum;
 use App\Enums\CommonCallbackEnum;
 use App\Enums\SurveyCallbackEnum;
 use App\Models\AiRequest;
+use App\Models\Newsletter;
 use App\Models\State;
 use App\Models\Subject;
 use App\Models\TrashMessage;
@@ -265,7 +266,9 @@ class StepAction implements StepConstants
     public function adminNewsletterConfirm(): void
     {
         $user = User::getOrCreate($this->repository);
+        $messageDto = $this->repository->convertToMessage();
         $newsletterWaitingState = State::where('code', StateConstants::NEWSLETTER_WAITING)->first();
+
         if (
             $user->is_admin
             && ($newsletterWaitingState && $user->states->contains($newsletterWaitingState->id))
@@ -273,13 +276,40 @@ class StepAction implements StepConstants
             if ($user->hasAnyState())
                 $user->states()->detach();
 
+            $photoId = $messageDto->getPhoto()->getFileId();
+            $photoPath = $this->senderService->uploadPhoto($photoId);
+            $newsletterData = [
+                'user_id' => $user->id,
+                'text' => $messageDto->getText()
+            ];
+
             $this->sendMessage(
-                text: 'Проверка сообщения...',
+                text: "Внимательно проверьте Ваше сообщение!!! \n\nПосле подтверждения, это сообщение отправится всем подписчикам бота.",
+                isTrash: false
+            );
+
+            if ($photoPath) {
+                $newsletterData['image'] = 'uploads/' . $photoPath;
+                $this->sendPhoto(
+                    imageUrl: asset($newsletterData['image']),
+                    text: $messageDto->getText(),
+                    buttons: [
+                        new ButtonDto('accept', 'Все верно, отправить сообщение всем участникам!'),
+                        new ButtonDto(CommonCallbackEnum::ADMIN_CREATE_NEWSLETTER->value, 'Загрузить другое сообщение')
+                    ]
+                );
+                return;
+            }
+
+            $this->sendMessage(
+                text: $messageDto->getText(),
                 buttons: [
-                    new ButtonDto('accept', 'Все верно, разослать сообщения'),
-                    new ButtonDto('cancel', 'Отмена'),
+                    new ButtonDto('accept', 'Все верно, отправить сообщение всем участникам!'),
+                    new ButtonDto(CommonCallbackEnum::ADMIN_CREATE_NEWSLETTER->value, 'Загрузить другое сообщение')
                 ]
             );
+
+            Newsletter::create($newsletterData);
             return;
         }
 

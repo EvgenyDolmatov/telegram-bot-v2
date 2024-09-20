@@ -2,15 +2,19 @@
 
 namespace App\Dto;
 
+use App\Dto\Message\PhotoDto;
+
 class MessageDto
 {
     private int $id;
     private ?string $text;
+    private ?PhotoDto $photo;
 
-    public function __construct(int $id, ?string $text = null)
+    public function __construct(int $id, ?string $text = null, ?PhotoDto $photo = null)
     {
         $this->id = $id;
         $this->text = $text ?? '';
+        $this->photo = $photo;
     }
 
     public function getId(): int
@@ -21,5 +25,10 @@ class MessageDto
     public function getText(): ?string
     {
         return $this->text;
+    }
+
+    public function getPhoto(): ?PhotoDto
+    {
+        return $this->photo;
     }
 }
