@@ -283,16 +283,21 @@ class StepAction implements StepConstants
                 'text' => $messageDto->getText()
             ];
 
+            if ($photoPath) {
+                $newsletterData['image'] = 'uploads/' . $photoPath;
+            }
+
+            $newsletter = Newsletter::create($newsletterData);
+
             $this->sendMessage(
                 text: "Внимательно проверьте Ваше сообщение!!! \n\nПосле подтверждения, это сообщение отправится всем подписчикам бота.",
                 isTrash: false
             );
 
             if ($photoPath) {
-                $newsletterData['image'] = 'uploads/' . $photoPath;
                 $this->sendPhoto(
-                    imageUrl: asset($newsletterData['image']),
-                    text: $messageDto->getText(),
+                    imageUrl: asset($newsletter->image),
+                    text: $newsletter->text,
                     buttons: [
                         new ButtonDto('accept', 'Все верно, отправить сообщение всем участникам!'),
                         new ButtonDto(CommonCallbackEnum::ADMIN_CREATE_NEWSLETTER->value, 'Загрузить другое сообщение')
@@ -302,14 +307,12 @@ class StepAction implements StepConstants
             }
 
             $this->sendMessage(
-                text: $messageDto->getText(),
+                text: $newsletter->text,
                 buttons: [
                     new ButtonDto('accept', 'Все верно, отправить сообщение всем участникам!'),
                     new ButtonDto(CommonCallbackEnum::ADMIN_CREATE_NEWSLETTER->value, 'Загрузить другое сообщение')
                 ]
             );
-
-            Newsletter::create($newsletterData);
             return;
         }
 
