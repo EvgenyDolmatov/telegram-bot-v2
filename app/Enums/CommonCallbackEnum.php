@@ -10,6 +10,7 @@ enum CommonCallbackEnum: string
 
     /** Admin */
     case ADMIN_CREATE_NEWSLETTER = 'admin_create_newsletter';
+    case ADMIN_CONFIRM_NEWSLETTER = 'admin_confirm_newsletter';
 
     /** Common */
     case SUPPORT = 'support';

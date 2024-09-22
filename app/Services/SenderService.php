@@ -27,16 +27,22 @@ readonly class SenderService
      * @param Message $message
      * @param string $imageUrl
      * @param bool $isTrash
+     * @param int|null $chatId
      * @return void
      */
-    public function sendPhoto(Message $message, string $imageUrl, bool $isTrash = true): void
+    public function sendPhoto(Message $message, string $imageUrl, bool $isTrash = true, int $chatId = null): void
     {
         $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/sendPhoto';
-        $chat = (new RequestRepository($this->request))->convertToChat();
+
+        if (!$chatId) {
+            $chat = (new RequestRepository($this->request))->convertToChat();
+            $chatId = $chat->getId();
+        }
+
         $buttons = $message->getButtons();
 
         $body = [
-            'chat_id' => $chat->getId(),
+            'chat_id' => $chatId,
             'parse_mode' => 'html',
             'photo' => $imageUrl,
             'caption' => $message->getText()
@@ -58,16 +64,22 @@ readonly class SenderService
      *
      * @param Message $message
      * @param bool $isTrash
+     * @param int|null $chatId
      * @return void
      */
-    public function sendMessage(Message $message, bool $isTrash = true): void
+    public function sendMessage(Message $message, bool $isTrash = true, int $chatId = null): void
     {
         $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/sendMessage';
-        $chat = (new RequestRepository($this->request))->convertToChat();
+
+        if (!$chatId) {
+            $chat = (new RequestRepository($this->request))->convertToChat();
+            $chatId = $chat->getId();
+        }
+
         $buttons = $message->getButtons();
 
         $body = [
-            'chat_id' => $chat->getId(),
+            'chat_id' => $chatId,
             'parse_mode' => 'html',
             'text' => $message->getText()
         ];

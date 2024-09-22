@@ -48,12 +48,13 @@ class StepAction implements StepConstants
      * @param string $text
      * @param array|null $buttons
      * @param bool $isTrash
+     * @param null $chatId
      * @return void
      */
-    public function sendPhoto(string $imageUrl, string $text, ?array $buttons = null, bool $isTrash = true): void
+    public function sendPhoto(string $imageUrl, string $text, ?array $buttons = null, bool $isTrash = true, $chatId = null): void
     {
         $message = $this->messageSender->createMessage($text, $buttons);
-        $this->senderService->sendPhoto($message, $imageUrl, $isTrash);
+        $this->senderService->sendPhoto($message, $imageUrl, $isTrash, $chatId);
     }
 
     /**
@@ -64,10 +65,10 @@ class StepAction implements StepConstants
      * @param bool $isTrash
      * @return void
      */
-    public function sendMessage(string $text, ?array $buttons = null, bool $isTrash = true): void
+    public function sendMessage(string $text, ?array $buttons = null, bool $isTrash = true, $chatId = null): void
     {
         $message = $this->messageSender->createMessage($text, $buttons);
-        $this->senderService->sendMessage($message, $isTrash);
+        $this->senderService->sendMessage($message, $isTrash, $chatId);
     }
 
     /**
@@ -216,6 +217,9 @@ class StepAction implements StepConstants
         );
     }
 
+    /**
+     * Admin menu
+     */
     public function adminMenu(): void
     {
         $user = User::getOrCreate($this->repository);
@@ -235,6 +239,9 @@ class StepAction implements StepConstants
         $this->someProblemMessage();
     }
 
+    /**
+     * Waiting newsletter content (text and photo) from admin
+     */
     public function adminNewsletterWaiting(): void
     {
         $user = User::getOrCreate($this->repository);
@@ -263,7 +270,10 @@ class StepAction implements StepConstants
         $this->someProblemMessage();
     }
 
-    public function adminNewsletterConfirm(): void
+    /**
+     * Check newsletter content before sending
+     */
+    public function adminNewsletterConfirmation(): void
     {
         $user = User::getOrCreate($this->repository);
         $messageDto = $this->repository->convertToMessage();
@@ -299,8 +309,14 @@ class StepAction implements StepConstants
                     imageUrl: asset($newsletter->image),
                     text: $newsletter->text,
                     buttons: [
-                        new ButtonDto('accept', 'Все верно, отправить сообщение всем участникам!'),
-                        new ButtonDto(CommonCallbackEnum::ADMIN_CREATE_NEWSLETTER->value, 'Загрузить другое сообщение')
+                        new ButtonDto(
+                            CommonCallbackEnum::ADMIN_CONFIRM_NEWSLETTER->value,
+                            'Все верно, отправить сообщение всем участникам!'
+                        ),
+                        new ButtonDto(
+                            CommonCallbackEnum::ADMIN_CREATE_NEWSLETTER->value,
+                            'Загрузить другое сообщение'
+                        )
                     ]
                 );
                 return;
@@ -309,14 +325,54 @@ class StepAction implements StepConstants
             $this->sendMessage(
                 text: $newsletter->text,
                 buttons: [
-                    new ButtonDto('accept', 'Все верно, отправить сообщение всем участникам!'),
-                    new ButtonDto(CommonCallbackEnum::ADMIN_CREATE_NEWSLETTER->value, 'Загрузить другое сообщение')
+                    new ButtonDto(
+                        CommonCallbackEnum::ADMIN_CONFIRM_NEWSLETTER->value,
+                        'Все верно, отправить сообщение всем участникам!'
+                    ),
+                    new ButtonDto(
+                        CommonCallbackEnum::ADMIN_CREATE_NEWSLETTER->value,
+                        'Загрузить другое сообщение'
+                    )
                 ]
             );
             return;
         }
 
         $this->someProblemMessage();
+    }
+
+    /**
+     * Newsletter successful sent
+     */
+    public function adminNewsletterSent(): void
+    {
+        $allUsers = User::all();
+        $currentUser = User::getOrCreate($this->repository);
+        $lastNewsletter = $currentUser->newsletters->last();
+
+        $chatIds = [];
+        foreach ($allUsers as $user) {
+            $chatIds[] = $user->tg_chat_id;
+        }
+
+        if ($lastNewsletter->image) {
+            foreach ($chatIds as $chatId) {
+                $this->sendPhoto(
+                    imageUrl: asset($lastNewsletter->image),
+                    text: $lastNewsletter->text,
+                    isTrash: false,
+                    chatId: $chatId
+                );
+            }
+        } else {
+            foreach ($chatIds as $chatId) {
+                $this->sendMessage(
+                    text: $lastNewsletter->text,
+                    isTrash: false,
+                    chatId: $chatId
+                );
+            }
+        }
     }
 
     /**

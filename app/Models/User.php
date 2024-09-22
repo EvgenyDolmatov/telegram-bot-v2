@@ -40,6 +40,11 @@ class User extends Model
         return $this->hasMany(UserReferral::class, 'user_id');
     }
 
+    public function newsletters()
+    {
+        return $this->hasMany(Newsletter::class, 'user_id');
+    }
+
     public static function getByRequestRepository(RequestRepository $repository): ?User
     {
         return User::where('tg_user_id', $repository->convertToUser()->getId())->first();
@@ -279,6 +284,9 @@ class User extends Model
                 return;
             case CommonCallbackEnum::ADMIN_CREATE_NEWSLETTER->value:
                 $stepAction->adminNewsletterWaiting();
+                return;
+            case CommonCallbackEnum::ADMIN_CONFIRM_NEWSLETTER->value:
+                $stepAction->adminNewsletterSent();
                 return;
         }
     }

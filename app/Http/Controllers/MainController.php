@@ -68,8 +68,9 @@ class MainController extends Controller
                 // TODO: Create some message about quiz repeat...
             }
 
+            // TODO: Need to do something with index 9...
             if ($user->states->contains(9)) {
-                $stepHelper->adminNewsletterConfirm();
+                $stepHelper->adminNewsletterConfirmation();
             }
         }
     }
