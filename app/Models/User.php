@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
-use App\Constants\CommandConstants;
 use App\Constants\StateConstants;
 use App\Constants\TransitionConstants;
+use App\Enums\CommandEnum;
+use App\Enums\CommonCallbackEnum;
 use App\Helpers\StepAction;
 use App\Repositories\RequestRepository;
 use App\Services\StateService;
@@ -37,6 +38,11 @@ class User extends Model
     public function referredUsers()
     {
         return $this->hasMany(UserReferral::class, 'user_id');
+    }
+
+    public function newsletters()
+    {
+        return $this->hasMany(Newsletter::class, 'user_id');
     }
 
     public static function getByRequestRepository(RequestRepository $repository): ?User
@@ -147,7 +153,7 @@ class User extends Model
         $message = $messageDto->getText();
 
         switch ($message) {
-            case CommandConstants::START:
+            case CommandEnum::START->value:
                 $startState = State::where('code', StateConstants::START)->first();
 
                 if ($this->hasAnyState())
@@ -234,7 +240,7 @@ class User extends Model
         $message = $this->clearCommand($message);
 
         switch ($message) {
-            case CommandConstants::START:
+            case CommandEnum::START->value:
                 if ($stepAction->canContinue()) {
                     $stepAction->mainChoice();
                     $this->changeState($request);
@@ -243,14 +249,45 @@ class User extends Model
 
                 $stepAction->subscribeToCommunity();
                 return;
-            case CommandConstants::HELP:
+            case CommandEnum::HELP->value:
                 $stepAction->help();
                 return;
-            case CommandConstants::ACCOUNT:
+            case CommandEnum::ACCOUNT->value:
                 $stepAction->account();
+                return;
+            case CommandEnum::ADMIN->value:
+                $stepAction->adminMenu();
                 return;
             default:
                 $stepAction->someProblemMessage();
+        }
+    }
+
+    /**
+     * Handler for static button callbacks
+     *
+     * @param StepAction $stepAction
+     * @param string $callback
+     * @return void
+     */
+    public function callbackHandler(StepAction $stepAction, string $callback): void
+    {
+        switch ($callback) {
+            case CommonCallbackEnum::SUPPORT:
+                $stepAction->support();
+                return;
+            case CommonCallbackEnum::ACCOUNT_REFERRAL_LINK->value:
+                $stepAction->showReferralLink();
+                return;
+            case CommonCallbackEnum::ACCOUNT_REFERRED_USERS->value:
+                $stepAction->showReferredUsers();
+                return;
+            case CommonCallbackEnum::ADMIN_CREATE_NEWSLETTER->value:
+                $stepAction->adminNewsletterWaiting();
+                return;
+            case CommonCallbackEnum::ADMIN_CONFIRM_NEWSLETTER->value:
+                $stepAction->adminNewsletterSent();
+                return;
         }
     }
 
@@ -262,7 +299,7 @@ class User extends Model
      */
     public function addReferredUser(string $message): void
     {
-        if (str_starts_with($message, CommandConstants::START) && str_contains($message, ' ')) {
+        if (str_starts_with($message, CommandEnum::START->value) && str_contains($message, ' ')) {
             $messageData = explode(' ', $message);
             $referralCode = $messageData[1];
             $parentUser = User::where('referrer_link', $referralCode)->first();
@@ -286,7 +323,7 @@ class User extends Model
      */
     public function clearCommand(string $message): string
     {
-        if (str_starts_with($message, CommandConstants::START) && str_contains($message, ' ')) {
+        if (str_starts_with($message, CommandEnum::START->value) && str_contains($message, ' ')) {
             $messageData = explode(' ', $message);
             $message = $messageData[0];
         }

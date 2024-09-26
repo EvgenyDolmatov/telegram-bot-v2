@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Dto\ChatDto;
+use App\Dto\Message\PhotoDto;
 use App\Dto\MessageDto;
 use App\Dto\UserDto;
 use Illuminate\Http\Request;
@@ -13,6 +14,13 @@ readonly class RequestRepository
         private Request $request
     ) {}
 
+    private function hasPhoto(): bool
+    {
+        $data = $this->request->all();
+
+        return isset($data['message']['photo']);
+    }
+
     public function getData(): array
     {
         $payload = array();
@@ -22,7 +30,20 @@ readonly class RequestRepository
         if (isset($data['message'])) {
             $payload['id'] = $data['message']['message_id'];
             $payload['date'] = $data['message']['date'];
-            $payload['text'] = $data['message']['text'];
+            $payload['text'] = $data['message']['text'] ?? null;
+
+            if ($this->hasPhoto()) {
+                $payload['text'] = $data['message']['caption'] ?? null;
+
+                $fullSizePhotoIndex = $data['message']['photo'] ? count($data['message']['photo']) - 1 : null;
+                if ($fullSizePhotoIndex) {
+                    $payload['photo']['file_id'] = $data['message']['photo'][$fullSizePhotoIndex]['file_id'];
+                    $payload['photo']['file_unique_id'] = $data['message']['photo'][$fullSizePhotoIndex]['file_unique_id'];
+                    $payload['photo']['file_size'] = $data['message']['photo'][$fullSizePhotoIndex]['file_size'];
+                    $payload['photo']['width'] = $data['message']['photo'][$fullSizePhotoIndex]['width'];
+                    $payload['photo']['height'] = $data['message']['photo'][$fullSizePhotoIndex]['height'];
+                }
+            }
 
             $payload['from']['id'] = $data['message']['from']['id'];
             $payload['from']['is_bot'] = $data['message']['from']['is_bot'];
@@ -63,7 +84,19 @@ readonly class RequestRepository
     {
         $payload = $this->getData();
 
-        return new MessageDto($payload['id'], $payload['text']);
+        $photo = isset($payload['photo']) ? new PhotoDto(
+            $payload['photo']['file_id'],
+            $payload['photo']['file_unique_id'],
+            $payload['photo']['file_size'],
+            $payload['photo']['width'],
+            $payload['photo']['height'],
+        ) : null;
+
+        return new MessageDto(
+            id: $payload['id'],
+            text: $payload['text'] ?? null,
+            photo: $photo
+        );
     }
 
     public function convertToChat(): ChatDto

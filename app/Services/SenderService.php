@@ -11,6 +11,7 @@ use App\Repositories\ResponseRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 readonly class SenderService
 {
@@ -26,16 +27,22 @@ readonly class SenderService
      * @param Message $message
      * @param string $imageUrl
      * @param bool $isTrash
+     * @param int|null $chatId
      * @return void
      */
-    public function sendPhoto(Message $message, string $imageUrl, bool $isTrash = true): void
+    public function sendPhoto(Message $message, string $imageUrl, bool $isTrash = true, int $chatId = null): void
     {
         $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/sendPhoto';
-        $chat = (new RequestRepository($this->request))->convertToChat();
+
+        if (!$chatId) {
+            $chat = (new RequestRepository($this->request))->convertToChat();
+            $chatId = $chat->getId();
+        }
+
         $buttons = $message->getButtons();
 
         $body = [
-            'chat_id' => $chat->getId(),
+            'chat_id' => $chatId,
             'parse_mode' => 'html',
             'photo' => $imageUrl,
             'caption' => $message->getText()
@@ -57,16 +64,22 @@ readonly class SenderService
      *
      * @param Message $message
      * @param bool $isTrash
+     * @param int|null $chatId
      * @return void
      */
-    public function sendMessage(Message $message, bool $isTrash = true): void
+    public function sendMessage(Message $message, bool $isTrash = true, int $chatId = null): void
     {
         $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/sendMessage';
-        $chat = (new RequestRepository($this->request))->convertToChat();
+
+        if (!$chatId) {
+            $chat = (new RequestRepository($this->request))->convertToChat();
+            $chatId = $chat->getId();
+        }
+
         $buttons = $message->getButtons();
 
         $body = [
-            'chat_id' => $chat->getId(),
+            'chat_id' => $chatId,
             'parse_mode' => 'html',
             'text' => $message->getText()
         ];
@@ -196,5 +209,31 @@ readonly class SenderService
         $data = json_decode(Http::post($url, $body), true);
 
         return isset($data['result']['status']) && (in_array($data['result']['status'], $allowedUserStatuses));
+    }
+
+    /**
+     * Upload photo from telegram by file ID
+     *
+     * @param string $fileId
+     * @return string|null
+     */
+    public function uploadPhoto(string $fileId): ?string
+    {
+        $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/getFile?file_id=' . $fileId;
+        $response = Http::get($url);
+        $path = null;
+
+        if ($response->successful()) {
+            $fileInfo = json_decode($response, true);
+            $filePath = $fileInfo['result']['file_path'];
+            $photoUrl = CommonConstants::TELEGRAM_ROOT_URL . '/file/bot' . $this->telegramService->token . '/' . $filePath;
+
+            $path = 'newsletters/' . time() . '.jpg';
+            $file = Http::get($photoUrl)->body();
+
+            Storage::disk('uploads')->put($path, $file);
+        }
+
+        return $path;
     }
 }

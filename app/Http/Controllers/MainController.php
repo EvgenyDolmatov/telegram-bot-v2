@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Constants\CallbackConstants;
+use App\Enums\CommonCallbackEnum;
+use App\Enums\SurveyCallbackEnum;
 use App\Helpers\StepAction;
 use App\Models\TrashMessage;
 use App\Models\User;
@@ -19,6 +20,8 @@ class MainController extends Controller
         $telegram = new TelegramService();
         $telegram->resetQueue();
         $requestRepository = new RequestRepository($request);
+
+        Log::debug(json_encode($request->all()));
 
         if ($request->hasAny(['message', 'callback_query'])) {
             $stepHelper = new StepAction($telegram, $request);
@@ -39,28 +42,17 @@ class MainController extends Controller
                 return;
             }
 
-            /** Support button */
-            if ($message === CallbackConstants::SUPPORT) {
-                $stepHelper->support();
-                return;
-            }
-
-            /** Referral link button */
-            if ($message === CallbackConstants::ACCOUNT_REFERRAL_LINK) {
-                $stepHelper->showReferralLink();
-                return;
-            }
-
-            /** Referred users */
-            if ($message === CallbackConstants::ACCOUNT_REFERRED_USERS) {
-                $stepHelper->showReferredUsers();
+            /** Button callback handler */
+            $buttonCallbacks = array_column(CommonCallbackEnum::cases(), 'value');
+            if (in_array($message, $buttonCallbacks)) {
+                $user->callbackHandler($stepHelper, $message);
                 return;
             }
 
             /** User steps flow */
             $user->stateHandler($request, $stepHelper, $message);
 
-            if ($message === CallbackConstants::REPEAT_FLOW) {
+            if ($message === SurveyCallbackEnum::REPEAT_FLOW->value) {
                 $lastFlow = $user->getLastFlow();
 
                 if ($lastFlow) {
@@ -74,6 +66,11 @@ class MainController extends Controller
                 }
 
                 // TODO: Create some message about quiz repeat...
+            }
+
+            // TODO: Need to do something with index 9...
+            if ($user->states->contains(9)) {
+                $stepHelper->adminNewsletterConfirmation();
             }
         }
     }

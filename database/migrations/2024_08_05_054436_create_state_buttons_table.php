@@ -1,7 +1,8 @@
 <?php
 
-use App\Constants\CallbackConstants;
 use App\Constants\StateConstants;
+use App\Enums\CommonCallbackEnum;
+use App\Enums\SurveyCallbackEnum;
 use App\Models\State;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -32,12 +33,12 @@ return new class extends Migration
                     [
                         self::STATE_ID => $state->id,
                         self::TEXT => 'Создать тест',
-                        self::CALLBACK => CallbackConstants::CREATE_SURVEY,
+                        self::CALLBACK => SurveyCallbackEnum::CREATE_SURVEY->value,
                     ],
                     [
                         self::STATE_ID => $state->id,
                         self::TEXT => 'Поддержка',
-                        self::CALLBACK => CallbackConstants::SUPPORT,
+                        self::CALLBACK => CommonCallbackEnum::SUPPORT,
                     ],
                 ]);
             }
@@ -47,12 +48,12 @@ return new class extends Migration
                     [
                         self::STATE_ID => $state->id,
                         self::TEXT => 'Викторина (1 вариант ответа)',
-                        self::CALLBACK => CallbackConstants::TYPE_QUIZ,
+                        self::CALLBACK => SurveyCallbackEnum::TYPE_QUIZ->value,
                     ],
                     [
                         self::STATE_ID => $state->id,
                         self::TEXT => 'Опрос (несколько вариантов)',
-                        self::CALLBACK => CallbackConstants::TYPE_SURVEY,
+                        self::CALLBACK => SurveyCallbackEnum::TYPE_SURVEY->value,
                     ],
                 ]);
             }
@@ -62,12 +63,12 @@ return new class extends Migration
                     [
                         self::STATE_ID => $state->id,
                         self::TEXT => 'Да',
-                        self::CALLBACK => CallbackConstants::IS_ANON,
+                        self::CALLBACK => SurveyCallbackEnum::IS_ANON->value,
                     ],
                     [
                         self::STATE_ID => $state->id,
                         self::TEXT => 'Нет',
-                        self::CALLBACK => CallbackConstants::IS_NOT_ANON,
+                        self::CALLBACK => SurveyCallbackEnum::IS_NOT_ANON->value,
                     ],
                 ]);
             }
@@ -77,22 +78,22 @@ return new class extends Migration
                     [
                         self::STATE_ID => $state->id,
                         self::TEXT => 'Низкая сложность',
-                        self::CALLBACK => CallbackConstants::LEVEL_EASY,
+                        self::CALLBACK => SurveyCallbackEnum::LEVEL_EASY->value,
                     ],
                     [
                         self::STATE_ID => $state->id,
                         self::TEXT => 'Средняя сложность',
-                        self::CALLBACK => CallbackConstants::LEVEL_MIDDLE,
+                        self::CALLBACK => SurveyCallbackEnum::LEVEL_MIDDLE->value,
                     ],
                     [
                         self::STATE_ID => $state->id,
                         self::TEXT => 'Высокая сложность',
-                        self::CALLBACK => CallbackConstants::LEVEL_HARD,
+                        self::CALLBACK => SurveyCallbackEnum::LEVEL_HARD->value,
                     ],
                     [
                         self::STATE_ID => $state->id,
                         self::TEXT => 'Любая сложность',
-                        self::CALLBACK => CallbackConstants::LEVEL_HARD,
+                        self::CALLBACK => SurveyCallbackEnum::LEVEL_HARD->value,
                     ],
                 ]);
             }

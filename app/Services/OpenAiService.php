@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Constants\CallbackConstants;
 use App\Constants\StateConstants;
+use App\Enums\SurveyCallbackEnum;
 use App\Models\Sector;
 use App\Models\Subject;
 use App\Models\User;
@@ -73,7 +73,7 @@ class OpenAiService
         ];
 
         $hasCorrectAnswer = '';
-        if ($data[StateConstants::TYPE_CHOICE] === CallbackConstants::TYPE_QUIZ) {
+        if ($data[StateConstants::TYPE_CHOICE] === SurveyCallbackEnum::TYPE_QUIZ->value) {
             $template['question1']['correct_answer'] = 'c';
             $template['question2']['correct_answer'] = 'a';
 
@@ -81,10 +81,10 @@ class OpenAiService
         }
 
         $difficultyData = [
-            CallbackConstants::LEVEL_EASY => 'низкой',
-            CallbackConstants::LEVEL_MIDDLE => 'средней',
-            CallbackConstants::LEVEL_HARD => 'высокой',
-            CallbackConstants::LEVEL_ANY => 'любой',
+            SurveyCallbackEnum::LEVEL_EASY->value => 'низкой',
+            SurveyCallbackEnum::LEVEL_MIDDLE->value => 'средней',
+            SurveyCallbackEnum::LEVEL_HARD->value => 'высокой',
+            SurveyCallbackEnum::LEVEL_ANY->value => 'любой',
         ];
 
         $sector = Sector::where('code', $data[StateConstants::SECTOR_CHOICE])->first()->title;

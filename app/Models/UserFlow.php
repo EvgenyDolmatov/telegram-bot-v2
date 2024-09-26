@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use App\Constants\CallbackConstants;
 use App\Constants\StateConstants;
+use App\Enums\SurveyCallbackEnum;
 use Illuminate\Database\Eloquent\Model;
 
 class UserFlow extends Model
@@ -26,7 +26,7 @@ class UserFlow extends Model
 
         return
             isset($flowData[StateConstants::ANON_CHOICE])
-            && $flowData[StateConstants::ANON_CHOICE] === CallbackConstants::IS_ANON;
+            && $flowData[StateConstants::ANON_CHOICE] === SurveyCallbackEnum::IS_ANON->value;
     }
 
     public function isQuiz(): bool
@@ -35,6 +35,6 @@ class UserFlow extends Model
 
         return
             isset($flowData[StateConstants::TYPE_CHOICE])
-            && $flowData[StateConstants::TYPE_CHOICE] === CallbackConstants::TYPE_QUIZ;
+            && $flowData[StateConstants::TYPE_CHOICE] === SurveyCallbackEnum::TYPE_QUIZ->value;
     }
 }
