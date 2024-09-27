@@ -91,7 +91,7 @@ class OpenAiService
         $difficulty = $difficultyData[$data[StateConstants::DIFFICULTY_CHOICE]];
 
         $body = [
-            'model' => 'gpt-3.5-turbo-0125',
+            'model' => config('services.openai.model'),
             'response_format' => [
                 'type' => 'json_object'
             ],

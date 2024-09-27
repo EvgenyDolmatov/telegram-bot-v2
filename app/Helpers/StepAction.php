@@ -25,6 +25,7 @@ use App\Services\OpenAiService;
 use App\Services\SenderService;
 use App\Services\TelegramService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class StepAction implements StepConstants
 {
@@ -525,11 +526,11 @@ class StepAction implements StepConstants
         $openAiService = new OpenAiService($user);
         $openAiRepository = new OpenAiRepository($openAiService);
 
-        /** @var OpenAiCompletionDto $openAiCompletion */
-        $openAiCompletion = $openAiRepository->getCompletion();
-
-        if ($openAiCompletion === null) {
+        try {
+            $openAiCompletion = $openAiRepository->getCompletion();
+        } catch (\Throwable $exception) {
             $this->someProblemMessage();
+            Log::error("OpenAiCompletion error.", ['message' => $exception]);
             return;
         }
 

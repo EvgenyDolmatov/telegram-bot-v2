@@ -43,5 +43,6 @@ return [
 
     'openai' => [
         'token' => env('OPEN_AI_TOKEN'),
+        'model' => env('OPEN_AI_MODEL'),
     ],
 ];
