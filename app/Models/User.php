@@ -5,10 +5,7 @@ namespace App\Models;
 use App\Constants\StateConstants;
 use App\Constants\TransitionConstants;
 use App\Enums\CommandEnum;
-use App\Enums\CommonCallbackEnum;
-use App\Helpers\StepAction;
 use App\Repositories\RequestRepository;
-use App\Services\StateService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -211,20 +208,6 @@ class User extends Model
                     $this->states()->attach($currentState->id);
                 }
         }
-    }
-
-    /**
-     * User steps flow by user state and choice
-     *
-     * @param Request $request
-     * @param StepAction $stepAction
-     * @param string $message
-     * @return void
-     */
-    public function stateHandler(Request $request, StepAction $stepAction, string $message): void
-    {
-        $stateService = new StateService($request, $this, $stepAction, $message);
-        $stateService->switchState();
     }
 
     /**
