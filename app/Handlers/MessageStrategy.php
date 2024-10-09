@@ -2,6 +2,7 @@
 
 namespace App\Handlers;
 
+use App\Enums\CommonCallbackEnum;
 use App\Repositories\RequestRepository;
 use App\Services\TelegramService;
 use Illuminate\Http\Request;
@@ -18,12 +19,18 @@ class MessageStrategy
 
     public function defineHandler(): self
     {
-        if (str_starts_with($this->getMessage(), '/')) {
+        $message = $this->getMessage();
+
+        if (str_starts_with($message, '/')) {
             $handler = new CommandHandler($this->telegramService, $this->request);
-            return $this->setHandler($handler);
         }
 
-        return $this;
+        $buttonCallbacks = array_column(CommonCallbackEnum::cases(), 'value');
+        if (in_array($message, $buttonCallbacks)) {
+            $handler = new CallbackHandler($this->telegramService, $this->request);
+        }
+
+        return $this->setHandler($handler);
     }
 
     public function process(): void

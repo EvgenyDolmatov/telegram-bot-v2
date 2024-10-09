@@ -35,20 +35,6 @@ class MainController extends Controller
             $strategy = new MessageStrategy($telegram, $request);
             $strategy->defineHandler()->process();
 
-
-            /** Command handler */
-//            if (str_starts_with($message, '/')) {
-//                $user->commandHandler($request, $stepHelper, $message);
-//                return;
-//            }
-
-            /** Button callback handler */
-//            $buttonCallbacks = array_column(CommonCallbackEnum::cases(), 'value');
-//            if (in_array($message, $buttonCallbacks)) {
-//                $user->callbackHandler($stepHelper, $message);
-//                return;
-//            }
-
             /** User steps flow */
 //            $user->stateHandler($request, $stepHelper, $message);
 //

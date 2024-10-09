@@ -228,34 +228,6 @@ class User extends Model
     }
 
     /**
-     * Handler for static button callbacks
-     *
-     * @param StepAction $stepAction
-     * @param string $callback
-     * @return void
-     */
-    public function callbackHandler(StepAction $stepAction, string $callback): void
-    {
-        switch ($callback) {
-            case CommonCallbackEnum::SUPPORT:
-                $stepAction->support();
-                return;
-            case CommonCallbackEnum::ACCOUNT_REFERRAL_LINK->value:
-                $stepAction->showReferralLink();
-                return;
-            case CommonCallbackEnum::ACCOUNT_REFERRED_USERS->value:
-                $stepAction->showReferredUsers();
-                return;
-            case CommonCallbackEnum::ADMIN_CREATE_NEWSLETTER->value:
-                $stepAction->adminNewsletterWaiting();
-                return;
-            case CommonCallbackEnum::ADMIN_CONFIRM_NEWSLETTER->value:
-                $stepAction->adminNewsletterSent();
-                return;
-        }
-    }
-
-    /**
      * Add referred user if followed by referral link
      *
      * @param string $message
