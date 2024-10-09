@@ -228,42 +228,6 @@ class User extends Model
     }
 
     /**
-     * Commands handler for messages which starts with "/"
-     *
-     * @param Request $request
-     * @param StepAction $stepAction
-     * @param string $message
-     * @return void
-     */
-    public function commandHandler(Request $request, StepAction $stepAction, string $message): void
-    {
-        $message = $this->clearCommand($message);
-
-        switch ($message) {
-            case CommandEnum::START->value:
-                if ($stepAction->canContinue()) {
-                    $stepAction->mainChoice();
-                    $this->changeState($request);
-                    return;
-                }
-
-                $stepAction->subscribeToCommunity();
-                return;
-            case CommandEnum::HELP->value:
-                $stepAction->help();
-                return;
-            case CommandEnum::ACCOUNT->value:
-                $stepAction->account();
-                return;
-            case CommandEnum::ADMIN->value:
-                $stepAction->adminMenu();
-                return;
-            default:
-                $stepAction->someProblemMessage();
-        }
-    }
-
-    /**
      * Handler for static button callbacks
      *
      * @param StepAction $stepAction
@@ -313,21 +277,5 @@ class User extends Model
                 ]);
             }
         }
-    }
-
-    /**
-     * Remove from "/start" command referral code
-     *
-     * @param string $message
-     * @return string
-     */
-    public function clearCommand(string $message): string
-    {
-        if (str_starts_with($message, CommandEnum::START->value) && str_contains($message, ' ')) {
-            $messageData = explode(' ', $message);
-            $message = $messageData[0];
-        }
-
-        return $message;
     }
 }
