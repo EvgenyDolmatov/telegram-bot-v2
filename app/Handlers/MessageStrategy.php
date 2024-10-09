@@ -3,6 +3,10 @@
 namespace App\Handlers;
 
 use App\Enums\CommonCallbackEnum;
+use App\Handlers\Message\AbstractHandler;
+use App\Handlers\Message\CallbackHandler;
+use App\Handlers\Message\CommandHandler;
+use App\Handlers\Message\StateHandler;
 use App\Repositories\RequestRepository;
 use App\Services\TelegramService;
 use Illuminate\Http\Request;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Handlers;
+namespace App\Handlers\Message;
 
 use App\Helpers\StepAction;
 use App\Models\User;
