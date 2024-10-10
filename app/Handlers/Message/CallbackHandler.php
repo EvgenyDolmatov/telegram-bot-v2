@@ -26,6 +26,18 @@ class CallbackHandler extends AbstractHandler
             case CommonCallbackEnum::ADMIN_CONFIRM_NEWSLETTER->value:
                 $helper->adminNewsletterSent();
                 return;
+            case CommonCallbackEnum::ADMIN_STATISTIC_MENU->value:
+                $helper->adminStatisticMenu();
+                return;
+            case CommonCallbackEnum::ADMIN_STATISTIC_QUIZZES->value:
+                $helper->adminStatisticQuizzes();
+                return;
+            case CommonCallbackEnum::ADMIN_STATISTIC_QUIZZES_DAY->value:
+                $helper->adminStatisticQuizzesPerDay();
+                return;
+            case CommonCallbackEnum::ADMIN_STATISTIC_USERS->value:
+                $helper->adminStatisticUsers();
+                return;
         }
     }
 }

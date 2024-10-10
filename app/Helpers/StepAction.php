@@ -24,6 +24,7 @@ use App\Repositories\RequestRepository;
 use App\Services\OpenAiService;
 use App\Services\SenderService;
 use App\Services\TelegramService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -226,6 +227,7 @@ class StepAction implements StepConstants
         $user = User::getOrCreate($this->repository);
         $buttons = [
             new ButtonDto(CommonCallbackEnum::ADMIN_CREATE_NEWSLETTER->value, 'Создать рассылку'),
+            new ButtonDto(CommonCallbackEnum::ADMIN_STATISTIC_MENU->value, 'Статистика бота'),
             new ButtonDto(CommandEnum::START->value, 'Вернуться в начало')
         ];
 
@@ -374,6 +376,94 @@ class StepAction implements StepConstants
                 );
             }
         }
+    }
+
+    public function adminStatisticMenu(): void
+    {
+        $buttons = [
+            new ButtonDto(
+                CommonCallbackEnum::ADMIN_STATISTIC_QUIZZES->value,
+                'Статистика тестов'
+            ),
+            new ButtonDto(
+                CommonCallbackEnum::ADMIN_STATISTIC_USERS->value,
+                'Статистика пользователей'
+            ),
+        ];
+
+        $this->sendMessage(
+            text: 'Статистика бота:',
+            buttons: $buttons
+        );
+    }
+
+    public function adminStatisticQuizzes(): void
+    {
+        $buttons = [
+            new ButtonDto(
+                CommonCallbackEnum::ADMIN_STATISTIC_QUIZZES_DAY->value,
+                'За сегодня'
+            ),
+            new ButtonDto(
+                CommonCallbackEnum::ADMIN_STATISTIC_QUIZZES_WEEK->value,
+                'За неделю'
+            ),
+            new ButtonDto(
+                CommonCallbackEnum::ADMIN_STATISTIC_QUIZZES_MONTH->value,
+                'За месяц'
+            ),
+            new ButtonDto(
+                CommonCallbackEnum::ADMIN_STATISTIC_QUIZZES_QUARTER->value,
+                'За квартал'
+            ),
+            new ButtonDto(
+                CommonCallbackEnum::ADMIN_STATISTIC_QUIZZES_WEEK->value,
+                'За год'
+            ),
+            new ButtonDto(
+                CommonCallbackEnum::ADMIN_STATISTIC_MENU->value,
+                'Вернуться назад'
+            ),
+        ];
+
+        $this->sendMessage(
+            text: 'Статистика созданных тестов:',
+            buttons: $buttons
+        );
+    }
+
+    public function adminStatisticQuizzesPerDay(): void
+    {
+        $requestsToday = AiRequest::whereDate('created_at', Carbon::today())->get()->count();
+
+        $buttons = [
+            new ButtonDto(
+                CommonCallbackEnum::ADMIN_STATISTIC_MENU->value,
+                'Вернуться назад'
+            ),
+        ];
+
+        $this->sendMessage(
+            text: "Создано тестов за сегодня: {$requestsToday}",
+            buttons: $buttons
+        );
+    }
+
+    public function adminStatisticUsers(): void
+    {
+        $usersCount = User::all()->count();
+
+        $buttons = [
+            new ButtonDto(
+                CommonCallbackEnum::ADMIN_STATISTIC_MENU->value,
+                'Вернуться назад'
+            ),
+        ];
+
+        $this->sendMessage(
+            text: "Статистика пользователей:\n\nОбщее количество пользователей: {$usersCount}",
+            buttons: $buttons
+        );
     }
 
     /**
