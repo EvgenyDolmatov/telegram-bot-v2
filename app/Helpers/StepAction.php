@@ -443,8 +443,13 @@ class StepAction implements StepConstants
             ),
         ];
 
+        $text = "Сегодня тесты еще не создавались.";
+        if ($requestsToday > 0) {
+            $text = "Количество созданных тестов за сегодня: {$requestsToday}";
+        }
+
         $this->sendMessage(
-            text: "Создано тестов за сегодня: {$requestsToday}",
+            text: $text,
             buttons: $buttons
         );
     }
