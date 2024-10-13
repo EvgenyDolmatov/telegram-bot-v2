@@ -35,6 +35,18 @@ class CallbackHandler extends AbstractHandler
             case CommonCallbackEnum::ADMIN_STATISTIC_QUIZZES_DAY->value:
                 $helper->adminStatisticQuizzesPerDay();
                 return;
+            case CommonCallbackEnum::ADMIN_STATISTIC_QUIZZES_WEEK->value:
+                $helper->adminStatisticQuizzesPerWeek();
+                return;
+            case CommonCallbackEnum::ADMIN_STATISTIC_QUIZZES_MONTH->value:
+                $helper->adminStatisticQuizzesPerMonth();
+                return;
+            case CommonCallbackEnum::ADMIN_STATISTIC_QUIZZES_QUARTER->value:
+                $helper->adminStatisticQuizzesPerQuarter();
+                return;
+            case CommonCallbackEnum::ADMIN_STATISTIC_QUIZZES_YEAR->value:
+                $helper->adminStatisticQuizzesPerYear();
+                return;
             case CommonCallbackEnum::ADMIN_STATISTIC_USERS->value:
                 $helper->adminStatisticUsers();
                 return;

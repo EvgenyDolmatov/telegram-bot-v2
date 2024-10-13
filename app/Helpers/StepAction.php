@@ -417,7 +417,7 @@ class StepAction implements StepConstants
                 'За квартал'
             ),
             new ButtonDto(
-                CommonCallbackEnum::ADMIN_STATISTIC_QUIZZES_WEEK->value,
+                CommonCallbackEnum::ADMIN_STATISTIC_QUIZZES_YEAR->value,
                 'За год'
             ),
             new ButtonDto(
@@ -434,7 +434,7 @@ class StepAction implements StepConstants
 
     public function adminStatisticQuizzesPerDay(): void
     {
-        $requestsToday = AiRequest::whereDate('created_at', Carbon::today())->get()->count();
+        $requestsToday = AiRequest::whereDate('created_at', Carbon::today())->get();
 
         $buttons = [
             new ButtonDto(
@@ -444,9 +444,105 @@ class StepAction implements StepConstants
         ];
 
         $text = "Сегодня тесты еще не создавались.";
-        if ($requestsToday > 0) {
-            $text = "Количество созданных тестов за сегодня: {$requestsToday}";
+        if ($requestsToday->count() > 0) {
+            $text = "Количество созданных тестов за сегодня: {$requestsToday->count()}";
         }
+
+        $this->sendMessage(
+            text: $text,
+            buttons: $buttons
+        );
+    }
+
+    public function adminStatisticQuizzesPerWeek(): void
+    {
+        $now = Carbon::now();
+        $startDate = $now->copy()->modify('-1 week');
+        $requestsWeek = AiRequest::whereBetween('created_at', [$startDate, $now])->get();
+
+        $text = "За последнюю неделю не было создано ни одного теста.";
+        if ($requestsWeek->count() > 0) {
+            $text = "Количество созданных тестов за последнюю неделю: {$requestsWeek->count()}";
+        }
+
+        $buttons = [
+            new ButtonDto(
+                CommonCallbackEnum::ADMIN_STATISTIC_MENU->value,
+                'Вернуться назад'
+            ),
+        ];
+
+        $this->sendMessage(
+            text: $text,
+            buttons: $buttons
+        );
+    }
+
+    public function adminStatisticQuizzesPerMonth(): void
+    {
+        $now = Carbon::now();
+        $startDate = $now->copy()->modify('-1 month');
+        $requestsMonth = AiRequest::whereBetween('created_at', [$startDate, $now])->get();
+
+        $text = "За последний месяц не было создано ни одного теста.";
+        if ($requestsMonth->count() > 0) {
+            $text = "Количество созданных тестов за последний месяц: {$requestsMonth->count()}";
+        }
+
+        $buttons = [
+            new ButtonDto(
+                CommonCallbackEnum::ADMIN_STATISTIC_MENU->value,
+                'Вернуться назад'
+            ),
+        ];
+
+        $this->sendMessage(
+            text: $text,
+            buttons: $buttons
+        );
+    }
+
+    public function adminStatisticQuizzesPerQuarter(): void
+    {
+        $now = Carbon::now();
+        $startDate = $now->copy()->modify('-3 month');
+        $requestsQuarter = AiRequest::whereBetween('created_at', [$startDate, $now])->get();
+
+        $text = "За последний квартал не было создано ни одного теста.";
+        if ($requestsQuarter->count() > 0) {
+            $text = "Количество созданных тестов за последний квартал: {$requestsQuarter->count()}";
+        }
+
+        $buttons = [
+            new ButtonDto(
+                CommonCallbackEnum::ADMIN_STATISTIC_MENU->value,
+                'Вернуться назад'
+            ),
+        ];
+
+        $this->sendMessage(
+            text: $text,
+            buttons: $buttons
+        );
+    }
+
+    public function adminStatisticQuizzesPerYear(): void
+    {
+        $now = Carbon::now();
+        $startDate = $now->copy()->modify('-1 year');
+        $requestsQuarter = AiRequest::whereBetween('created_at', [$startDate, $now])->get();
+
+        $text = "За последний год не было создано ни одного теста.";
+        if ($requestsQuarter->count() > 0) {
+            $text = "Количество созданных тестов за последний год: {$requestsQuarter->count()}";
+        }
+
+        $buttons = [
+            new ButtonDto(
+                CommonCallbackEnum::ADMIN_STATISTIC_MENU->value,
+                'Вернуться назад'
+            ),
+        ];
 
         $this->sendMessage(
             text: $text,
