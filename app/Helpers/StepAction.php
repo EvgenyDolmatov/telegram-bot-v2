@@ -556,6 +556,10 @@ class StepAction implements StepConstants
 
         $buttons = [
             new ButtonDto(
+                CommonCallbackEnum::ADMIN_STATISTIC_USERS_DAY->value,
+                'Новые пользователи сегодня'
+            ),
+            new ButtonDto(
                 CommonCallbackEnum::ADMIN_STATISTIC_MENU->value,
                 'Вернуться назад'
             ),
@@ -563,6 +567,28 @@ class StepAction implements StepConstants
 
         $this->sendMessage(
             text: "Статистика пользователей:\n\nОбщее количество пользователей: {$usersCount}",
+            buttons: $buttons
+        );
+    }
+
+    public function adminStatisticUsersPerDay(): void
+    {
+        $usersToday = User::whereDate('created_at', Carbon::today())->get();
+
+        $buttons = [
+            new ButtonDto(
+                CommonCallbackEnum::ADMIN_STATISTIC_USERS->value,
+                'Вернуться назад'
+            ),
+        ];
+
+        $text = "Новые пользователи сегодня не регистрировались.";
+        if ($usersToday->count() > 0) {
+            $text = "Количество зарегистрированных пользователей сегодня: {$usersToday->count()}";
+        }
+
+        $this->sendMessage(
+            text: $text,
             buttons: $buttons
         );
     }

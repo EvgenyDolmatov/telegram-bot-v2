@@ -50,6 +50,9 @@ class CallbackHandler extends AbstractHandler
             case CommonCallbackEnum::ADMIN_STATISTIC_USERS->value:
                 $helper->adminStatisticUsers();
                 return;
+            case CommonCallbackEnum::ADMIN_STATISTIC_USERS_DAY->value:
+                $helper->adminStatisticUsersPerDay();
+                return;
         }
     }
 }

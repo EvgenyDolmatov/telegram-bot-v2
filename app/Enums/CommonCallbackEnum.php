@@ -21,6 +21,7 @@ enum CommonCallbackEnum: string
     case ADMIN_STATISTIC_QUIZZES_QUARTER = 'admin_statistic_quizzes_quarter';
     case ADMIN_STATISTIC_QUIZZES_YEAR = 'admin_statistic_quizzes_year';
     case ADMIN_STATISTIC_USERS = 'admin_statistic_users';
+    case ADMIN_STATISTIC_USERS_DAY = 'admin_statistic_users_day';
 
     /** Common */
     case SUPPORT = 'support';
