@@ -67,7 +67,7 @@ readonly class SenderService
      * @param int|null $chatId
      * @return void
      */
-    public function sendMessage(Message $message, bool $isTrash = true, int $chatId = null): void
+    public function  sendMessage(Message $message, bool $isTrash = true, int $chatId = null): void
     {
         $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/sendMessage';
 

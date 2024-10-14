@@ -2,37 +2,54 @@
 
 namespace App\Handlers\Message;
 
+use App\Commands\CommandContainer;
 use App\Enums\CommandEnum;
+use App\Services\SenderService;
+use App\Services\TelegramService;
+use Illuminate\Http\Request;
 
 class CommandHandler extends AbstractHandler
 {
+    private SenderService $senderService;
+
+    public function __construct(
+        protected readonly TelegramService $telegramService,
+        protected readonly Request $request
+    ) {
+        parent::__construct($telegramService, $request);
+        $this->senderService = new SenderService($this->request, $this->telegramService);
+    }
+
     public function handle(string $message): void
     {
         $message = $this->clearCommand($message);
-        $helper = $this->helper;
+//        $helper = $this->helper;
 
-        switch ($message) {
-            case CommandEnum::START->value:
-                if ($helper->canContinue()) {
-                    $helper->mainChoice();
-                    $this->user->changeState($this->request);
-                    return;
-                }
+        $command = CommandContainer::retrieve($message);
+        $command->execute($this->senderService);
 
-                $helper->subscribeToCommunity();
-                return;
-            case CommandEnum::HELP->value:
-                $helper->help();
-                return;
-            case CommandEnum::ACCOUNT->value:
-                $helper->account();
-                return;
-            case CommandEnum::ADMIN->value:
-                $helper->adminMenu();
-                return;
-            default:
-                $helper->someProblemMessage();
-        }
+//        switch ($message) {
+//            case CommandEnum::START->value:
+//                if ($helper->canContinue()) {
+//                    $helper->mainChoice();
+//                    $this->user->changeState($this->request);
+//                    return;
+//                }
+//
+//                $helper->subscribeToCommunity();
+//                return;
+//            case CommandEnum::HELP->value:
+//                $helper->help();
+//                return;
+//            case CommandEnum::ACCOUNT->value:
+//                $helper->account();
+//                return;
+//            case CommandEnum::ADMIN->value:
+//                $helper->adminMenu();
+//                return;
+//            default:
+//                $helper->someProblemMessage();
+//        }
     }
 
     /**
