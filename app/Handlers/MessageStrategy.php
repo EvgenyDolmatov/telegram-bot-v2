@@ -23,15 +23,13 @@ class MessageStrategy
 
     public function defineHandler(): self
     {
-        $message = $this->getMessage();
         $handler = new StateHandler($this->telegramService, $this->request);
 
-        if (str_starts_with($message, '/')) {
+        if ($this->isCommandMessage()) {
             $handler = new CommandHandler($this->telegramService, $this->request);
         }
 
-        $buttonCallbacks = array_column(CommonCallbackEnum::cases(), 'value');
-        if (in_array($message, $buttonCallbacks)) {
+        if ($this->isCallbackMessage()) {
             $handler = new CallbackHandler($this->telegramService, $this->request);
         }
 
@@ -55,5 +53,17 @@ class MessageStrategy
         $requestRepository = new RequestRepository($this->request);
 
         return $requestRepository->convertToMessage()->getText();
+    }
+
+    private function isCommandMessage(): bool
+    {
+        return str_starts_with($this->getMessage(), '/');
+    }
+
+    private function isCallbackMessage(): bool
+    {
+        $buttonCallbacks = array_column(CommonCallbackEnum::cases(), 'value');
+
+        return in_array($this->getMessage(), $buttonCallbacks);
     }
 }
