@@ -3,7 +3,6 @@
 namespace App\Enums;
 
 use App\Commands\CommandInterface;
-use App\Commands\DefaultCommand;
 use App\Commands\StartCommand;
 
 enum CommandEnum: string
@@ -16,8 +15,7 @@ enum CommandEnum: string
     public function getCommand(): CommandInterface
     {
         return match ($this) {
-            self::START => new StartCommand(),
-            default => new DefaultCommand()
+            self::START => new StartCommand()
         };
     }
 }
