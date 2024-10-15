@@ -10,16 +10,6 @@ use Illuminate\Http\Request;
 
 class CommandHandler extends AbstractHandler
 {
-    private SenderService $senderService;
-
-    public function __construct(
-        protected readonly TelegramService $telegramService,
-        protected readonly Request $request
-    ) {
-        parent::__construct($telegramService, $request);
-        $this->senderService = new SenderService($this->request, $this->telegramService);
-    }
-
     public function handle(string $message): void
     {
         $message = $this->clearCommand($message);
