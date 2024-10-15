@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-use App\Commands\AbstractCommand;
+use App\Commands\CommandInterface;
 use App\Commands\DefaultCommand;
 use App\Commands\StartCommand;
 
@@ -13,7 +13,7 @@ enum CommandEnum: string
     case HELP = '/help';
     case START = '/start';
 
-    public function retrieve(): AbstractCommand
+    public function getCommand(): CommandInterface
     {
         return match ($this) {
             self::START => new StartCommand(),

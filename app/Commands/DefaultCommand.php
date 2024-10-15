@@ -2,12 +2,12 @@
 
 namespace App\Commands;
 
-class DefaultCommand extends AbstractCommand
-{
-    private const string MESSAGE = "Default message...";
+use App\Services\SenderService;
 
-    public function execute(): void
+class DefaultCommand implements CommandInterface
+{
+    public function execute(SenderService $senderService): void
     {
-//        return $this;
+        //
     }
 }

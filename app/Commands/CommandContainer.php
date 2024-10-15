@@ -6,10 +6,8 @@ use App\Enums\CommandEnum;
 
 class CommandContainer
 {
-    public static function retrieve(string $commandIdentifier): AbstractCommand
+    public static function retrieve(string $commandIdentifier): CommandInterface
     {
-        $commandMap = array_column(CommandEnum::cases(), 'value');
-
-        return $commandMap[$commandIdentifier];
+        return CommandEnum::tryFrom($commandIdentifier)->getCommand();
     }
 }

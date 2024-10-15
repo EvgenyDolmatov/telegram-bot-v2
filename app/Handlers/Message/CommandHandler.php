@@ -25,7 +25,7 @@ class CommandHandler extends AbstractHandler
         $message = $this->clearCommand($message);
 //        $helper = $this->helper;
 
-        $command = CommandContainer::retrieve($message);
+        $command = CommandContainer::retrieve($message); // must return Command::class
         $command->execute($this->senderService);
 
 //        switch ($message) {

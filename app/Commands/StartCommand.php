@@ -4,23 +4,15 @@ namespace App\Commands;
 
 use App\Builder\Message\MessageBuilder;
 use App\Builder\MessageSender;
+use App\Services\SenderService;
 
-class StartCommand extends AbstractCommand
+class StartCommand implements CommandInterface
 {
-    private const string MESSAGE = "Hello message...";
-
-    public function execute(): void
+    public function execute(SenderService $senderService): void
     {
-//        $this->addToTrash();
-//
-//        $repository = $this->repository;
-//        $user = User::getOrCreate($repository);
-//        $startState = State::where('code', StateConstants::START)->first();
-//
+        $message = (new MessageSender())->setBuilder(new MessageBuilder());
+        $message = $message->createMessage("Hello!");
 
-        $messageSender = (new MessageSender())->setBuilder(new MessageBuilder());
-        $message = $messageSender->createMessage(self::MESSAGE);
-
-        $this->senderService->sendMessage($message);
+        $senderService->sendMessage($message);
     }
 }
