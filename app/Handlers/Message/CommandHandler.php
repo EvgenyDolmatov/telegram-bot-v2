@@ -13,10 +13,12 @@ class CommandHandler extends AbstractHandler
     public function handle(string $message): void
     {
         $message = $this->clearCommand($message);
-//        $helper = $this->helper;
 
-        $command = CommandContainer::retrieve($message); // must return Command::class
+        $command = CommandContainer::retrieve($message);
         $command->execute($this->senderService);
+
+
+//        $helper = $this->helper;
 
 //        switch ($message) {
 //            case CommandEnum::START->value:
@@ -55,6 +57,6 @@ class CommandHandler extends AbstractHandler
             $message = $messageData[0];
         }
 
-        return $message;
+        return ltrim($message, '/');
     }
 }
