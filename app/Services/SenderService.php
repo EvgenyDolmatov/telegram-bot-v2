@@ -8,6 +8,7 @@ use App\Constants\CommonConstants;
 use App\Models\TrashMessage;
 use App\Repositories\RequestRepository;
 use App\Repositories\ResponseRepository;
+use Illuminate\Http\Client\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -123,9 +124,9 @@ readonly class SenderService
      *
      * @param Poll $poll
      * @param bool $isTrash
-     * @return void
+     * @return Response
      */
-    public function sendPoll(Poll $poll, bool $isTrash = true): void
+    public function sendPoll(Poll $poll, bool $isTrash = true): Response
     {
         $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/sendPoll';
         $chat = (new RequestRepository($this->request))->convertToChat();
@@ -149,6 +150,8 @@ readonly class SenderService
         );
 
         Log::debug('BOT: ' . $response);
+
+        return $response;
     }
 
     /**

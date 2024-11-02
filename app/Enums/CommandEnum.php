@@ -8,4 +8,5 @@ enum CommandEnum: string
     case ADMIN = '/admin';
     case HELP = '/help';
     case START = '/start';
+    case CHANNEL = '/channel';
 }

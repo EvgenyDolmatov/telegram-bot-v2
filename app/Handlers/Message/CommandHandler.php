@@ -30,6 +30,9 @@ class CommandHandler extends AbstractHandler
             case CommandEnum::ADMIN->value:
                 $helper->adminMenu();
                 return;
+            case CommandEnum::CHANNEL->value:
+                $helper->sendToChannel();
+                return;
             default:
                 $helper->someProblemMessage();
         }

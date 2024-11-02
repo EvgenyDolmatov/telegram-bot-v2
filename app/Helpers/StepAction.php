@@ -9,7 +9,6 @@ use App\Builder\PollSender;
 use App\Constants\StateConstants;
 use App\Constants\StepConstants;
 use App\Dto\ButtonDto;
-use App\Dto\OpenAiCompletionDto;
 use App\Enums\CommandEnum;
 use App\Enums\CommonCallbackEnum;
 use App\Enums\SurveyCallbackEnum;
@@ -20,11 +19,13 @@ use App\Models\Subject;
 use App\Models\TrashMessage;
 use App\Models\User;
 use App\Repositories\OpenAiRepository;
+use App\Repositories\PollRepository;
 use App\Repositories\RequestRepository;
 use App\Services\OpenAiService;
 use App\Services\SenderService;
 use App\Services\TelegramService;
 use Carbon\Carbon;
+use Illuminate\Http\Client\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -82,7 +83,7 @@ class StepAction implements StepConstants
      * @param bool $isQuiz
      * @param string|null $correctOptionId
      * @param bool $isTrash
-     * @return void
+     * @return Response
      */
     public function sendPoll(
         string  $question,
@@ -91,13 +92,13 @@ class StepAction implements StepConstants
         bool    $isQuiz = false,
         ?string $correctOptionId = null,
         bool    $isTrash = true
-    ): void
+    ): Response
     {
         $poll = $this->pollSender
             ->setBuilder(new PollBuilder())
             ->createPoll($question, $options, $isAnonymous, $isQuiz, $correctOptionId);
 
-        $this->senderService->sendPoll($poll, $isTrash);
+        return $this->senderService->sendPoll($poll, $isTrash);
     }
 
     public function addToTrash(): void
@@ -216,6 +217,18 @@ class StepAction implements StepConstants
         $this->sendMessage(
             text: $text,
             buttons: [new ButtonDto(CommandEnum::ACCOUNT->value, 'Назад')]
+        );
+    }
+
+    /**
+     * Channel
+     */
+    public function sendToChannel(): void
+    {
+        $this->sendMessage(
+            text: 'Test sending to channel...',
+            isTrash: false,
+            chatId: -1002471624740
         );
     }
 
@@ -756,7 +769,7 @@ class StepAction implements StepConstants
             $correctAnswers = '';
             $questionNumber = 0;
             foreach ($questions as $question) {
-                $this->sendPoll(
+                $pollResponse = $this->sendPoll(
                     question: $question->getText(),
                     options: $question->getOptions(),
                     isAnonymous: $flow->isAnonymous(),
@@ -765,10 +778,12 @@ class StepAction implements StepConstants
                     isTrash: false
                 );
 
+                $pollDto = (new PollRepository($pollResponse))->getPollDto();
+
                 if ($flow->isQuiz()) {
                     $questionNumber++;
                     $questionText = trim($question->getText(), ':');
-                    $correctAnswers .= "\n\nВопрос № $questionNumber. $questionText";
+                    $correctAnswers .= "\n\nВопрос № $questionNumber. [ID: {$pollDto->getId()}] $questionText";
                     $correctAnswers .= "\nПравильный ответ: {$question->getOptions()[$question->getAnswer()]}";
                 }
             }
