@@ -239,4 +239,16 @@ readonly class SenderService
 
         return $path;
     }
+
+    public function getChatByChannelName(string $channelName): Response
+    {
+        $channelName = ltrim($channelName, '@');
+
+        return Http::get($this->getUrl("getChat?chat_id=@{$channelName}"));
+    }
+
+    private function getUrl(string $path): string
+    {
+        return CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/' . ltrim($path, '/');
+    }
 }

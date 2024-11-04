@@ -18,6 +18,7 @@ use App\Models\State;
 use App\Models\Subject;
 use App\Models\TrashMessage;
 use App\Models\User;
+use App\Repositories\ChannelRepository;
 use App\Repositories\OpenAiRepository;
 use App\Repositories\PollRepository;
 use App\Repositories\RequestRepository;
@@ -223,13 +224,23 @@ class StepAction implements StepConstants
     /**
      * Channel
      */
-    public function sendToChannel(): void
+    public function sendToChannel(array $messageData): void
     {
-        $this->sendMessage(
-            text: 'Test sending to channel...',
-            isTrash: false,
-            chatId: -1002471624740
-        );
+        $channelName = $messageData['parameter'] ?? "@" . ltrim($messageData['parameter'], '@');
+        $pollIds = $messageData['arguments'] ?
+            explode(',', trim($messageData['arguments'], '{}')) :
+            null;
+
+        foreach ($pollIds as $pollId) {
+            $channelResponse = $this->senderService->getChatByChannelName($channelName);
+            $channel = (new ChannelRepository($channelResponse))->getDto();
+
+            $this->sendMessage(
+                text: 'ID: ' . $pollId,
+                isTrash: false,
+                chatId: $channel->getId()
+            );
+        }
     }
 
     /**
@@ -778,7 +789,7 @@ class StepAction implements StepConstants
                     isTrash: false
                 );
 
-                $pollDto = (new PollRepository($pollResponse))->getPollDto();
+                $pollDto = (new PollRepository($pollResponse))->getDto();
 
                 if ($flow->isQuiz()) {
                     $questionNumber++;

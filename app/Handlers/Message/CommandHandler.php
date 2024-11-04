@@ -3,15 +3,18 @@
 namespace App\Handlers\Message;
 
 use App\Enums\CommandEnum;
+use Illuminate\Support\Facades\Log;
 
 class CommandHandler extends AbstractHandler
 {
     public function handle(string $message): void
     {
-        $message = $this->clearCommand($message);
+        $command = $this->clearCommand($message);
         $helper = $this->helper;
 
-        switch ($message) {
+        Log::debug('pollIDadsasd: ' . $command);
+
+        switch ($command) {
             case CommandEnum::START->value:
                 if ($helper->canContinue()) {
                     $helper->mainChoice();
@@ -31,7 +34,9 @@ class CommandHandler extends AbstractHandler
                 $helper->adminMenu();
                 return;
             case CommandEnum::CHANNEL->value:
-                $helper->sendToChannel();
+                $messageData = $this->getMessageData($message);
+                $helper->sendToChannel($messageData);
+
                 return;
             default:
                 $helper->someProblemMessage();
@@ -46,11 +51,17 @@ class CommandHandler extends AbstractHandler
      */
     private function clearCommand(string $message): string
     {
-        if (str_starts_with($message, CommandEnum::START->value) && str_contains($message, ' ')) {
-            $messageData = explode(' ', $message);
-            $message = $messageData[0];
-        }
+        return explode(' ', ltrim($message, '/'))[0] ?? $message;
+    }
 
-        return $message;
+    private function getMessageData(string $message): array
+    {
+        $data = explode(' ', $message);
+
+        return [
+            'command' => $data[0] ?? null,
+            'parameter' => $data[1] ?? null,
+            'arguments' => $data[2] ?? null
+        ];
     }
 }

@@ -6,6 +6,7 @@ use App\Dto\ChatDto;
 use App\Dto\MessageDto;
 use App\Dto\UserDto;
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\Log;
 
 readonly class ResponseRepository
 {
@@ -22,17 +23,22 @@ readonly class ResponseRepository
             $payload['id'] = $data['result']['message_id'];
             $payload['date'] = $data['result']['date'];
 
-            $payload['from']['id'] = $data['result']['from']['id'];
-            $payload['from']['is_bot'] = $data['result']['from']['is_bot'];
-            $payload['from']['first_name'] = $data['result']['from']['first_name'] ?? null;
-            $payload['from']['last_name'] = $data['result']['from']['last_name'] ?? null;
-            $payload['from']['username'] = $data['result']['from']['username'] ?? null;
+            if (isset($payload['from'])) {
+                $payload['from']['id'] = $data['result']['from']['id'];
+                $payload['from']['is_bot'] = $data['result']['from']['is_bot'];
+                $payload['from']['first_name'] = $data['result']['from']['first_name'] ?? null;
+                $payload['from']['last_name'] = $data['result']['from']['last_name'] ?? null;
+                $payload['from']['username'] = $data['result']['from']['username'] ?? null;
+            }
 
-            $payload['chat']['id'] = $data['result']['chat']['id'];
-            $payload['chat']['first_name'] = $data['result']['chat']['first_name'] ?? null;
-            $payload['chat']['last_name'] = $data['result']['chat']['last_name'] ?? null;
-            $payload['chat']['username'] = $data['result']['chat']['username'] ?? null;
-            $payload['chat']['type'] = $data['result']['chat']['type'];
+            if (isset($payload['chat'])) {
+                $payload['chat']['id'] = $data['result']['chat']['id'];
+                $payload['chat']['first_name'] = $data['result']['chat']['first_name'] ?? null;
+                $payload['chat']['last_name'] = $data['result']['chat']['last_name'] ?? null;
+                $payload['chat']['username'] = $data['result']['chat']['username'] ?? null;
+                $payload['chat']['type'] = $data['result']['chat']['type'];
+            }
+
         }
 
         return $payload;
