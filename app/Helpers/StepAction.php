@@ -222,7 +222,8 @@ class StepAction implements StepConstants
     }
 
     /**
-     * Channel
+     * Send message to channel
+     * Example: /channel @evd_test_channel {534523,123213}
      */
     public function sendToChannel(array $messageData): void
     {
@@ -231,14 +232,16 @@ class StepAction implements StepConstants
             explode(',', trim($messageData['arguments'], '{}')) :
             null;
 
+        Log::debug('PollIDs: ' . json_encode($pollIds));
+
         foreach ($pollIds as $pollId) {
             $channelResponse = $this->senderService->getChatByChannelName($channelName);
-            $channel = (new ChannelRepository($channelResponse))->getDto();
+            $channelDto = (new ChannelRepository($channelResponse))->getDto();
 
             $this->sendMessage(
                 text: 'ID: ' . $pollId,
                 isTrash: false,
-                chatId: $channel->getId()
+                chatId: $channelDto->getId()
             );
         }
     }
