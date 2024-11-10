@@ -6,6 +6,7 @@ use App\Builder\Message\Message;
 use App\Builder\Poll\Poll;
 use App\Constants\CommonConstants;
 use App\Models\TrashMessage;
+use App\Repositories\MessageRepository;
 use App\Repositories\RequestRepository;
 use App\Repositories\ResponseRepository;
 use Illuminate\Http\Client\Response;
@@ -160,16 +161,14 @@ readonly class SenderService
      * @param $response
      * @param bool $isTrash
      * @return void
+     * @throws \Exception
      */
     public function updateChatMessages($response, bool $isTrash = true): void
     {
         if (json_decode($response, true)['ok']) {
-            $responseRepository = new ResponseRepository($response);
-            $chatDto = $responseRepository->convertToChat();
-            $messageDto = $responseRepository->convertToMessage();
-
+            $message = (new MessageRepository($response))->getDto();
             $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/deleteMessages';
-            $trashMessages = TrashMessage::where('chat_id', $chatDto->getId())->where('is_trash', true)->get();
+            $trashMessages = TrashMessage::where('chat_id', $message->getChat()->getId())->where('is_trash', true)->get();
 
             if ($trashMessages->count()) {
                 $trashMessageIds = [];
@@ -180,7 +179,7 @@ readonly class SenderService
                 }
 
                 $data = [
-                    'chat_id' => $chatDto->getId(),
+                    'chat_id' => $message->getChat()->getId(),
                     'message_ids' => $trashMessageIds
                 ];
 
@@ -189,7 +188,7 @@ readonly class SenderService
             }
 
             // Prepare trash messages for next step
-            TrashMessage::add($chatDto, $messageDto, $isTrash);
+            TrashMessage::add($message->getChat(), $message, $isTrash);
         }
     }
 

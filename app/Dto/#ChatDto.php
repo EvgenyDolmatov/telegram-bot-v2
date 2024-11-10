@@ -2,7 +2,7 @@
 
 namespace App\Dto;
 
-class ChatDto
+class Chat1Dto
 {
     private int $id;
     private ?string $username;

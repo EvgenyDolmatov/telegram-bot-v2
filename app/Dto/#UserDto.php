@@ -2,7 +2,7 @@
 
 namespace App\Dto;
 
-class UserDto
+class User1Dto
 {
     private int $id;
     private ?string $username;

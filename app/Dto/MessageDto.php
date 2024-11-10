@@ -2,33 +2,74 @@
 
 namespace App\Dto;
 
-use App\Dto\Message\PhotoDto;
+use App\Dto\Message\FromDto;
+use App\Dto\Message\ChatDto;
 
 class MessageDto
 {
     private int $id;
-    private ?string $text;
-    private ?PhotoDto $photo;
-
-    public function __construct(int $id, ?string $text = null, ?PhotoDto $photo = null)
-    {
-        $this->id = $id;
-        $this->text = $text ?? '';
-        $this->photo = $photo;
-    }
+    private int $date;
+    private FromDto $from;
+    private ChatDto $chat;
+    private string $text;
 
     public function getId(): int
     {
         return $this->id;
     }
 
-    public function getText(): ?string
+    public function setId(int $id): self
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
+    public function getDate(): int
+    {
+        return $this->date;
+    }
+
+    public function setDate(int $date): self
+    {
+        $this->date = $date;
+
+        return $this;
+    }
+
+    public function getFrom(): FromDto
+    {
+        return $this->from;
+    }
+
+    public function setFrom(FromDto $from): self
+    {
+        $this->from = $from;
+
+        return $this;
+    }
+
+    public function getChat(): ChatDto
+    {
+        return $this->chat;
+    }
+
+    public function setChat(ChatDto $chat): self
+    {
+        $this->chat = $chat;
+
+        return $this;
+    }
+
+    public function getText(): string
     {
         return $this->text;
     }
 
-    public function getPhoto(): ?PhotoDto
+    public function setText(string $text): self
     {
-        return $this->photo;
+        $this->text = $text;
+
+        return $this;
     }
 }

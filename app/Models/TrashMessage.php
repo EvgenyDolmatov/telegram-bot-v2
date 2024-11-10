@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Dto\ChatDto;
+use App\Dto\Message\ChatDto;
 use App\Dto\MessageDto;
 use Illuminate\Database\Eloquent\Model;
 

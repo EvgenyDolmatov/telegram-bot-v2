@@ -50,6 +50,10 @@ class MessageStrategy
         return $this;
     }
 
+
+    /**
+     * TODO: Разобраться с Request Repository. Учесть MessageDto и CallbackDto
+     */
     private function getMessage(): string
     {
         $requestRepository = new RequestRepository($this->request);
