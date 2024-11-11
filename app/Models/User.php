@@ -44,7 +44,7 @@ class User extends Model
 
     public static function getByRequestRepository(RequestRepository $repository): ?User
     {
-        return User::where('tg_user_id', $repository->convertToUser()->getId())->first();
+        return User::where('tg_user_id', $repository->getDto()->getFrom()->getId())->first();
     }
 
     public static function createFromRequestRepository(RequestRepository $repository): User

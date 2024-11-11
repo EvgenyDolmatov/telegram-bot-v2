@@ -11,6 +11,7 @@ class MessageDto
     private int $date;
     private FromDto $from;
     private ChatDto $chat;
+    private array $photo;
     private string $text;
 
     public function getId(): int
@@ -57,6 +58,18 @@ class MessageDto
     public function setChat(ChatDto $chat): self
     {
         $this->chat = $chat;
+
+        return $this;
+    }
+
+    public function getPhoto(): array
+    {
+        return $this->photo;
+    }
+
+    public function setPhoto(array $photo): self
+    {
+        $this->photo = $photo;
 
         return $this;
     }

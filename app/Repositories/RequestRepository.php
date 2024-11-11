@@ -2,17 +2,123 @@
 
 namespace App\Repositories;
 
-use App\Dto\ChatDto;
+use App\Dto\Message\ChatDto;
+use App\Dto\Message\FromDto;
 use App\Dto\Message\PhotoDto;
 use App\Dto\MessageDto;
-use App\Dto\UserDto;
 use Illuminate\Http\Request;
 
 readonly class RequestRepository
 {
     public function __construct(
         private Request $request
-    ) {}
+    ) {
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function getDto(): MessageDto
+    {
+        $payload = $this->request->all();
+
+        if (isset($payload['callback_query'])) {
+            return $this->getDtoByCallback();
+        }
+
+        if (isset($payload['message'])) {
+            return $this->getDtoByMessage();
+        }
+
+        throw new \Exception("Data is invalid. Array must contain 'message' or 'callback_query'.");
+    }
+
+    private function getDtoByMessage(): MessageDto
+    {
+        $payload = $this->request->all();
+        $data = $payload['message'];
+
+        if (isset($data['photo'])) {
+            return (new MessageDto())
+                ->setId($data['message_id'])
+                ->setFrom($this->getFromDto($data['from']))
+                ->setChat($this->getChatDto($data['chat']))
+                ->setPhoto($this->getImages($data['photo']))
+                ->setDate($data['date'])
+                ->setText($data['caption']);
+        }
+
+        return (new MessageDto())
+            ->setId($data['message_id'])
+            ->setFrom($this->getFromDto($data['from']))
+            ->setChat($this->getChatDto($data['chat']))
+            ->setDate($data['date'])
+            ->setText($data['text']);
+    }
+
+    private function getDtoByCallback(): MessageDto
+    {
+        $payload = $this->request->all();
+        $data = $payload['callback_query'];
+
+        return (new MessageDto())
+            ->setId($data['message']['message_id'])
+            ->setFrom($this->getFromDto($data['from']))
+            ->setChat($this->getChatDto($data['message']['chat']))
+            ->setDate($data['message']['date'])
+            ->setText($data['data']);
+    }
+
+    private function getChatDto(array $data): ChatDto
+    {
+        return (new ChatDto())
+            ->setId($data['id'])
+            ->setUsername($data['username'] ?? null)
+            ->setFirstName($data['first_name'] ?? null)
+            ->setLastName($data['last_name'] ?? null)
+            ->setType($data['type']);
+    }
+
+    private function getFromDto(array $data): FromDto
+    {
+        return (new FromDto())
+            ->setId($data['id'])
+            ->setIsBot($data['is_bot'])
+            ->setUsername($data['username'] ?? null)
+            ->setFirstName($data['first_name'] ?? null)
+            ->setLastName($data['last_name'] ?? null)
+            ->setLanguageCode($data['language_code'] ?? null);
+    }
+
+    private function getPhotoDto(array $image): PhotoDto
+    {
+        return (new PhotoDto())
+            ->setFileId($image['file_id'])
+            ->setFileUniqueId($image['file_unique_id'])
+            ->setFileSize($image['file_size'])
+            ->setWidth($image['width'])
+            ->setHeight($image['height']);
+    }
+
+    private function getImages(array $data): array
+    {
+        $images = [];
+        foreach ($data as $image) {
+            $images[] = $this->getPhotoDto($image);
+        }
+
+        return $images;
+    }
+
+
+
+
+
+
+
+
+
+
 
     private function hasPhoto(): bool
     {

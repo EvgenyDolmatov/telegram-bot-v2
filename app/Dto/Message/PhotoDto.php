@@ -10,18 +10,16 @@ class PhotoDto
     private int $width;
     private int $height;
 
-    public function __construct(string $fileId, string $fileUniqueId, int $fileSize, int $width, int $height)
-    {
-        $this->fileId = $fileId;
-        $this->fileUniqueId = $fileUniqueId;
-        $this->fileSize = $fileSize;
-        $this->width = $width;
-        $this->height = $height;
-    }
-
     public function getFileId(): string
     {
         return $this->fileId;
+    }
+
+    public function setFileId(string $fileId): self
+    {
+        $this->fileId = $fileId;
+
+        return $this;
     }
 
     public function getFileUniqueId(): string
@@ -29,9 +27,23 @@ class PhotoDto
         return $this->fileUniqueId;
     }
 
+    public function setFileUniqueId(string $fileUniqueId): self
+    {
+        $this->fileUniqueId = $fileUniqueId;
+
+        return $this;
+    }
+
     public function getFileSize(): int
     {
         return $this->fileSize;
+    }
+
+    public function setFileSize(int $fileSize): self
+    {
+        $this->fileSize = $fileSize;
+
+        return $this;
     }
 
     public function getWidth(): int
@@ -39,8 +51,22 @@ class PhotoDto
         return $this->width;
     }
 
+    public function setWidth(int $width): self
+    {
+        $this->width = $width;
+
+        return $this;
+    }
+
     public function getHeight(): int
     {
         return $this->height;
+    }
+
+    public function setHeight(int $height): self
+    {
+        $this->height = $height;
+
+        return $this;
     }
 }
