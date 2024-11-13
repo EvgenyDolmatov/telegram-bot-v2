@@ -11,21 +11,21 @@ use Illuminate\Support\Facades\Log;
 
 class MainController extends Controller
 {
+    /**
+     * @throws \Exception
+     */
     public function webhook(Request $request): void
     {
         $telegram = new TelegramService();
         $telegram->resetQueue();
-        $requestRepository = new RequestRepository($request);
 
         Log::debug(json_encode($request->all()));
 
         if ($request->hasAny(['message', 'callback_query'])) {
-            $chatDto = $requestRepository->convertToChat();
-            $messageDto = $requestRepository->convertToMessage();
-            $message = $messageDto->getText();
+            $messageDto = (new RequestRepository($request))->getDto();
 
-            Log::debug('USER: ' . $messageDto->getId() . ' : ' . $message);
-            TrashMessage::add($chatDto, $messageDto, true);
+            Log::debug('USER: ' . $messageDto->getId() . ' : ' . $messageDto->getText());
+            TrashMessage::add($messageDto->getChat(), $messageDto, true);
 
             $strategy = new MessageStrategy($telegram, $request);
             $strategy->defineHandler()->process();

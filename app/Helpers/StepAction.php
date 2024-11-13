@@ -102,13 +102,14 @@ class StepAction implements StepConstants
         return $this->senderService->sendPoll($poll, $isTrash);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function addToTrash(): void
     {
-        $repository = $this->repository;
-        $chatDto = $repository->convertToChat();
-        $messageDto = $repository->convertToMessage();
+        $messageDto = $this->repository->getDto();
 
-        TrashMessage::add($chatDto, $messageDto, true);
+        TrashMessage::add($messageDto->getChat(), $messageDto, true);
     }
 
     public function canContinue(): bool
@@ -302,11 +303,12 @@ class StepAction implements StepConstants
 
     /**
      * Check newsletter content before sending
+     * @throws \Exception
      */
     public function adminNewsletterConfirmation(): void
     {
         $user = User::getOrCreate($this->repository);
-        $messageDto = $this->repository->convertToMessage();
+        $messageDto = $this->repository->getDto();
         $newsletterWaitingState = State::where('code', StateConstants::NEWSLETTER_WAITING)->first();
 
         if (
@@ -316,7 +318,10 @@ class StepAction implements StepConstants
             if ($user->hasAnyState())
                 $user->states()->detach();
 
-            $photoId = $messageDto->getPhoto()->getFileId();
+            $images = $messageDto->getPhoto();
+
+            $photoId = (end($images))->getFileId();
+
             $photoPath = $this->senderService->uploadPhoto($photoId);
             $newsletterData = [
                 'user_id' => $user->id,

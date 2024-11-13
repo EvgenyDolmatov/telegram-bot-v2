@@ -8,7 +8,6 @@ use App\Constants\CommonConstants;
 use App\Models\TrashMessage;
 use App\Repositories\MessageRepository;
 use App\Repositories\RequestRepository;
-use App\Repositories\ResponseRepository;
 use Illuminate\Http\Client\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -31,13 +30,14 @@ readonly class SenderService
      * @param bool $isTrash
      * @param int|null $chatId
      * @return void
+     * @throws \Exception
      */
     public function sendPhoto(Message $message, string $imageUrl, bool $isTrash = true, int $chatId = null): void
     {
         $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/sendPhoto';
 
         if (!$chatId) {
-            $chat = (new RequestRepository($this->request))->convertToChat();
+            $chat = (new RequestRepository($this->request))->getDto()->getChat();
             $chatId = $chat->getId();
         }
 
@@ -68,13 +68,14 @@ readonly class SenderService
      * @param bool $isTrash
      * @param int|null $chatId
      * @return void
+     * @throws \Exception
      */
     public function sendMessage(Message $message, bool $isTrash = true, int $chatId = null): void
     {
         $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/sendMessage';
 
         if (!$chatId) {
-            $chat = (new RequestRepository($this->request))->convertToChat();
+            $chat = (new RequestRepository($this->request))->getDto()->getChat();
             $chatId = $chat->getId();
         }
 
@@ -126,11 +127,12 @@ readonly class SenderService
      * @param Poll $poll
      * @param bool $isTrash
      * @return Response
+     * @throws \Exception
      */
     public function sendPoll(Poll $poll, bool $isTrash = true): Response
     {
         $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/sendPoll';
-        $chat = (new RequestRepository($this->request))->convertToChat();
+        $chat = (new RequestRepository($this->request))->getDto()->getChat();
 
         $body = [
             "chat_id" => $chat->getId(),
@@ -196,11 +198,12 @@ readonly class SenderService
      * Check if user is chat member
      *
      * @return bool
+     * @throws \Exception
      */
     public function isMembership(): bool
     {
         $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/getChatMember';
-        $user = (new RequestRepository($this->request))->convertToUser();
+        $user = (new RequestRepository($this->request))->getDto()->getFrom();
 
         $body = [
             "chat_id" => config('services.telegram.chatId'),

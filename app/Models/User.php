@@ -42,26 +42,37 @@ class User extends Model
         return $this->hasMany(Newsletter::class, 'user_id');
     }
 
+    /**
+     * @throws \Exception
+     */
     public static function getByRequestRepository(RequestRepository $repository): ?User
     {
-        return User::where('tg_user_id', $repository->getDto()->getFrom()->getId())->first();
+        $telegramUserId = $repository->getDto()->getFrom()->getId();
+
+        return User::where('tg_user_id', $telegramUserId)->first();
     }
 
+    /**
+     * @throws \Exception
+     */
     public static function createFromRequestRepository(RequestRepository $repository): User
     {
-        $userDto = $repository->convertToUser();
-        $chatDto = $repository->convertToChat();
+        $messageDto = $repository->getDto();
+        $from = $repository->getDto()->getFrom();
 
         return self::create([
-            'tg_user_id' => $userDto->getId(),
-            'tg_chat_id' => $chatDto->getId(),
-            'username' => $userDto->getUsername(),
-            'first_name' => $userDto->getFirstName(),
-            'last_name' => $userDto->getLastName(),
+            'tg_user_id' => $from->getId(),
+            'tg_chat_id' => $messageDto->getChat()->getId(),
+            'username' => $from->getUsername(),
+            'first_name' => $from->getFirstName(),
+            'last_name' => $from->getLastName(),
             'referrer_link' => Str::random(40)
         ]);
     }
 
+    /**
+     * @throws \Exception
+     */
     public static function getOrCreate(RequestRepository $repository): User
     {
         if ($user = self::getByRequestRepository($repository)) {
@@ -71,8 +82,7 @@ class User extends Model
         $user = self::createFromRequestRepository($repository);
 
         // Check if the user has referral link
-        $message = $repository->convertToMessage()->getText();
-        $user->addReferredUser($message);
+        $user->addReferredUser($repository->getDto()->getText());
 
         return $user;
     }
@@ -142,11 +152,11 @@ class User extends Model
     /**
      * @param Request $request
      * @return void
+     * @throws \Exception
      */
     public function changeState(Request $request)
     {
-        $requestRepository = new RequestRepository($request);
-        $messageDto = $requestRepository->convertToMessage();
+        $messageDto = (new RequestRepository($request))->getDto();
         $message = $messageDto->getText();
 
         switch ($message) {

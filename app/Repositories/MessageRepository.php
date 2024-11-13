@@ -4,7 +4,9 @@ namespace App\Repositories;
 
 use App\Dto\Message\ChatDto;
 use App\Dto\Message\FromDto;
+use App\Dto\Message\PhotoDto;
 use App\Dto\MessageDto;
+use Illuminate\Support\Facades\Log;
 
 class MessageRepository extends AbstractRepository
 {
@@ -13,56 +15,65 @@ class MessageRepository extends AbstractRepository
      */
     public function getDto(): MessageDto
     {
-        try {
-            $data = json_decode($this->response, true)['result'];
+        Log::debug("MessageRepository getDto: " . $this->response);
+        $data = json_decode($this->response, true)['result'];
 
-            $dto = (new MessageDto())
+        if (isset($data['photo'])) {
+            return (new MessageDto())
                 ->setId($data['message_id'])
+                ->setFrom($this->getFromDto($data['from']))
+                ->setChat($this->getChatDto($data['chat']))
+                ->setPhoto($this->getImages($data['photo']))
                 ->setDate($data['date'])
-                ->setFrom($this->getFromDto())
-                ->setChat($this->getChatDto())
-                ->setText($data['text'] ?? null);
-        } catch (\Throwable $exception) {
-            throw new \Exception('Invalid "message" response');
+                ->setText($data['caption']);
         }
 
-        return $dto;
+        return (new MessageDto())
+            ->setId($data['message_id'])
+            ->setFrom($this->getFromDto($data['from']))
+            ->setChat($this->getChatDto($data['chat']))
+            ->setDate($data['date'])
+            ->setText($data['text']);
     }
 
-    private function getFromDto(): FromDto
+    private function getChatDto(array $data): ChatDto
     {
-        try {
-            $data = json_decode($this->response, true)['result']['from'];
-
-            $dto = (new FromDto())
-                ->setId($data['id'])
-                ->setIsBot($data['is_bot'])
-                ->setFirstName($data['first_name'] ?? null)
-                ->setLastName($data['last_name'] ?? null)
-                ->setUsername($data['username'] ?? null)
-                ->setLanguageCode($data['language_code'] ?? null);
-        } catch (\Throwable $exception) {
-            throw new \Exception('Invalid "message from" response');
-        }
-
-        return $dto;
+        return (new ChatDto())
+            ->setId($data['id'])
+            ->setUsername($data['username'] ?? null)
+            ->setFirstName($data['first_name'] ?? null)
+            ->setLastName($data['last_name'] ?? null)
+            ->setType($data['type']);
     }
 
-    private function getChatDto(): ChatDto
+    private function getFromDto(array $data): FromDto
     {
-        try {
-            $data = json_decode($this->response, true)['result']['chat'];
+        return (new FromDto())
+            ->setId($data['id'])
+            ->setIsBot($data['is_bot'])
+            ->setUsername($data['username'] ?? null)
+            ->setFirstName($data['first_name'] ?? null)
+            ->setLastName($data['last_name'] ?? null)
+            ->setLanguageCode($data['language_code'] ?? null);
+    }
 
-            $dto = (new ChatDto())
-                ->setId($data['id'])
-                ->setFirstName($data['first_name'] ?? null)
-                ->setLastName($data['last_name'] ?? null)
-                ->setUsername($data['username'] ?? null)
-                ->setType($data['type']);
-        } catch (\Throwable $exception) {
-            throw new \Exception('Invalid "message chat" response');
+    private function getPhotoDto(array $image): PhotoDto
+    {
+        return (new PhotoDto())
+            ->setFileId($image['file_id'])
+            ->setFileUniqueId($image['file_unique_id'])
+            ->setFileSize($image['file_size'])
+            ->setWidth($image['width'])
+            ->setHeight($image['height']);
+    }
+
+    private function getImages(array $data): array
+    {
+        $images = [];
+        foreach ($data as $image) {
+            $images[] = $this->getPhotoDto($image);
         }
 
-        return $dto;
+        return $images;
     }
 }

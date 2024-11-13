@@ -10,6 +10,9 @@ use App\Services\StateService;
 
 class StateHandler extends AbstractHandler
 {
+    /**
+     * @throws \Exception
+     */
     public function handle(string $message): void
     {
         $request = $this->request;

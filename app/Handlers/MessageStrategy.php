@@ -53,11 +53,12 @@ class MessageStrategy
 
     /**
      * TODO: Разобраться с Request Repository. Учесть MessageDto и CallbackDto
+     * @throws \Exception
      */
     private function getMessage(): string
     {
         $requestRepository = new RequestRepository($this->request);
 
-        return $requestRepository->convertToMessage()->getText();
+        return $requestRepository->getDto()->getText();
     }
 }
