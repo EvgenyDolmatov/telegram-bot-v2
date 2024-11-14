@@ -68,6 +68,7 @@ class StepAction implements StepConstants
      * @param array|null $buttons
      * @param bool $isTrash
      * @return void
+     * @throws \Exception
      */
     public function sendMessage(string $text, ?array $buttons = null, bool $isTrash = true, $chatId = null): void
     {
@@ -629,6 +630,7 @@ class StepAction implements StepConstants
      * If user pressed to "support" button
      *
      * @return void
+     * @throws \Exception
      */
     public function support(): void
     {

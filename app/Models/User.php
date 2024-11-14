@@ -160,7 +160,7 @@ class User extends Model
         $message = $messageDto->getText();
 
         switch ($message) {
-            case CommandEnum::START->value:
+            case '/' . CommandEnum::START->value:
                 $startState = State::where('code', StateConstants::START)->first();
 
                 if ($this->hasAnyState())
@@ -195,6 +195,9 @@ class User extends Model
                     return;
                 } else {
                     // TODO: Make handler about unexpected text
+
+                    Log::debug('USER.php : previousState : ' . $previousState->code);
+
                     if (
                         $previousState->code !== StateConstants::THEME_REQUEST &&
                         !in_array($message, $previousState->prepareCallbackItems($this))

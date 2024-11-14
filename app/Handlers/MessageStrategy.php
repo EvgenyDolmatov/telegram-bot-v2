@@ -21,6 +21,9 @@ class MessageStrategy
     ) {
     }
 
+    /**
+     * @throws \Exception
+     */
     public function defineHandler(): self
     {
         $message = $this->getMessage();
@@ -38,6 +41,9 @@ class MessageStrategy
         return $this->setHandler($handler);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function process(): void
     {
         $this->handler->handle($this->getMessage());
@@ -52,13 +58,10 @@ class MessageStrategy
 
 
     /**
-     * TODO: Разобраться с Request Repository. Учесть MessageDto и CallbackDto
      * @throws \Exception
      */
     private function getMessage(): string
     {
-        $requestRepository = new RequestRepository($this->request);
-
-        return $requestRepository->getDto()->getText();
+        return (new RequestRepository($this->request))->getDto()->getText();
     }
 }

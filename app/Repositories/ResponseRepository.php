@@ -2,11 +2,9 @@
 
 namespace App\Repositories;
 
-use App\Dto\ChatDto;
+use App\Dto\Message\ChatDto;
 use App\Dto\MessageDto;
-use App\Dto\UserDto;
 use Illuminate\Http\Client\Response;
-use Illuminate\Support\Facades\Log;
 
 readonly class ResponseRepository
 {

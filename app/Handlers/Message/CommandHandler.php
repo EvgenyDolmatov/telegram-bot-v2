@@ -7,12 +7,13 @@ use Illuminate\Support\Facades\Log;
 
 class CommandHandler extends AbstractHandler
 {
+    /**
+     * @throws \Exception
+     */
     public function handle(string $message): void
     {
         $command = $this->clearCommand($message);
         $helper = $this->helper;
-
-        Log::debug('pollIDadsasd: ' . $command);
 
         switch ($command) {
             case CommandEnum::START->value:
