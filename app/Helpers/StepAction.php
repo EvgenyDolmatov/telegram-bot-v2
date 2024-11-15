@@ -842,7 +842,7 @@ class StepAction implements StepConstants
         $message = "Выберите, что делать дальше:";
         $buttons = [
             new ButtonDto(
-                callbackData: CommandEnum::START->value,
+                callbackData: '/' . CommandEnum::START->value,
                 text: 'Выбрать другую тему'
             ),
             new ButtonDto(

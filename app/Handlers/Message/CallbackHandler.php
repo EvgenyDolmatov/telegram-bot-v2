@@ -6,12 +6,15 @@ use App\Enums\CommonCallbackEnum;
 
 class CallbackHandler extends AbstractHandler
 {
+    /**
+     * @throws \Exception
+     */
     public function handle(string $message): void
     {
         $helper = $this->helper;
 
         switch ($message) {
-            case CommonCallbackEnum::SUPPORT:
+            case CommonCallbackEnum::SUPPORT->value:
                 $helper->support();
                 return;
             case CommonCallbackEnum::ACCOUNT_REFERRAL_LINK->value:

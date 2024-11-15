@@ -33,7 +33,7 @@ class MessageRepository extends AbstractRepository
             ->setFrom($this->getFromDto($data['from']))
             ->setChat($this->getChatDto($data['chat']))
             ->setDate($data['date'])
-            ->setText($data['text']);
+            ->setText($data['text'] ?? null);
     }
 
     private function getChatDto(array $data): ChatDto

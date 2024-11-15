@@ -12,7 +12,7 @@ class MessageDto
     private FromDto $from;
     private ChatDto $chat;
     private array $photo;
-    private string $text;
+    private ?string $text;
 
     public function getId(): int
     {
@@ -79,7 +79,7 @@ class MessageDto
         return $this->text;
     }
 
-    public function setText(string $text): self
+    public function setText(?string $text): self
     {
         $this->text = $text;
 
