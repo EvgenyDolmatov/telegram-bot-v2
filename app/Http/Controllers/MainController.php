@@ -22,10 +22,14 @@ class MainController extends Controller
         Log::debug(json_encode($request->all()));
 
         if ($request->hasAny(['message', 'callback_query'])) {
-            $messageDto = (new RequestRepository($request))->getDto();
+            $requestDto = (new RequestRepository($request))->getDto();
 
-            Log::debug('USER: ' . $messageDto->getId() . ' : ' . $messageDto->getText());
-            TrashMessage::add($messageDto->getChat(), $messageDto, true);
+            Log::debug('USER: ' . $requestDto->getId() . ' : ' . $requestDto->getText());
+            TrashMessage::add(
+                chatId: $requestDto->getChat()->getId(),
+                messageId: $requestDto->getId(),
+                isTrash: true
+            );
 
             $strategy = new MessageStrategy($telegram, $request);
             $strategy->defineHandler()->process();

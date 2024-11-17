@@ -13,10 +13,14 @@ class MessageRepository extends AbstractRepository
     /**
      * @throws \Exception
      */
-    public function getDto(): MessageDto
+    public function getDto(): ?MessageDto
     {
         Log::debug("MessageRepository getDto: " . $this->response);
         $data = json_decode($this->response, true)['result'];
+
+        if (isset($data['sender_chat'])) {
+            return null;
+        }
 
         if (isset($data['photo'])) {
             return (new MessageDto())

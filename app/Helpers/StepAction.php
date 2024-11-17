@@ -108,9 +108,9 @@ class StepAction implements StepConstants
      */
     public function addToTrash(): void
     {
-        $messageDto = $this->repository->getDto();
+        $requestDto = $this->repository->getDto();
 
-        TrashMessage::add($messageDto->getChat(), $messageDto, true);
+        TrashMessage::add($requestDto->getChat()->getId(), $requestDto->getId(), true);
     }
 
     public function canContinue(): bool
@@ -226,6 +226,7 @@ class StepAction implements StepConstants
     /**
      * Send message to channel
      * Example: /channel @evd_test_channel {534523,123213}
+     * @throws \Exception
      */
     public function sendToChannel(array $messageData): void
     {

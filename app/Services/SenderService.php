@@ -6,7 +6,6 @@ use App\Builder\Message\Message;
 use App\Builder\Poll\Poll;
 use App\Constants\CommonConstants;
 use App\Models\TrashMessage;
-use App\Repositories\MessageRepository;
 use App\Repositories\RequestRepository;
 use Illuminate\Http\Client\Response;
 use Illuminate\Http\Request;
@@ -54,7 +53,7 @@ readonly class SenderService
 
         $response = Http::post($url, $body);
         $this->updateChatMessages(
-            response: $response,
+            request: $this->request,
             isTrash: $isTrash
         );
 
@@ -91,7 +90,7 @@ readonly class SenderService
 
         $response = Http::post($url, $body);
         $this->updateChatMessages(
-            response: $response,
+            request: $this->request,
             isTrash: $isTrash
         );
 
@@ -148,7 +147,7 @@ readonly class SenderService
 
         $response = Http::post($url, $body);
         $this->updateChatMessages(
-            response: $response,
+            request: $this->request,
             isTrash: $isTrash
         );
 
@@ -160,38 +159,37 @@ readonly class SenderService
     /**
      * Remove old messages and prepare messages for removing for next step
      *
-     * @param $response
+     * @param Request $request
      * @param bool $isTrash
      * @return void
      * @throws \Exception
      */
-    public function updateChatMessages($response, bool $isTrash = true): void
+    public function updateChatMessages(Request $request, bool $isTrash = true): void
     {
-        if (json_decode($response, true)['ok']) {
-            $message = (new MessageRepository($response))->getDto();
-            $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/deleteMessages';
-            $trashMessages = TrashMessage::where('chat_id', $message->getChat()->getId())->where('is_trash', true)->get();
+        $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/deleteMessages';
+        $requestDto = (new RequestRepository($this->request))->getDto();
+        $chatId = $requestDto->getChat()->getId();
+        $trashMessages = TrashMessage::where('chat_id', $chatId)->where('is_trash', true)->get();
 
-            if ($trashMessages->count()) {
-                $trashMessageIds = [];
+        if ($trashMessages->count()) {
+            $trashMessageIds = [];
 
-                foreach ($trashMessages as $trashMessage) {
-                    $trashMessageIds[] = $trashMessage->message_id;
-                    $trashMessage->delete();
-                }
-
-                $data = [
-                    'chat_id' => $message->getChat()->getId(),
-                    'message_ids' => $trashMessageIds
-                ];
-
-                // Delete messages
-                Http::post($url, $data);
+            foreach ($trashMessages as $trashMessage) {
+                $trashMessageIds[] = $trashMessage->message_id;
+                $trashMessage->delete();
             }
 
-            // Prepare trash messages for next step
-            TrashMessage::add($message->getChat(), $message, $isTrash);
+            $data = [
+                'chat_id' => $chatId,
+                'message_ids' => $trashMessageIds
+            ];
+
+            // Delete messages
+            Http::post($url, $data);
         }
+
+        // Prepare trash messages for next step
+        TrashMessage::add($chatId, $requestDto->getId(), $isTrash);
     }
 
     /**
