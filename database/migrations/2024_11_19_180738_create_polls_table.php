@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->bigInteger('tg_message_id');
             $table->text('question');
-            $table->boolean('is_anonymous')->value(0);
-            $table->boolean('allows_multiple_answers')->value(1);
+            $table->boolean('is_anonymous')->default(0);
+            $table->boolean('allows_multiple_answers')->default(1);
             $table->enum('type', ['regular', 'quiz'])->default('regular');
             $table->integer('correct_option_id')->nullable();
             $table->timestamps();

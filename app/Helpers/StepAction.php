@@ -128,7 +128,7 @@ class StepAction implements StepConstants
                 ]);
             }
         } catch (\Throwable $exception) {
-            throw new Exception('Poll data was occurency.');
+            throw new Exception('Poll data was occurency.', ['error' => $exception]);
         }
 
         return $response;
@@ -848,7 +848,7 @@ class StepAction implements StepConstants
                 if ($flow->isQuiz()) {
                     $questionNumber++;
                     $questionText = trim($question->getText(), ':');
-                    $correctAnswers .= "\n\nВопрос № $questionNumber. [ID: {$pollDto->getId()}] $questionText";
+                    $correctAnswers .= "\n\nВопрос № $questionNumber. [ID: {$pollResponse['result']['message_id']}] $questionText";
                     $correctAnswers .= "\nПравильный ответ: {$question->getOptions()[$question->getAnswer()]}";
                 }
             }
