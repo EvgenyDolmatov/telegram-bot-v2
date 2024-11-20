@@ -124,17 +124,18 @@ readonly class SenderService
      * Send poll or quiz
      *
      * @param Poll $poll
+     * @param int|null $chatId
      * @param bool $isTrash
      * @return Response
      * @throws \Exception
      */
-    public function sendPoll(Poll $poll, bool $isTrash = true): Response
+    public function sendPoll(Poll $poll, int $chatId = null, bool $isTrash = true): Response
     {
         $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/sendPoll';
         $chat = (new RequestRepository($this->request))->getDto()->getChat();
 
         $body = [
-            "chat_id" => $chat->getId(),
+            "chat_id" => $chatId ?? $chat->getId(),
             "question" => $poll->getQuestion(),
             "options" => $poll->getOptions(),
             "type" => $poll->getIsQuiz() ? "quiz" : "regular",

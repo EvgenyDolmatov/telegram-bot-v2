@@ -9,6 +9,7 @@ use App\Builder\PollSender;
 use App\Constants\StateConstants;
 use App\Constants\StepConstants;
 use App\Dto\ButtonDto;
+use App\Dto\Poll\OptionDto;
 use App\Enums\CommandEnum;
 use App\Enums\CommonCallbackEnum;
 use App\Enums\SurveyCallbackEnum;
@@ -97,6 +98,7 @@ class StepAction implements StepConstants
         bool    $isAnonymous,
         bool    $isQuiz = false,
         ?string $correctOptionId = null,
+        int     $chatId = null,
         bool    $isTrash = true
     ): Response
     {
@@ -105,7 +107,7 @@ class StepAction implements StepConstants
             ->createPoll($question, $options, $isAnonymous, $isQuiz, $correctOptionId);
 
         // Send poll to telegram
-        $response = $this->senderService->sendPoll($poll, $isTrash);
+        $response = $this->senderService->sendPoll($poll, $chatId, $isTrash);
 
         try {
             // Save the poll with options to database
@@ -260,20 +262,32 @@ class StepAction implements StepConstants
     public function sendToChannel(array $messageData): void
     {
         $channelName = $messageData['parameter'] ?? "@" . ltrim($messageData['parameter'], '@');
-        $pollIds = $messageData['arguments'] ?
+        $messageIds = $messageData['arguments'] ?
             explode(',', trim($messageData['arguments'], '{}')) :
             null;
 
-        Log::debug('PollIDs: ' . json_encode($pollIds));
+        Log::debug('Message ID\'s: ' . json_encode($messageIds));
 
-        foreach ($pollIds as $pollId) {
+        foreach ($messageIds as $messageId) {
             $channelResponse = $this->senderService->getChatByChannelName($channelName);
             $channelDto = (new ChannelRepository($channelResponse))->getDto();
+            $poll = Poll::where('tg_message_id', $messageId)->first();
 
-            $this->sendMessage(
-                text: 'ID: ' . $pollId,
-                isTrash: false,
-                chatId: $channelDto->getId()
+            $options = [];
+            $correctOptionLetters = ['a', 'b', 'c', 'd'];
+
+            foreach ($poll->options as $option) {
+                $options[] = $option->text;
+            }
+
+            $this->sendPoll(
+                question: $poll->question,
+                options: $options,
+                isAnonymous: $poll->is_anonymous,
+                isQuiz: !$poll->allows_multiple_answers,
+                correctOptionId: $correctOptionLetters[$poll->correct_option_id],
+                chatId: $channelDto->getId(),
+                isTrash: false
             );
         }
     }
