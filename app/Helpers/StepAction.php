@@ -14,6 +14,8 @@ use App\Enums\CommonCallbackEnum;
 use App\Enums\SurveyCallbackEnum;
 use App\Models\AiRequest;
 use App\Models\Newsletter;
+use App\Models\Poll;
+use App\Models\PollOption;
 use App\Models\State;
 use App\Models\Subject;
 use App\Models\TrashMessage;
@@ -29,6 +31,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Client\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use PHPUnit\Logging\Exception;
 
 class StepAction implements StepConstants
 {
@@ -86,6 +89,7 @@ class StepAction implements StepConstants
      * @param string|null $correctOptionId
      * @param bool $isTrash
      * @return Response
+     * @throws \Exception
      */
     public function sendPoll(
         string  $question,
@@ -100,7 +104,32 @@ class StepAction implements StepConstants
             ->setBuilder(new PollBuilder())
             ->createPoll($question, $options, $isAnonymous, $isQuiz, $correctOptionId);
 
-        return $this->senderService->sendPoll($poll, $isTrash);
+        // Send poll to telegram
+        $response = $this->senderService->sendPoll($poll, $isTrash);
+
+        try {
+            // Save the poll with options to database
+            $pollDto = (new PollRepository($response))->getDto();
+            $pollModel = Poll::create([
+                'tg_message_id' => $response['result']['message_id'],
+                'question' => $pollDto->getQuestion(),
+                'is_anonymous' => $pollDto->getIsAnonymous(),
+                'allows_multiple_answers' => $pollDto->getIsAllowsMultipleAnswers(),
+                'type' => $pollDto->getType(),
+                'correct_option_id' => $pollDto->getCorrectOptionId(),
+            ]);
+
+            foreach ($pollDto->getOptions() as $option) {
+                PollOption::create([
+                    'poll_id' => $pollModel->id,
+                    'text' => $option->getText()
+                ]);
+            }
+        } catch (\Throwable $exception) {
+            throw new Exception('Poll data was occurency.');
+        }
+
+        return $response;
     }
 
     /**

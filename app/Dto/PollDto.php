@@ -12,7 +12,7 @@ class PollDto
     private bool $isAnonymous;
     private string $type;
     private bool $isAllowsMultipleAnswers;
-    private int $correctOptionId;
+    private ?int $correctOptionId;
 
     public function getId(): string
     {
@@ -110,7 +110,7 @@ class PollDto
         return $this;
     }
 
-    public function getCorrectOptionId(): int
+    public function getCorrectOptionId(): ?int
     {
         return $this->correctOptionId;
     }
