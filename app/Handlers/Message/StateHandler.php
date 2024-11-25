@@ -4,7 +4,6 @@ namespace App\Handlers\Message;
 
 use App\Dto\ButtonDto;
 use App\Enums\SurveyCallbackEnum;
-use App\Models\Poll;
 use App\Models\PreparedPoll;
 use App\Models\User;
 use App\Models\UserFlow;
@@ -56,7 +55,8 @@ class StateHandler extends AbstractHandler
             $text = "Выберите, какие вопросы нужно отправить?";
             $buttons = [];
 
-            foreach (Poll::latest()->take(5)->get() as $poll) {
+            $latestPolls = $user->polls()->latest()->take(5)->get();
+            foreach ($latestPolls as $poll) {
                 $buttons[] = new ButtonDto(
                     callbackData: "poll_{$poll->tg_message_id}",
                     text: $poll->question
@@ -72,20 +72,49 @@ class StateHandler extends AbstractHandler
         }
 
         /**
+         * TODO: >>
+         *
          * Create or update prepared polls
          */
         if (str_starts_with($message, 'poll_')) {
+
             $pollId = substr($message, 5);
             $preparedPoll =
                 PreparedPoll::where('user_id', $user->id)->first() ??
                 PreparedPoll::create(['user_id' => $user->id]);
 
             $currentPollIds = explode(',', $preparedPoll->poll_ids);
+
             $newPollIds = in_array($pollId, $currentPollIds)
                 ? array_diff($currentPollIds, [$pollId])
                 : array_merge($currentPollIds, [$pollId]);
 
             $preparedPoll->update(['poll_ids' => trim(implode(',', $newPollIds),',')]);
+
+
+            $text = "Выберите, какие вопросы нужно отправить?";
+            $buttons = [];
+
+            $latestPolls = $user->polls()->latest()->take(5)->get();
+            foreach ($latestPolls as $poll) {
+                $question = $poll->question;
+
+                if (in_array($poll->tg_message_id, $newPollIds)) {
+                    $question = "✅ $question";
+                }
+
+                $buttons[] = new ButtonDto(
+                    callbackData: "poll_{$poll->tg_message_id}",
+                    text: $question
+                );
+            }
+
+            $buttons[] = new ButtonDto(
+                "polls_chosen",
+                'Готово ➡️'
+            );
+
+//            $helper->editMessage('', '', '');
         }
 
         // TODO: Need to do something with index 9...

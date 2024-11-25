@@ -7,6 +7,7 @@ use App\Constants\TransitionConstants;
 use App\Enums\CommandEnum;
 use App\Repositories\RequestRepository;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -23,24 +24,29 @@ class User extends Model
         'referrer_link'
     ];
 
-    public function states()
+    public function states(): BelongsToMany
     {
         return $this->belongsToMany(State::class, 'user_states');
     }
 
-    public function flows()
+    public function flows(): HasMany
     {
         return $this->hasMany(UserFlow::class, 'user_id');
     }
 
-    public function referredUsers()
+    public function referredUsers(): HasMany
     {
         return $this->hasMany(UserReferral::class, 'user_id');
     }
 
-    public function newsletters()
+    public function newsletters(): HasMany
     {
         return $this->hasMany(Newsletter::class, 'user_id');
+    }
+
+    public function polls(): HasMany
+    {
+        return $this->hasMany(Poll::class, 'user_id');
     }
 
     public function preparedPolls(): HasMany

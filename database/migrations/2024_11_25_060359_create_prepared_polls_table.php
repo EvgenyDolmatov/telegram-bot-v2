@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('prepared_polls', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->references('id')->on('users')->cascadeOnDelete();
+            $table->integer('tg_message_id');
             $table->string('poll_ids')->nullable();
             $table->timestamps();
         });

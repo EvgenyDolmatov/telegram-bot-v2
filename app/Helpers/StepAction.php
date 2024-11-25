@@ -70,13 +70,39 @@ class StepAction implements StepConstants
      * @param string $text
      * @param array|null $buttons
      * @param bool $isTrash
-     * @return void
+     * @param int|null $chatId
+     * @return string
      * @throws \Exception
      */
-    public function sendMessage(string $text, ?array $buttons = null, bool $isTrash = true, $chatId = null): void
-    {
+    public function sendMessage(
+        string $text,
+        ?array $buttons = null,
+        bool $isTrash = true,
+        int $chatId = null
+    ): string {
         $message = $this->messageSender->createMessage($text, $buttons);
-        $this->senderService->sendMessage($message, $isTrash, $chatId);
+        return $this->senderService->sendMessage($message, $isTrash, $chatId);
+    }
+
+    /**
+     * Edit message
+     *
+     * @param int $messageId
+     * @param string $text
+     * @param array|null $buttons
+     * @param bool $isTrash
+     * @param int|null $chatId
+     * @return string
+     */
+    public function editMessage(
+        int $messageId,
+        string $text,
+        ?array $buttons = null,
+        bool $isTrash = true,
+        int $chatId = null
+    ): string {
+        $message = $this->messageSender->createMessage($text, $buttons);
+        return $this->senderService->editMessage($message, $messageId, $isTrash, $chatId);
     }
 
     /**

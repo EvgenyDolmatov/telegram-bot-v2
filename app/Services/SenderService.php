@@ -69,7 +69,7 @@ readonly class SenderService
      * @return void
      * @throws \Exception
      */
-    public function sendMessage(Message $message, bool $isTrash = true, int $chatId = null): void
+    public function sendMessage(Message $message, bool $isTrash = true, int $chatId = null): string
     {
         $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/sendMessage';
 
@@ -95,6 +95,35 @@ readonly class SenderService
         );
 
         Log::debug('BOT: ' . $response);
+
+        return $response;
+    }
+
+    /**
+     * Update message by message id
+     */
+    public function editMessage(Message $message, int $messageId, bool $isTrash = true, int $chatId = null): string
+    {
+        $url = $this->getUrl('editMessageText');
+
+        if (!$chatId) {
+            $chat = (new RequestRepository($this->request))->getDto()->getChat();
+            $chatId = $chat->getId();
+        }
+
+        $body = [
+            'chat_id' => $chatId,
+            'message_id' => $messageId,
+            'parse_mode' => 'html',
+            'text' => $message->getText()
+        ];
+
+        $body = $this->addButtonsToBody($message->getButtons(), $body);
+        $response = Http::post($url, $body);
+
+        Log::debug('BOT: ' . $response);
+
+        return $response;
     }
 
     /**
