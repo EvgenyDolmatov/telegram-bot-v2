@@ -9,7 +9,6 @@ use App\Builder\PollSender;
 use App\Constants\StateConstants;
 use App\Constants\StepConstants;
 use App\Dto\ButtonDto;
-use App\Dto\Poll\OptionDto;
 use App\Enums\CommandEnum;
 use App\Enums\CommonCallbackEnum;
 use App\Enums\SurveyCallbackEnum;
@@ -892,6 +891,10 @@ class StepAction implements StepConstants
             new ButtonDto(
                 callbackData: SurveyCallbackEnum::REPEAT_FLOW->value,
                 text: 'Создать еще 5 вопросов'
+            ),
+            new ButtonDto(
+                callbackData: SurveyCallbackEnum::SEND_TO_CHANNEL->value,
+                text: 'Отправить в сообщество/канал'
             )
         ];
 
