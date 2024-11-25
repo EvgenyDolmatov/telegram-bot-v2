@@ -68,7 +68,21 @@ class StateHandler extends AbstractHandler
                 'Готово ➡️'
             );
 
-            $helper->sendMessage($text, $buttons);
+            $response = $helper->sendMessage($text, $buttons);
+            $data = json_decode($response, true);
+
+            $preparedPoll = PreparedPoll::where('user_id', $user->id)->first();
+            if ($preparedPoll) {
+                $preparedPoll->update([
+                    'poll_ids' => null,
+                    'tg_message_id' => (int)$data['result']['message_id']
+                ]);
+            } else {
+                PreparedPoll::create([
+                    'user_id' => $user->id,
+                    'tg_message_id' => (int)$data['result']['message_id']
+                ]);
+            }
         }
 
         /**
@@ -77,11 +91,8 @@ class StateHandler extends AbstractHandler
          * Create or update prepared polls
          */
         if (str_starts_with($message, 'poll_')) {
-
             $pollId = substr($message, 5);
-            $preparedPoll =
-                PreparedPoll::where('user_id', $user->id)->first() ??
-                PreparedPoll::create(['user_id' => $user->id]);
+            $preparedPoll = PreparedPoll::where('user_id', $user->id)->first();
 
             $currentPollIds = explode(',', $preparedPoll->poll_ids);
 
@@ -114,7 +125,11 @@ class StateHandler extends AbstractHandler
                 'Готово ➡️'
             );
 
-//            $helper->editMessage('', '', '');
+            $helper->editMessage(
+                messageId: $preparedPoll->tg_message_id,
+                text: $text,
+                buttons: $buttons
+            );
         }
 
         // TODO: Need to do something with index 9...

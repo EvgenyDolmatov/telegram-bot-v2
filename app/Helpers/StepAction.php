@@ -81,7 +81,9 @@ class StepAction implements StepConstants
         int $chatId = null
     ): string {
         $message = $this->messageSender->createMessage($text, $buttons);
-        return $this->senderService->sendMessage($message, $isTrash, $chatId);
+        $response = $this->senderService->sendMessage($message, $isTrash, $chatId);
+
+        return $response;
     }
 
     /**
@@ -113,6 +115,7 @@ class StepAction implements StepConstants
      * @param bool $isAnonymous
      * @param bool $isQuiz
      * @param string|null $correctOptionId
+     * @param int|null $chatId
      * @param bool $isTrash
      * @return Response
      * @throws \Exception

@@ -66,7 +66,7 @@ readonly class SenderService
      * @param Message $message
      * @param bool $isTrash
      * @param int|null $chatId
-     * @return void
+     * @return string
      * @throws \Exception
      */
     public function sendMessage(Message $message, bool $isTrash = true, int $chatId = null): string
