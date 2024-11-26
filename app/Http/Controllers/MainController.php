@@ -6,6 +6,8 @@ use App\Handlers\MessageStrategy;
 use App\Models\TrashMessage;
 use App\Repositories\RequestRepository;
 use App\Services\TelegramService;
+use App\States\StartState;
+use App\States\UserContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -23,6 +25,12 @@ class MainController extends Controller
 
         if ($request->hasAny(['message', 'callback_query'])) {
             $requestDto = (new RequestRepository($request))->getDto();
+
+//            $userContext = new UserContext(new StartState());
+//            $message = $requestDto->getText();
+//            if ($message && $message !== "") {
+//                $userContext->handleInput($message);
+//            }
 
             Log::debug('USER: ' . $requestDto->getId() . ' : ' . $requestDto->getText());
             TrashMessage::add(
