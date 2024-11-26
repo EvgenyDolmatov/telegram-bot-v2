@@ -2,17 +2,45 @@
 
 namespace App\Handlers\Message;
 
+use App\Builder\Message\MessageBuilder;
+use App\Builder\MessageSender;
+use App\Builder\PollSender;
 use App\Enums\CommandEnum;
+use App\Services\SenderService;
+use App\Services\TelegramService;
+use App\States\StartState;
+use App\States\UserContext;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class CommandHandler extends AbstractHandler
 {
+    private MessageSender $messageSender;
+    private SenderService $senderService;
+
+    public function __construct(TelegramService $telegramService, Request $request)
+    {
+        $this->senderService = new SenderService($request, $telegramService);
+        $this->messageSender = (new MessageSender())->setBuilder(new MessageBuilder());
+    }
+
     /**
      * @throws \Exception
      */
     public function handle(string $message): void
     {
         $command = $this->clearCommand($message);
+        $userContext = new UserContext(new StartState());
+        $userContext->handleCommand($command);
+
+        $message = $this->messageSender->createMessage('Start');
+        $this->senderService->sendMessage($message);
+
+
+
+
+
+
         $helper = $this->helper;
 
         switch ($command) {
