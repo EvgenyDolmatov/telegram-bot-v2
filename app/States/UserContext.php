@@ -2,6 +2,8 @@
 
 namespace App\States;
 
+use Illuminate\Support\Facades\Log;
+
 class UserContext
 {
     private UserState $state;
@@ -18,7 +20,7 @@ class UserContext
 
     public function handleCommand(string $command): void
     {
-        $this->state->handleInput($command, $this);
+        $this->state->handleCommand($command, $this);
     }
 
     public function handleInput(string $input): void
