@@ -4,14 +4,19 @@ namespace App\Handlers\Message;
 
 use App\Dto\ButtonDto;
 use App\Enums\SurveyCallbackEnum;
+use App\Models\Poll;
 use App\Models\PreparedPoll;
 use App\Models\User;
 use App\Models\UserFlow;
+use App\Repositories\ChannelRepository;
 use App\Repositories\RequestRepository;
 use App\Services\StateService;
+use Illuminate\Support\Facades\Log;
 
 class StateHandler extends AbstractHandler
 {
+    private const string POLL_PREFIX = 'poll_';
+
     /**
      * @throws \Exception
      */
@@ -23,7 +28,7 @@ class StateHandler extends AbstractHandler
         $requestRepository = new RequestRepository($request);
         $user = User::getOrCreate($requestRepository);
 
-        if ($message !== "polls_chosen" && !str_starts_with($message, 'poll_')) {
+        if ($message !== "polls_chosen" && !str_starts_with($message, self::POLL_PREFIX)) {
             foreach ($user->preparedPolls() as $preparedPoll) {
                 $preparedPoll->delete();
             }
@@ -58,7 +63,7 @@ class StateHandler extends AbstractHandler
             $latestPolls = $user->polls()->latest()->take(5)->get();
             foreach ($latestPolls as $poll) {
                 $buttons[] = new ButtonDto(
-                    callbackData: "poll_{$poll->tg_message_id}",
+                    callbackData: self::POLL_PREFIX . $poll->tg_message_id,
                     text: $poll->question
                 );
             }
@@ -75,7 +80,8 @@ class StateHandler extends AbstractHandler
             if ($preparedPoll) {
                 $preparedPoll->update([
                     'poll_ids' => null,
-                    'tg_message_id' => (int)$data['result']['message_id']
+                    'tg_message_id' => (int)$data['result']['message_id'],
+                    'channel' => null,
                 ]);
             } else {
                 PreparedPoll::create([
@@ -86,11 +92,9 @@ class StateHandler extends AbstractHandler
         }
 
         /**
-         * TODO: >>
-         *
          * Create or update prepared polls
          */
-        if (str_starts_with($message, 'poll_')) {
+        if (str_starts_with($message, self::POLL_PREFIX)) {
             $pollId = substr($message, 5);
             $preparedPoll = PreparedPoll::where('user_id', $user->id)->first();
 
@@ -108,20 +112,20 @@ class StateHandler extends AbstractHandler
 
             $latestPolls = $user->polls()->latest()->take(5)->get();
             foreach ($latestPolls as $poll) {
-                $question = $poll->question;
-
                 if (in_array($poll->tg_message_id, $newPollIds)) {
-                    $question = "✅ $question";
+                    $question = "✅ " . $poll->question;
+                } else {
+                    $question = "❌ " . $poll->question;
                 }
 
                 $buttons[] = new ButtonDto(
-                    callbackData: "poll_{$poll->tg_message_id}",
+                    callbackData: self::POLL_PREFIX . $poll->tg_message_id,
                     text: $question
                 );
             }
 
             $buttons[] = new ButtonDto(
-                "polls_chosen",
+                SurveyCallbackEnum::POLLS_CHOSEN->value,
                 'Готово ➡️'
             );
 
@@ -130,6 +134,64 @@ class StateHandler extends AbstractHandler
                 text: $text,
                 buttons: $buttons
             );
+        }
+
+        /**
+         * Type channel's name which need to send polls
+         */
+        if ($message === SurveyCallbackEnum::POLLS_CHOSEN->value) {
+            $text = "Введите название канала или ссылку на канал, куда нужно отправить выбранные тесты:";
+
+            $helper->sendMessage($text);
+        }
+
+
+        $preparedPoll = $user->preparedPolls()->first();
+        if ($preparedPoll && $preparedPoll->poll_ids && !$preparedPoll->channel && !str_starts_with($message, self::POLL_PREFIX)) {
+            $requestDto = (new RequestRepository($request))->getDto();
+            $channelName = $requestDto->getText();
+
+            Log::debug('CHANNEL: ' . $channelName);
+
+            if (str_starts_with($channelName, 'https://t.me/')) {
+                $channelName = "@" . substr($channelName, 13);
+            } elseif (str_starts_with($channelName, '@')) {
+                $channelName = "@" . substr($channelName, 1);
+            }
+
+            Log::debug('Corrected CHANNEL: ' . $channelName);
+
+            $preparedPoll->update(['channel' => $channelName]);
+
+            // Send polls to channel
+            $channelResponse = $helper->getChatByChannelName($channelName);
+            $channelDto = (new ChannelRepository($channelResponse))->getDto();
+
+            Log::debug('CHANNEL: ' . $channelResponse);
+
+            $messageIds = explode(',', $preparedPoll->poll_ids);
+            foreach ($messageIds as $messageId) {
+                $poll = Poll::where('tg_message_id', $messageId)->first();
+                $correctOptionLetters = ['a', 'b', 'c', 'd'];
+                $options = [];
+
+                foreach ($poll->options as $option) {
+                    $options[] = $option->text;
+                }
+
+                $helper->sendPoll(
+                    question: $poll->question,
+                    options: $options,
+                    isAnonymous: $poll->is_anonymous,
+                    isQuiz: !$poll->allows_multiple_answers,
+                    correctOptionId: $correctOptionLetters[$poll->correct_option_id],
+                    chatId: $channelDto->getId(),
+                    isTrash: false
+                );
+            }
+
+            $text = "Тесты отправлены в канал $channelName";
+            $helper->sendMessage($text);
         }
 
         // TODO: Need to do something with index 9...

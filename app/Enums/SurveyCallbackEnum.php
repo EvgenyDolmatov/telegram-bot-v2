@@ -15,4 +15,5 @@ enum SurveyCallbackEnum: string
     case LEVEL_ANY = 'level_any';
     case REPEAT_FLOW = 'repeat_flow';
     case SEND_TO_CHANNEL = 'send_to_channel';
+    case POLLS_CHOSEN = 'polls_chosen';
 }

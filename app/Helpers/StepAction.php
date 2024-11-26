@@ -162,6 +162,11 @@ class StepAction implements StepConstants
         return $response;
     }
 
+    public function getChatByChannelName(string $channelName): Response
+    {
+        return $this->senderService->getChatByChannelName($channelName);
+    }
+
     /**
      * @throws \Exception
      */

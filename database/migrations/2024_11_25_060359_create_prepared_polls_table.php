@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->references('id')->on('users')->cascadeOnDelete();
             $table->integer('tg_message_id');
             $table->string('poll_ids')->nullable();
+            $table->string('channel')->nullable();
             $table->timestamps();
         });
     }

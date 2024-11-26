@@ -272,8 +272,6 @@ readonly class SenderService
 
     public function getChatByChannelName(string $channelName): Response
     {
-        $channelName = ltrim($channelName, '@');
-
         return Http::get($this->getUrl("getChat?chat_id=@{$channelName}"));
     }
 
