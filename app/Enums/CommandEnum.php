@@ -2,6 +2,14 @@
 
 namespace App\Enums;
 
+use App\Builder\MessageSender;
+use App\Senders\Commands\AccountSender;
+use App\Senders\Commands\AdminSender;
+use App\Senders\Commands\ChannelSender;
+use App\Senders\Commands\HelpSender;
+use App\Senders\Commands\StartSender;
+use App\Senders\SenderInterface;
+use App\Services\SenderService;
 use App\Services\TelegramService;
 use App\States\Account\AccountState;
 use App\States\Admin\AdminState;
@@ -27,6 +35,20 @@ enum CommandEnum: string
             self::CHANNEL => new ChannelState($request, $telegramService),
             self::HELP => new HelpState($request, $telegramService),
             self::START => new StartState($request, $telegramService),
+        };
+    }
+
+    public function sender(
+        Request $request,
+        MessageSender $messageBuilder,
+        SenderService $senderService
+    ): SenderInterface {
+        return match ($this) {
+            self::ACCOUNT => new AccountSender($request, $messageBuilder, $senderService),
+            self::ADMIN => new AdminSender($request, $messageBuilder, $senderService),
+            self::CHANNEL => new ChannelSender($request, $messageBuilder, $senderService),
+            self::HELP => new HelpSender($request, $messageBuilder, $senderService),
+            self::START => new StartSender($request, $messageBuilder, $senderService),
         };
     }
 }

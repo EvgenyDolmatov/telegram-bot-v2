@@ -2,9 +2,7 @@
 
 namespace App\Handlers\Message;
 
-use App\Enums\CommandEnum;
 use App\Helpers\StepAction;
-use App\Models\State;
 use App\Models\User;
 use App\Repositories\RequestRepository;
 use App\Services\TelegramService;
@@ -29,16 +27,4 @@ abstract class AbstractHandler
     }
 
     abstract public function handle(string $message): void;
-
-    protected function getUserStateCode(): string
-    {
-        $userState = $this->user->states()->first();
-
-        if (!$userState) {
-            $userState = State::where('code', CommandEnum::START)->first();
-            $this->user->states()->attach($userState->id);
-        }
-
-        return $userState->code;
-    }
 }

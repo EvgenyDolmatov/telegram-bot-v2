@@ -258,4 +258,18 @@ class User extends Model
             }
         }
     }
+
+    /**
+     * Update user state
+     */
+    public function updateStateByCode(string $code): void
+    {
+        $state = State::where('code', $code)->first();
+
+        if ($state) {
+            $this->states()->detach();
+            $this->states()->attach($state->id);
+        }
+
+    }
 }
