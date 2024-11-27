@@ -1,12 +1,12 @@
 <?php
 
-namespace App\States;
-
+namespace App\States\Account;
 
 use App\Enums\CommandEnum;
-use App\Models\User;
+use App\States\AbstractState;
+use App\States\UserContext;
 
-class StartState extends AbstractState implements UserState
+class AccountState extends AbstractState
 {
     public function handleCommand(string $command, UserContext $context): void
     {
@@ -14,36 +14,35 @@ class StartState extends AbstractState implements UserState
 
         switch ($command) {
             case CommandEnum::ACCOUNT->value:
-                $message = $this->messageSender->createMessage('From Start to Account');
+                $message = $this->messageSender->createMessage('From Account to Account');
                 $this->senderService->sendMessage($message);
 
                 break;
             case CommandEnum::ADMIN->value:
-                $message = $this->messageSender->createMessage('From Start to Admin');
+                $message = $this->messageSender->createMessage('From Account to Admin');
                 $this->senderService->sendMessage($message);
 
                 break;
             case CommandEnum::CHANNEL->value:
-                $message = $this->messageSender->createMessage('From Start to Channel');
+                $message = $this->messageSender->createMessage('From Account to Channel');
                 $this->senderService->sendMessage($message);
 
                 break;
             case CommandEnum::HELP->value:
-                $message = $this->messageSender->createMessage('From Start to Help');
+                $message = $this->messageSender->createMessage('From Account to Help');
                 $this->senderService->sendMessage($message);
 
                 break;
             case CommandEnum::START->value:
-                $message = $this->messageSender->createMessage('From Start to Start');
+                $message = $this->messageSender->createMessage('From Account to Start');
                 $this->senderService->sendMessage($message);
 
                 break;
         }
     }
 
-    public function handleInput(string $input, UserContext $context): void
+    public function handleInput(string $input, $context): void
     {
-        // $message = $this->messageSender->createMessage('Hi from Start');
-        // $this->senderService->sendMessage($message);
+        // Выберите опцию экрана в состоянии "account"
     }
 }

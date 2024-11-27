@@ -6,6 +6,8 @@ use App\Builder\Message\MessageBuilder;
 use App\Builder\MessageSender;
 use App\Builder\PollSender;
 use App\Enums\CommandEnum;
+use App\Models\State;
+use App\Models\User;
 use App\Services\SenderService;
 use App\Services\TelegramService;
 use App\States\StartState;
@@ -21,11 +23,11 @@ class CommandHandler extends AbstractHandler
     public function handle(string $message): void
     {
 //        $command = $this->clearCommand($message);
-        $command = CommandEnum::from($message);
+        $command = CommandEnum::from($this->getUserStateCode());
         $userContext = new UserContext($command->userState($this->request, $this->telegramService));
         $userContext->handleCommand($message);
 
-        Log::debug('Command: ' . $message);
+
 
 //        $message = $this->messageSender->createMessage('Start');
 //        $this->senderService->sendMessage($message);
@@ -86,5 +88,10 @@ class CommandHandler extends AbstractHandler
             'parameter' => $data[1] ?? null,
             'arguments' => $data[2] ?? null
         ];
+    }
+
+    private function getUserStep()
+    {
+
     }
 }
