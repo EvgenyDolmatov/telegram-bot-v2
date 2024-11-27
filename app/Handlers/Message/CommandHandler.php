@@ -3,6 +3,7 @@
 namespace App\Handlers\Message;
 
 use App\Enums\CommandEnum;
+use App\Enums\StateEnum;
 use App\States\UserContext;
 
 class CommandHandler extends AbstractHandler
@@ -12,8 +13,8 @@ class CommandHandler extends AbstractHandler
      */
     public function handle(string $message): void
     {
-        $command = CommandEnum::from($this->user->getCurrentState());
-        $userContext = new UserContext($command->userState($this->request, $this->telegramService));
+        $state = StateEnum::from($this->user->getCurrentState()->code);
+        $userContext = new UserContext($state->userState($this->request, $this->telegramService));
         $userContext->handleCommand($message);
     }
 }

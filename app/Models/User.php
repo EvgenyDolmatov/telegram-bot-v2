@@ -118,7 +118,7 @@ class User extends Model
 
     public function getCurrentState(): State
     {
-        if ($currentState = $this->states->first()) {
+        if ($currentState = $this->states()->first()) {
             return $currentState;
         }
 

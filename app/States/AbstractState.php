@@ -7,6 +7,7 @@ use App\Builder\MessageSender;
 use App\Dto\ButtonDto;
 use App\Enums\CommandEnum;
 use App\Enums\CommonCallbackEnum;
+use App\Enums\StateEnum;
 use App\Models\State;
 use App\Models\TrashMessage;
 use App\Models\User;
@@ -14,6 +15,7 @@ use App\Repositories\RequestRepository;
 use App\Services\SenderService;
 use App\Services\TelegramService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 abstract class AbstractState implements UserState
 {
@@ -36,7 +38,7 @@ abstract class AbstractState implements UserState
         $command = $this->clearCommand($command);
         $this->updateState($command, $context);
 
-        $commandItem = CommandEnum::from($command);
+        $commandItem = StateEnum::from($command);
         $sender = $commandItem->sender($this->request, $this->messageSender, $this->senderService);
 
         $sender->process();
@@ -44,9 +46,9 @@ abstract class AbstractState implements UserState
 
     abstract public function handleInput(string $input, UserContext $context): void;
 
-    private function updateState(string $command, UserContext $context): void
+    protected function updateState(string $command, UserContext $context): void
     {
-        $newState = CommandEnum::from($command);
+        $newState = StateEnum::from($command);
 
         $context->setState($newState->userState($this->request, $this->telegramService));
         $this->user->updateStateByCode($command);
