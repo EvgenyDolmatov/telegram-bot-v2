@@ -8,7 +8,7 @@ use App\Senders\Commands\AdminSender;
 use App\Senders\Commands\ChannelSender;
 use App\Senders\Commands\HelpSender;
 use App\Senders\Commands\StartSender;
-use App\Senders\Poll\TypeSelectSender;
+use App\Senders\Poll\TypeChoiceSender;
 use App\Senders\SenderInterface;
 use App\Services\SenderService;
 use App\Services\TelegramService;
@@ -16,7 +16,7 @@ use App\States\Account\AccountState;
 use App\States\Admin\AdminState;
 use App\States\Channel\ChannelState;
 use App\States\Help\HelpState;
-use App\States\Poll\TypeSelectState;
+use App\States\Poll\TypeChoiceState;
 use App\States\StartState;
 use App\States\UserState;
 use Illuminate\Http\Request;
@@ -30,7 +30,7 @@ enum StateEnum: string
     case CHANNEL = 'channel';
     case HELP = 'help';
     case START = 'start';
-    case TYPE_QUIZ = 'type_quiz';
+    case POLL_TYPE_CHOICE = 'poll_type_choice';
 
     public function userState(Request $request, TelegramService $telegramService): UserState
     {
@@ -40,7 +40,7 @@ enum StateEnum: string
             self::CHANNEL => new ChannelState($request, $telegramService),
             self::HELP => new HelpState($request, $telegramService),
             self::START => new StartState($request, $telegramService),
-            self::TYPE_QUIZ => new TypeSelectState($request, $telegramService),
+            self::POLL_TYPE_CHOICE => new TypeChoiceState($request, $telegramService),
         };
     }
 
@@ -55,7 +55,7 @@ enum StateEnum: string
             self::CHANNEL => new ChannelSender($request, $messageBuilder, $senderService),
             self::HELP => new HelpSender($request, $messageBuilder, $senderService),
             self::START => new StartSender($request, $messageBuilder, $senderService),
-            self::TYPE_QUIZ => new TypeSelectSender($request, $messageBuilder, $senderService),
+            self::POLL_TYPE_CHOICE => new TypeChoiceSender($request, $messageBuilder, $senderService),
         };
     }
 }

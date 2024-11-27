@@ -5,7 +5,7 @@ namespace App\Senders\Poll;
 use App\Models\User;
 use App\Senders\AbstractSender;
 
-class TypeSelectSender extends AbstractSender
+class TypeChoiceSender extends AbstractSender
 {
     public function process(): void
     {

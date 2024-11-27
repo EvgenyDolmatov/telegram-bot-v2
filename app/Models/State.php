@@ -13,6 +13,7 @@ class State extends Model
     use HasFactory;
 
     protected $fillable = ['code'];
+    public $timestamps = false;
 
     public function users()
     {
