@@ -34,30 +34,32 @@ abstract class AbstractState implements UserState
         $command = $this->clearCommand($command);
         $state = CommandEnum::from($command)->toState();
 
-        $this->updateState($state, $context);
         $this->user->resetFlow();
-
-        $sender = $state->sender($this->request, $this->messageSender, $this->senderService);
-        $sender->process();
+        $this->baseHandle($state, $context);
     }
 
     abstract public function handleInput(string $input, UserContext $context): void;
 
-    protected function handleSimpleInput(string $input, UserContext $context, string $currentState): void
+    protected function handleSimpleInput(string $input, UserContext $context, StateEnum $baseState): void
     {
         $state = PollEnum::from($input)->toState();
 
-        $this->updateState($state, $context);
-        $this->user->updateFlow($currentState, $input);
-
-        $sender = $state->sender($this->request, $this->messageSender, $this->senderService);
-        $sender->process();
+        $this->user->updateFlow($baseState, $input);
+        $this->baseHandle($state, $context);
     }
 
     protected function updateState(StateEnum $state, UserContext $context): void
     {
         $context->setState($state->userState($this->request, $this->telegramService));
         $this->user->updateStateByCode($state->value);
+    }
+
+    private function baseHandle(StateEnum $newSate, UserContext $context): void
+    {
+        $this->updateState($newSate, $context);
+
+        $sender = $newSate->sender($this->request, $this->messageSender, $this->senderService);
+        $sender->process();
     }
 
     private function clearCommand(string $command): string

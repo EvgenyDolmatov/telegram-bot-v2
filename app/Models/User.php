@@ -274,11 +274,11 @@ class User extends Model
 
     }
 
-    public function updateFlow(string $state, string $value, bool $isCompleted = false): void
+    public function updateFlow(StateEnum $state, string $value, bool $isCompleted = false): void
     {
         if ($openedFlow = $this->getOpenedFlow()) {
             $flowData = json_decode($openedFlow->flow, true);
-            $flowData[$state] = $value;
+            $flowData[$state->value] = $value;
             $isCompleted = array_key_exists(StateEnum::POLL_THEME_WAITING->value, $flowData);
 
             $openedFlow->update([
@@ -291,7 +291,7 @@ class User extends Model
 
         UserFlow::create([
             'user_id' => $this->id,
-            'flow' => json_encode([$state => $value]),
+            'flow' => json_encode([$state->value => $value]),
             'is_completed' => $isCompleted,
         ]);
     }

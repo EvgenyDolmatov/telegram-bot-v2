@@ -6,7 +6,7 @@ use App\Enums\StateEnum;
 
 class StartState extends AbstractState implements UserState
 {
-    private const string STATE = StateEnum::START->value;
+    private const StateEnum STATE = StateEnum::START;
 
     public function handleInput(string $input, UserContext $context): void
     {

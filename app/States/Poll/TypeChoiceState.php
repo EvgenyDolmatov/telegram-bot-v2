@@ -9,7 +9,7 @@ use App\States\UserState;
 
 class TypeChoiceState extends AbstractState implements UserState
 {
-    private const string STATE = StateEnum::POLL_TYPE_CHOICE->value;
+    private const StateEnum STATE = StateEnum::POLL_TYPE_CHOICE;
 
     public function handleInput(string $input, UserContext $context): void
     {
