@@ -9,6 +9,7 @@ use App\Senders\Commands\ChannelSender;
 use App\Senders\Commands\HelpSender;
 use App\Senders\Commands\StartSender;
 use App\Senders\Poll\AnonymityChoiceSender;
+use App\Senders\Poll\DifficultyChoiceSender;
 use App\Senders\Poll\TypeChoiceSender;
 use App\Senders\SenderInterface;
 use App\Services\SenderService;
@@ -18,6 +19,7 @@ use App\States\Admin\AdminState;
 use App\States\Channel\ChannelState;
 use App\States\Help\HelpState;
 use App\States\Poll\AnonymityChoiceState;
+use App\States\Poll\DifficultyChoiceState;
 use App\States\Poll\TypeChoiceState;
 use App\States\StartState;
 use App\States\UserState;
@@ -37,7 +39,7 @@ enum StateEnum: string
     case POLL_DIFFICULTY_CHOICE = 'poll_difficulty_choice';
     case POLL_SECTOR_CHOICE = 'poll_sector_choice';
     case POLL_SUBJECT_CHOICE = 'poll_subject_choice';
-    case POLL_THEME_CHOICE = 'poll_theme_waiting';
+    case POLL_THEME_WAITING = 'poll_theme_waiting';
     case POLL_AI_RESPONDED_CHOICE = 'poll_ai_responded_choice';
 
     public function userState(Request $request, TelegramService $telegramService): UserState
@@ -50,6 +52,7 @@ enum StateEnum: string
             self::START => new StartState($request, $telegramService),
             self::POLL_TYPE_CHOICE => new TypeChoiceState($request, $telegramService),
             self::POLL_ANONYMITY_CHOICE => new AnonymityChoiceState($request, $telegramService),
+            self::POLL_DIFFICULTY_CHOICE => new DifficultyChoiceState($request, $telegramService),
         };
     }
 
@@ -66,6 +69,26 @@ enum StateEnum: string
             self::START => new StartSender($request, $messageBuilder, $senderService),
             self::POLL_TYPE_CHOICE => new TypeChoiceSender($request, $messageBuilder, $senderService),
             self::POLL_ANONYMITY_CHOICE => new AnonymityChoiceSender($request, $messageBuilder, $senderService),
+            self::POLL_DIFFICULTY_CHOICE => new DifficultyChoiceSender($request, $messageBuilder, $senderService),
+        };
+    }
+
+    public function title(): string
+    {
+        return match ($this) {
+            self::START => "Привет! Выбери вариант:",
+            self::POLL_TYPE_CHOICE => "Выберите тип опроса:",
+            self::POLL_ANONYMITY_CHOICE => "Опрос будет анонимный?",
+            self::POLL_DIFFICULTY_CHOICE => "Выберите сложность вопросов:",
+            self::POLL_SECTOR_CHOICE => "Выберите направление:",
+            self::POLL_SUBJECT_CHOICE => "Выберите предмет:",
+            self::POLL_THEME_WAITING => "Введите свой вопрос:",
+            self::POLL_AI_RESPONDED_CHOICE => "Подождите. Ваш запрос обрабатывается...",
+
+            self::ACCOUNT => "Мой аккаунт:",
+            self::ADMIN => "Меню администратора:",
+            self::CHANNEL => "... Channel ...",
+            self::HELP => "Если у вас есть вопросы, напишите мне в личные сообщения: <a href='https://t.me/nkm_studio'>https://t.me/nkm_studio</a>",
         };
     }
 }

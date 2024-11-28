@@ -4,6 +4,7 @@ namespace App\Senders\Commands;
 
 use App\Dto\ButtonDto;
 use App\Enums\CommandEnum;
+use App\Enums\StateEnum;
 use App\Senders\AbstractSender;
 
 class ChannelSender extends AbstractSender
@@ -12,7 +13,7 @@ class ChannelSender extends AbstractSender
     {
         $this->addToTrash();
 
-        $message = $this->messageBuilder->createMessage('Channel');
+        $message = $this->messageBuilder->createMessage(StateEnum::CHANNEL->title());
         $this->senderService->sendMessage($message);
     }
 }

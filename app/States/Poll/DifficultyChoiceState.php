@@ -8,7 +8,7 @@ use App\States\AbstractState;
 use App\States\UserContext;
 use App\States\UserState;
 
-class TypeChoiceState extends AbstractState implements UserState
+class DifficultyChoiceState extends AbstractState implements UserState
 {
     public function handleInput(string $input, UserContext $context): void
     {

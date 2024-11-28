@@ -7,7 +7,6 @@ use App\Enums\StateEnum;
 use App\States\AbstractState;
 use App\States\UserContext;
 use App\States\UserState;
-use Illuminate\Support\Facades\Log;
 
 class AnonymityChoiceState extends AbstractState implements UserState
 {
@@ -19,6 +18,5 @@ class AnonymityChoiceState extends AbstractState implements UserState
         $state = StateEnum::from($pollState);
         $sender = $state->sender($this->request, $this->messageSender, $this->senderService);
         $sender->process();
-        Log::debug('AnonymityChoiceState');
     }
 }

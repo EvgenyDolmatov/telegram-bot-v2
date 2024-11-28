@@ -3,8 +3,9 @@
 namespace App\Senders\Commands;
 
 use App\Dto\ButtonDto;
-use App\Enums\CommandEnum;
-use App\Enums\SurveyCallbackEnum;
+use App\Enums\CommonCallbackEnum;
+use App\Enums\PollEnum;
+use App\Enums\StateEnum;
 use App\Senders\AbstractSender;
 
 class StartSender extends AbstractSender
@@ -13,18 +14,12 @@ class StartSender extends AbstractSender
     {
         $this->addToTrash();
 
-        $state = $this->user->getCurrentState();
-        $buttons = $state->prepareButtons($this->user);
-        $buttons[] = new ButtonDto(SurveyCallbackEnum::TYPE_QUIZ->value, 'Выбрать тип');
+        $buttons = [
+            new ButtonDto(PollEnum::CREATE_SURVEY->value, PollEnum::CREATE_SURVEY->buttonText()),
+            new ButtonDto(CommonCallbackEnum::SUPPORT->value, 'Поддержка'),
+        ];
 
-        $message = $this->messageBuilder->createMessage(
-            text: $state->text,
-            buttons: $buttons
-        );
-
-        $this->senderService->sendPhoto(
-            message: $message,
-            imageUrl: asset('assets/img/start.png')
-        );
+        $message = $this->messageBuilder->createMessage(StateEnum::START->title(), $buttons);
+        $this->senderService->sendPhoto($message, asset('assets/img/start.png'));
     }
 }

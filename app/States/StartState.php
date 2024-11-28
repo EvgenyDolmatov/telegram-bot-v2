@@ -14,13 +14,15 @@ class StartState extends AbstractState
         $state = PollEnum::from($input)->toState(); // create_survey => poll_type_choice
         $this->updateState($state, $context);
 
-//        $userFlow = $this->user->getOpenedFlow();
-//        if (!$userFlow) {
-//            $userFlow = UserFlow::create([
-//                'user_id' => $this->user->id,
-//                'flow' => json_encode([])
-//            ]);
-//        }
+        $userFlow = $this->user->getOpenedFlow();
+        if (!$userFlow) {
+            UserFlow::create([
+                'user_id' => $this->user->id,
+                'flow' => json_encode([StateEnum::START->value => $input])
+            ]);
+        } else {
+            $userFlow->update(['flow' => json_encode([StateEnum::START->value => $input])]);
+        }
 
         $pollItem = StateEnum::from($state);
         $sender = $pollItem->sender($this->request, $this->messageSender, $this->senderService);

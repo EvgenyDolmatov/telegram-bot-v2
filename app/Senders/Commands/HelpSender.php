@@ -4,6 +4,7 @@ namespace App\Senders\Commands;
 
 use App\Dto\ButtonDto;
 use App\Enums\CommandEnum;
+use App\Enums\StateEnum;
 use App\Senders\AbstractSender;
 
 class HelpSender extends AbstractSender
@@ -12,10 +13,9 @@ class HelpSender extends AbstractSender
     {
         $this->addToTrash();
 
-        $text = "Если у вас есть вопросы, напишите мне в личные сообщения: <a href='https://t.me/nkm_studio'>https://t.me/nkm_studio</a>";
         $buttons = [new ButtonDto(CommandEnum::START->value, 'Назад')];
 
-        $message = $this->messageBuilder->createMessage($text, $buttons);
+        $message = $this->messageBuilder->createMessage(StateEnum::HELP->title(), $buttons);
         $this->senderService->sendMessage($message);
     }
 }

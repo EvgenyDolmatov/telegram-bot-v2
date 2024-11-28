@@ -51,7 +51,7 @@ abstract class AbstractState implements UserState
         $newState = StateEnum::from($state);
 
         $context->setState($newState->userState($this->request, $this->telegramService));
-        $this->user->updateStateByCode($state);
+//        $this->user->updateStateByCode($state);
     }
 
     private function clearCommand(string $command): string

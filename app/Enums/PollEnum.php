@@ -2,15 +2,6 @@
 
 namespace App\Enums;
 
-use App\Builder\MessageSender;
-use App\Senders\Poll\TypeChoiceSender;
-use App\Senders\SenderInterface;
-use App\Services\SenderService;
-use App\Services\TelegramService;
-use App\States\Poll\TypeChoiceState;
-use App\States\UserState;
-use Illuminate\Http\Request;
-
 enum PollEnum: string
 {
     case CREATE_SURVEY = 'create_survey';
@@ -32,6 +23,27 @@ enum PollEnum: string
             self::CREATE_SURVEY => StateEnum::POLL_TYPE_CHOICE->value,
             self::TYPE_QUIZ,
             self::TYPE_SURVEY => StateEnum::POLL_ANONYMITY_CHOICE->value,
+            self::IS_ANON,
+            self::IS_NOT_ANON => StateEnum::POLL_DIFFICULTY_CHOICE->value,
+            self::LEVEL_HARD,
+            self::LEVEL_MIDDLE,
+            self::LEVEL_EASY,
+            self::LEVEL_ANY => StateEnum::POLL_SECTOR_CHOICE->value,
+        };
+    }
+
+    public function buttonText(): string
+    {
+        return match ($this) {
+            self::CREATE_SURVEY => "Создать тест",
+            self::TYPE_QUIZ => "Викторина (1 вариант ответа)",
+            self::TYPE_SURVEY => "Опрос (несколько вариантов)",
+            self::IS_ANON => "Да",
+            self::IS_NOT_ANON => "Нет",
+            self::LEVEL_HARD => "Высокая сложность",
+            self::LEVEL_MIDDLE => "Средняя сложность",
+            self::LEVEL_EASY => "Низкая сложность",
+            self::LEVEL_ANY => "Любая сложность",
         };
     }
 }
