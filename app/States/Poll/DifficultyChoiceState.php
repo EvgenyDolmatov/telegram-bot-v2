@@ -10,13 +10,10 @@ use App\States\UserState;
 
 class DifficultyChoiceState extends AbstractState implements UserState
 {
+    private const string STATE = StateEnum::POLL_DIFFICULTY_CHOICE->value;
+
     public function handleInput(string $input, UserContext $context): void
     {
-        $pollState = PollEnum::from($input)->toState();
-        $this->updateState($pollState, $context);
-
-        $state = StateEnum::from($pollState);
-        $sender = $state->sender($this->request, $this->messageSender, $this->senderService);
-        $sender->process();
+        $this->handleSimpleInput($input, $context, self::STATE);
     }
 }

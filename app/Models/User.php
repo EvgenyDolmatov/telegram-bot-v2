@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Constants\StateConstants;
 use App\Constants\TransitionConstants;
 use App\Enums\CommandEnum;
+use App\Enums\StateEnum;
 use App\Repositories\RequestRepository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -271,5 +272,34 @@ class User extends Model
             $this->states()->attach($state->id);
         }
 
+    }
+
+    public function updateFlow(string $state, string $value, bool $isCompleted = false): void
+    {
+        if ($openedFlow = $this->getOpenedFlow()) {
+            $flowData = json_decode($openedFlow->flow, true);
+            $flowData[$state] = $value;
+            $isCompleted = array_key_exists(StateEnum::POLL_THEME_WAITING->value, $flowData);
+
+            $openedFlow->update([
+                'flow' => json_encode($flowData),
+                'is_completed' => $isCompleted
+            ]);
+
+            return;
+        }
+
+        UserFlow::create([
+            'user_id' => $this->id,
+            'flow' => json_encode([$state => $value]),
+            'is_completed' => $isCompleted,
+        ]);
+    }
+
+    public function resetFlow(): void
+    {
+        if ($openedFlow = $this->getOpenedFlow()){
+            $openedFlow->delete();
+        }
     }
 }

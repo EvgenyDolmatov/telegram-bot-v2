@@ -17,18 +17,18 @@ enum PollEnum: string
     case SEND_TO_CHANNEL = 'send_to_channel';
     case POLLS_CHOSEN = 'polls_chosen';
 
-    public function toState(): string
+    public function toState(): StateEnum
     {
         return match ($this) {
-            self::CREATE_SURVEY => StateEnum::POLL_TYPE_CHOICE->value,
+            self::CREATE_SURVEY => StateEnum::POLL_TYPE_CHOICE,
             self::TYPE_QUIZ,
-            self::TYPE_SURVEY => StateEnum::POLL_ANONYMITY_CHOICE->value,
+            self::TYPE_SURVEY => StateEnum::POLL_ANONYMITY_CHOICE,
             self::IS_ANON,
-            self::IS_NOT_ANON => StateEnum::POLL_DIFFICULTY_CHOICE->value,
+            self::IS_NOT_ANON => StateEnum::POLL_DIFFICULTY_CHOICE,
             self::LEVEL_HARD,
             self::LEVEL_MIDDLE,
             self::LEVEL_EASY,
-            self::LEVEL_ANY => StateEnum::POLL_SECTOR_CHOICE->value,
+            self::LEVEL_ANY => StateEnum::POLL_SECTOR_CHOICE,
         };
     }
 

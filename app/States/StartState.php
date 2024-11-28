@@ -2,30 +2,14 @@
 
 namespace App\States;
 
-use App\Enums\PollEnum;
 use App\Enums\StateEnum;
-use App\Models\UserFlow;
-use Illuminate\Support\Facades\Log;
 
-class StartState extends AbstractState
+class StartState extends AbstractState implements UserState
 {
+    private const string STATE = StateEnum::START->value;
+
     public function handleInput(string $input, UserContext $context): void
     {
-        $state = PollEnum::from($input)->toState(); // create_survey => poll_type_choice
-        $this->updateState($state, $context);
-
-        $userFlow = $this->user->getOpenedFlow();
-        if (!$userFlow) {
-            UserFlow::create([
-                'user_id' => $this->user->id,
-                'flow' => json_encode([StateEnum::START->value => $input])
-            ]);
-        } else {
-            $userFlow->update(['flow' => json_encode([StateEnum::START->value => $input])]);
-        }
-
-        $pollItem = StateEnum::from($state);
-        $sender = $pollItem->sender($this->request, $this->messageSender, $this->senderService);
-        $sender->process();
+        $this->handleSimpleInput($input, $context, self::STATE);
     }
 }

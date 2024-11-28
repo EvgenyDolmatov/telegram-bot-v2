@@ -5,7 +5,6 @@ namespace App\Senders;
 use App\Builder\MessageSender;
 use App\Dto\ButtonDto;
 use App\Enums\CommandEnum;
-use App\Models\State;
 use App\Models\TrashMessage;
 use App\Models\User;
 use App\Repositories\RequestRepository;

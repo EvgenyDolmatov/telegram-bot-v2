@@ -4,18 +4,14 @@ namespace App\States;
 
 use App\Builder\Message\MessageBuilder;
 use App\Builder\MessageSender;
-use App\Dto\ButtonDto;
 use App\Enums\CommandEnum;
-use App\Enums\CommonCallbackEnum;
+use App\Enums\PollEnum;
 use App\Enums\StateEnum;
-use App\Models\State;
-use App\Models\TrashMessage;
 use App\Models\User;
 use App\Repositories\RequestRepository;
 use App\Services\SenderService;
 use App\Services\TelegramService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 abstract class AbstractState implements UserState
 {
@@ -36,22 +32,32 @@ abstract class AbstractState implements UserState
     public function handleCommand(string $command, UserContext $context): void
     {
         $command = $this->clearCommand($command);
-        $this->updateState($command, $context);
+        $state = CommandEnum::from($command)->toState();
 
-        $commandItem = StateEnum::from($command);
-        $sender = $commandItem->sender($this->request, $this->messageSender, $this->senderService);
+        $this->updateState($state, $context);
+        $this->user->resetFlow();
 
+        $sender = $state->sender($this->request, $this->messageSender, $this->senderService);
         $sender->process();
     }
 
     abstract public function handleInput(string $input, UserContext $context): void;
 
-    protected function updateState(string $state, UserContext $context): void
+    protected function handleSimpleInput(string $input, UserContext $context, string $currentState): void
     {
-        $newState = StateEnum::from($state);
+        $state = PollEnum::from($input)->toState();
 
-        $context->setState($newState->userState($this->request, $this->telegramService));
-//        $this->user->updateStateByCode($state);
+        $this->updateState($state, $context);
+        $this->user->updateFlow($currentState, $input);
+
+        $sender = $state->sender($this->request, $this->messageSender, $this->senderService);
+        $sender->process();
+    }
+
+    protected function updateState(StateEnum $state, UserContext $context): void
+    {
+        $context->setState($state->userState($this->request, $this->telegramService));
+        $this->user->updateStateByCode($state->value);
     }
 
     private function clearCommand(string $command): string

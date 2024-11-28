@@ -2,10 +2,11 @@
 
 namespace App\States\Poll;
 
+use App\States\AbstractState;
 use App\States\UserContext;
 use App\States\UserState;
 
-class WaitingThemeForAiState implements UserState
+class WaitingThemeForAiState extends AbstractState implements UserState
 {
     public function handleCommand(string $command, UserContext $context): void
     {
