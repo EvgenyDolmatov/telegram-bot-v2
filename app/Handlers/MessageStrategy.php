@@ -30,8 +30,6 @@ class MessageStrategy
         $message = $this->getMessage();
 //        $handler = new StateHandler($this->telegramService, $this->request);
 
-        Log::debug("defineHandler:" . $message);
-
         if (str_starts_with($message, '/')) {
             $handler = new CommandHandler($this->telegramService, $this->request);
         } else {

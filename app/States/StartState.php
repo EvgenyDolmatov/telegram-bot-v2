@@ -11,8 +11,7 @@ class StartState extends AbstractState
 {
     public function handleInput(string $input, UserContext $context): void
     {
-        $state = PollEnum::from($input)->state();
-        Log::debug('handleInput:' .$state );
+        $state = PollEnum::from($input)->toState(); // create_survey => poll_type_choice
         $this->updateState($state, $context);
 
 //        $userFlow = $this->user->getOpenedFlow();
@@ -23,12 +22,8 @@ class StartState extends AbstractState
 //            ]);
 //        }
 
-
-
-
-//        $pollItem = StateEnum::from($input);
-//        $sender = $pollItem->sender($this->request, $this->messageSender, $this->senderService);
-//
-//        $sender->process();
+        $pollItem = StateEnum::from($state);
+        $sender = $pollItem->sender($this->request, $this->messageSender, $this->senderService);
+        $sender->process();
     }
 }

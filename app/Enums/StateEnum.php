@@ -8,6 +8,7 @@ use App\Senders\Commands\AdminSender;
 use App\Senders\Commands\ChannelSender;
 use App\Senders\Commands\HelpSender;
 use App\Senders\Commands\StartSender;
+use App\Senders\Poll\AnonymityChoiceSender;
 use App\Senders\Poll\TypeChoiceSender;
 use App\Senders\SenderInterface;
 use App\Services\SenderService;
@@ -16,6 +17,7 @@ use App\States\Account\AccountState;
 use App\States\Admin\AdminState;
 use App\States\Channel\ChannelState;
 use App\States\Help\HelpState;
+use App\States\Poll\AnonymityChoiceState;
 use App\States\Poll\TypeChoiceState;
 use App\States\StartState;
 use App\States\UserState;
@@ -31,6 +33,12 @@ enum StateEnum: string
     case HELP = 'help';
     case START = 'start';
     case POLL_TYPE_CHOICE = 'poll_type_choice';
+    case POLL_ANONYMITY_CHOICE = 'poll_anonymity_choice';
+    case POLL_DIFFICULTY_CHOICE = 'poll_difficulty_choice';
+    case POLL_SECTOR_CHOICE = 'poll_sector_choice';
+    case POLL_SUBJECT_CHOICE = 'poll_subject_choice';
+    case POLL_THEME_CHOICE = 'poll_theme_waiting';
+    case POLL_AI_RESPONDED_CHOICE = 'poll_ai_responded_choice';
 
     public function userState(Request $request, TelegramService $telegramService): UserState
     {
@@ -41,6 +49,7 @@ enum StateEnum: string
             self::HELP => new HelpState($request, $telegramService),
             self::START => new StartState($request, $telegramService),
             self::POLL_TYPE_CHOICE => new TypeChoiceState($request, $telegramService),
+            self::POLL_ANONYMITY_CHOICE => new AnonymityChoiceState($request, $telegramService),
         };
     }
 
@@ -56,6 +65,7 @@ enum StateEnum: string
             self::HELP => new HelpSender($request, $messageBuilder, $senderService),
             self::START => new StartSender($request, $messageBuilder, $senderService),
             self::POLL_TYPE_CHOICE => new TypeChoiceSender($request, $messageBuilder, $senderService),
+            self::POLL_ANONYMITY_CHOICE => new AnonymityChoiceSender($request, $messageBuilder, $senderService),
         };
     }
 }

@@ -27,11 +27,9 @@ class StateHandler extends AbstractHandler
      */
     public function handle(string $message): void
     {
-        Log::debug('StateHandler1: ' . $message);
         $state = StateEnum::from($this->user->getCurrentState()->code);
         $userContext = new UserContext($state->userState($this->request, $this->telegramService));
         $userContext->handleInput($message);
-        Log::debug('StateHandler2: ' . $message);
 
 
 
