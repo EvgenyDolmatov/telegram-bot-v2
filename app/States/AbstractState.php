@@ -54,12 +54,12 @@ abstract class AbstractState implements UserState
         $this->user->updateStateByCode($state->value);
     }
 
-    private function baseHandle(StateEnum $newSate, UserContext $context): void
+    private function baseHandle(StateEnum $state, UserContext $context): void
     {
-        $this->updateState($newSate, $context);
+        $this->updateState($state, $context);
 
-        $sender = $newSate->sender($this->request, $this->messageSender, $this->senderService);
-        $sender->process();
+        $sender = $state->sender($this->request, $this->messageSender, $this->senderService);
+        $sender->send();
     }
 
     private function clearCommand(string $command): string

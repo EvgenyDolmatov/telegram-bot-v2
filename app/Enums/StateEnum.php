@@ -8,8 +8,12 @@ use App\Senders\Commands\AdminSender;
 use App\Senders\Commands\ChannelSender;
 use App\Senders\Commands\HelpSender;
 use App\Senders\Commands\StartSender;
+use App\Senders\Poll\AiRespondedChoiceSender;
 use App\Senders\Poll\AnonymityChoiceSender;
 use App\Senders\Poll\DifficultyChoiceSender;
+use App\Senders\Poll\SectorChoiceSender;
+use App\Senders\Poll\SubjectChoiceSender;
+use App\Senders\Poll\ThemeWaitingSender;
 use App\Senders\Poll\TypeChoiceSender;
 use App\Senders\SenderInterface;
 use App\Services\SenderService;
@@ -18,8 +22,12 @@ use App\States\Account\AccountState;
 use App\States\Admin\AdminState;
 use App\States\Channel\ChannelState;
 use App\States\Help\HelpState;
+use App\States\Poll\AiRespondedChoiceState;
 use App\States\Poll\AnonymityChoiceState;
 use App\States\Poll\DifficultyChoiceState;
+use App\States\Poll\SectorChoiceState;
+use App\States\Poll\SubjectChoiceState;
+use App\States\Poll\ThemeWaitingState;
 use App\States\Poll\TypeChoiceState;
 use App\States\StartState;
 use App\States\UserState;
@@ -53,6 +61,10 @@ enum StateEnum: string
             self::POLL_TYPE_CHOICE => new TypeChoiceState($request, $telegramService),
             self::POLL_ANONYMITY_CHOICE => new AnonymityChoiceState($request, $telegramService),
             self::POLL_DIFFICULTY_CHOICE => new DifficultyChoiceState($request, $telegramService),
+            self::POLL_SECTOR_CHOICE => new SectorChoiceState($request, $telegramService),
+            self::POLL_SUBJECT_CHOICE => new SubjectChoiceState($request, $telegramService),
+            self::POLL_THEME_WAITING => new ThemeWaitingState($request, $telegramService),
+            self::POLL_AI_RESPONDED_CHOICE => new AiRespondedChoiceState($request, $telegramService),
         };
     }
 
@@ -70,6 +82,10 @@ enum StateEnum: string
             self::POLL_TYPE_CHOICE => new TypeChoiceSender($request, $messageBuilder, $senderService),
             self::POLL_ANONYMITY_CHOICE => new AnonymityChoiceSender($request, $messageBuilder, $senderService),
             self::POLL_DIFFICULTY_CHOICE => new DifficultyChoiceSender($request, $messageBuilder, $senderService),
+            self::POLL_SECTOR_CHOICE => new SectorChoiceSender($request, $messageBuilder, $senderService),
+            self::POLL_SUBJECT_CHOICE => new SubjectChoiceSender($request, $messageBuilder, $senderService),
+            self::POLL_THEME_WAITING => new ThemeWaitingSender($request, $messageBuilder, $senderService),
+            self::POLL_AI_RESPONDED_CHOICE => new AiRespondedChoiceSender($request, $messageBuilder, $senderService),
         };
     }
 

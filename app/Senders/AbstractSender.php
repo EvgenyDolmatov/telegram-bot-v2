@@ -24,7 +24,7 @@ abstract class AbstractSender implements SenderInterface
         $this->user = User::getOrCreate($requestRepository);
     }
 
-    abstract public function process(): void;
+    abstract public function send(): void;
 
     protected function addToTrash(): void
     {

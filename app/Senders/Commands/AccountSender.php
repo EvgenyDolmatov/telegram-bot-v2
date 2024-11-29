@@ -10,7 +10,7 @@ use App\Senders\AbstractSender;
 
 class AccountSender extends AbstractSender
 {
-    public function process(): void
+    public function send(): void
     {
         $this->addToTrash();
 

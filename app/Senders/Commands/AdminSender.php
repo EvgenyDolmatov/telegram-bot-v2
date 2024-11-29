@@ -10,7 +10,7 @@ use App\Senders\AbstractSender;
 
 class AdminSender extends AbstractSender
 {
-    public function process(): void
+    public function send(): void
     {
         if ($this->user->is_admin) {
             $buttons = [

@@ -7,7 +7,7 @@ use App\Enums\PollEnum;
 use App\Enums\StateEnum;
 use App\Senders\AbstractSender;
 
-class DifficultyChoiceSender extends AbstractSender
+class AiRespondedChoiceSender extends AbstractSender
 {
     public function send(): void
     {
