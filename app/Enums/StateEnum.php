@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-use App\Builder\MessageSender;
+use App\Models\User;
 use App\Senders\Commands\AccountSender;
 use App\Senders\Commands\AdminSender;
 use App\Senders\Commands\ChannelSender;
@@ -16,7 +16,6 @@ use App\Senders\Poll\SubjectChoiceSender;
 use App\Senders\Poll\ThemeWaitingSender;
 use App\Senders\Poll\TypeChoiceSender;
 use App\Senders\SenderInterface;
-use App\Services\SenderService;
 use App\Services\TelegramService;
 use App\States\Account\AccountState;
 use App\States\Admin\AdminState;
@@ -68,24 +67,21 @@ enum StateEnum: string
         };
     }
 
-    public function sender(
-        Request $request,
-        MessageSender $messageBuilder,
-        SenderService $senderService
-    ): SenderInterface {
+    public function sender(Request $request, TelegramService $telegramService, User $user): SenderInterface
+    {
         return match ($this) {
-            self::ACCOUNT => new AccountSender($request, $messageBuilder, $senderService),
-            self::ADMIN => new AdminSender($request, $messageBuilder, $senderService),
-            self::CHANNEL => new ChannelSender($request, $messageBuilder, $senderService),
-            self::HELP => new HelpSender($request, $messageBuilder, $senderService),
-            self::START => new StartSender($request, $messageBuilder, $senderService),
-            self::POLL_TYPE_CHOICE => new TypeChoiceSender($request, $messageBuilder, $senderService),
-            self::POLL_ANONYMITY_CHOICE => new AnonymityChoiceSender($request, $messageBuilder, $senderService),
-            self::POLL_DIFFICULTY_CHOICE => new DifficultyChoiceSender($request, $messageBuilder, $senderService),
-            self::POLL_SECTOR_CHOICE => new SectorChoiceSender($request, $messageBuilder, $senderService),
-            self::POLL_SUBJECT_CHOICE => new SubjectChoiceSender($request, $messageBuilder, $senderService),
-            self::POLL_THEME_WAITING => new ThemeWaitingSender($request, $messageBuilder, $senderService),
-            self::POLL_AI_RESPONDED_CHOICE => new AiRespondedChoiceSender($request, $messageBuilder, $senderService),
+            self::ACCOUNT => new AccountSender($request, $telegramService, $user),
+            self::ADMIN => new AdminSender($request, $telegramService, $user),
+            self::CHANNEL => new ChannelSender($request, $telegramService, $user),
+            self::HELP => new HelpSender($request, $telegramService, $user),
+            self::START => new StartSender($request, $telegramService, $user),
+            self::POLL_TYPE_CHOICE => new TypeChoiceSender($request, $telegramService, $user),
+            self::POLL_ANONYMITY_CHOICE => new AnonymityChoiceSender($request, $telegramService, $user),
+            self::POLL_DIFFICULTY_CHOICE => new DifficultyChoiceSender($request, $telegramService, $user),
+            self::POLL_SECTOR_CHOICE => new SectorChoiceSender($request, $telegramService, $user),
+            self::POLL_SUBJECT_CHOICE => new SubjectChoiceSender($request, $telegramService, $user),
+            self::POLL_THEME_WAITING => new ThemeWaitingSender($request, $telegramService, $user),
+            self::POLL_AI_RESPONDED_CHOICE => new AiRespondedChoiceSender($request, $telegramService, $user),
         };
     }
 

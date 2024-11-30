@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\Dto\Poll\OptionDto;
 use App\Dto\PollDto;
-use Illuminate\Http\Client\Response;
 
 class PollRepository extends AbstractRepository
 {
@@ -29,7 +28,7 @@ class PollRepository extends AbstractRepository
                 ->setIsAnonymous($data['is_anonymous'])
                 ->setType($data['type'])
                 ->setIsAllowsMultipleAnswers($data['allows_multiple_answers'])
-                ->setCorrectOptionId($data['correct_option_id']);
+                ->setCorrectOptionId($data['correct_option_id'] ?? null);
         } catch (\Throwable $exception) {
             throw new \Exception('Invalid poll response');
         }

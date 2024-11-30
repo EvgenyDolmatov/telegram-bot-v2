@@ -158,7 +158,7 @@ readonly class SenderService
      * @return Response
      * @throws \Exception
      */
-    public function sendPoll(Poll $poll, int $chatId = null, bool $isTrash = true): Response
+    public function sendPoll(Poll $poll, ?int $chatId = null, bool $isTrash = true): Response
     {
         $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/sendPoll';
         $chat = (new RequestRepository($this->request))->getDto()->getChat();

@@ -105,11 +105,6 @@ class User extends Model
         return $this->flows->where('is_completed', 0)->first();
     }
 
-    public function getLastFlow(): ?UserFlow
-    {
-        return UserFlow::where('user_id', $this->id)->where('is_completed', 1)->latest()->first();
-    }
-
     public function getFlowData(): ?array
     {
         $flow = $this->getOpenedFlow();
@@ -143,18 +138,6 @@ class User extends Model
         $transition = Transition::where('source', $currentState->code)->first();
 
         return State::where('code', $transition->back)->first();
-    }
-
-    public function getSelectedSector(): ?Sector
-    {
-        $userFlowArray = json_decode($this->getOpenedFlow()->flow, true);
-        $userSectorChoice = $userFlowArray[StateConstants::SECTOR_CHOICE];
-
-        if ($userSectorChoice) {
-            return Sector::where('code', $userSectorChoice)->first();
-        }
-
-        return null;
     }
 
     public function hasAnyState(): bool
@@ -279,7 +262,7 @@ class User extends Model
         if ($openedFlow = $this->getOpenedFlow()) {
             $flowData = json_decode($openedFlow->flow, true);
             $flowData[$state->value] = $value;
-            $isCompleted = array_key_exists(StateEnum::POLL_THEME_WAITING->value, $flowData);
+            $isCompleted = array_key_exists(StateEnum::POLL_AI_RESPONDED_CHOICE->value, $flowData);
 
             $openedFlow->update([
                 'flow' => json_encode($flowData),

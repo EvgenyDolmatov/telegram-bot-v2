@@ -15,7 +15,6 @@ class MessageRepository extends AbstractRepository
      */
     public function getDto(): ?MessageDto
     {
-        Log::debug("MessageRepository getDto: " . $this->response);
         $data = json_decode($this->response, true)['result'];
 
         if (isset($data['sender_chat'])) {

@@ -11,20 +11,16 @@ use App\Constants\StepConstants;
 use App\Dto\ButtonDto;
 use App\Enums\CommandEnum;
 use App\Enums\CommonCallbackEnum;
-use App\Enums\SurveyCallbackEnum;
 use App\Models\AiRequest;
 use App\Models\Newsletter;
 use App\Models\Poll;
 use App\Models\PollOption;
 use App\Models\State;
-use App\Models\Subject;
 use App\Models\TrashMessage;
 use App\Models\User;
 use App\Repositories\ChannelRepository;
-use App\Repositories\OpenAiRepository;
 use App\Repositories\PollRepository;
 use App\Repositories\RequestRepository;
-use App\Services\OpenAiService;
 use App\Services\SenderService;
 use App\Services\TelegramService;
 use Carbon\Carbon;
@@ -156,7 +152,7 @@ class StepAction implements StepConstants
                 ]);
             }
         } catch (\Throwable $exception) {
-            throw new Exception('Poll data was occurency.', ['error' => $exception]);
+            throw new Exception('Poll data was occurrence');
         }
 
         return $response;
@@ -717,222 +713,6 @@ class StepAction implements StepConstants
             text: self::SUPPORT_TEXT,
             buttons: [new ButtonDto(CommandEnum::START->value, 'Назад')]
         );
-    }
-
-    /**
-     * If user pressed to "create survey" button
-     * Show survey type choice
-     *
-     * @return void
-     */
-    public function selectSurveyType(): void
-    {
-        $user = User::getOrCreate($this->repository);
-        $currentState = $user->getCurrentState();
-
-        $this->sendMessage(
-            text: $currentState->text,
-            buttons: $currentState->prepareButtons($user, true)
-        );
-    }
-
-    /**
-     * If user pressed to "type_quiz" or "type_survey" button
-     * Show is anon choice
-     *
-     * @return void
-     */
-    public function selectAnonymity(): void
-    {
-        $user = User::getOrCreate($this->repository);
-        $currentState = $user->getCurrentState();
-
-        $this->sendMessage(
-            text: $currentState->text,
-            buttons: $currentState->prepareButtons($user, true)
-        );
-    }
-
-    /**
-     * If user pressed to "is_anon" or "is_not_anon" button
-     * Show is difficulty choice
-     *
-     * @return void
-     */
-    public function selectDifficulty(): void
-    {
-        $user = User::getOrCreate($this->repository);
-        $currentState = $user->getCurrentState();
-
-        $this->sendMessage(
-            text: $currentState->text,
-            buttons: $currentState->prepareButtons($user, true)
-        );
-    }
-
-    /**
-     * If user pressed to "is_anon" or "is_not_anon" button
-     * Show all sectors
-     *
-     * @return void
-     */
-    public function selectSector(): void
-    {
-        $user = User::getOrCreate($this->repository);
-        $currentState = $user->getCurrentState();
-
-        $this->sendMessage(
-            text: $currentState->text,
-            buttons: $currentState->prepareButtons($user, true)
-        );
-    }
-
-    /**
-     * If user pressed to "sector" button
-     * Show all subjects
-     *
-     * @return void
-     */
-    public function selectSubject(): void
-    {
-        $user = User::getOrCreate($this->repository);
-        $currentState = $user->getCurrentState();
-
-        $this->sendMessage(
-            text: $currentState->text,
-            buttons: $currentState->prepareButtons($user, true)
-        );
-    }
-
-    /**
-     * If user pressed to "subject" button
-     * Waiting user request
-     *
-     * @return void
-     */
-    public function waitingThemeRequest(): void
-    {
-        $user = User::getOrCreate($this->repository);
-        $currentState = $user->getCurrentState();
-
-        $flow = $user->getFlowData();
-        if (isset($flow[StateConstants::SUBJECT_CHOICE])) {
-            $subject = Subject::where('code', $flow[StateConstants::SUBJECT_CHOICE])->first();
-
-            if ($subject->has_child) {
-                $previousState = $user->getPrevState();
-
-                $user->states()->detach();
-                $user->states()->attach($previousState->id);
-
-                $this->selectSubject();
-                return;
-            }
-        }
-
-        $this->sendMessage(
-            text: $currentState->text,
-            buttons: $currentState->prepareButtons($user, true)
-        );
-    }
-
-    /**
-     * If user sent custom request
-     * Send data to Open AI
-     *
-     * @return void
-     */
-    public function responseFromAi(): void
-    {
-        // Обрабатываем
-        $user = User::getOrCreate($this->repository);
-        $currentState = $user->getCurrentState();
-
-        // Выводим сообщение
-        $this->sendMessage($currentState->text);
-
-        $openAiService = new OpenAiService($user);
-        $openAiRepository = new OpenAiRepository($openAiService);
-
-        try {
-            $openAiCompletion = $openAiRepository->getCompletion();
-        } catch (\Throwable $exception) {
-            $this->someProblemMessage();
-            Log::error("OpenAiCompletion error.", ['message' => $exception]);
-            return;
-        }
-
-        $flow = $user->getOpenedFlow();
-        if ($questions = $openAiCompletion->getQuestions()) {
-            $correctAnswers = '';
-            $questionNumber = 0;
-            foreach ($questions as $question) {
-                $pollResponse = $this->sendPoll(
-                    question: $question->getText(),
-                    options: $question->getOptions(),
-                    isAnonymous: $flow->isAnonymous(),
-                    isQuiz: $flow->isQuiz(),
-                    correctOptionId: $question->getAnswer(),
-                    isTrash: false
-                );
-
-                $pollDto = (new PollRepository($pollResponse))->getDto();
-
-                if ($flow->isQuiz()) {
-                    $questionNumber++;
-                    $questionText = trim($question->getText(), ':');
-                    $correctAnswers .= "\n\nВопрос № $questionNumber. [ID: {$pollResponse['result']['message_id']}] $questionText";
-                    $correctAnswers .= "\nПравильный ответ: {$question->getOptions()[$question->getAnswer()]}";
-                }
-            }
-
-            // Show right answers
-            if ($correctAnswers !== '') {
-                $this->sendMessage($correctAnswers, null, false);
-            }
-        }
-
-        // Save result to DB
-        AiRequest::create([
-            'tg_chat_id' => $user->tg_chat_id,
-            'user_flow_id' => $flow->id,
-            'ai_survey' => json_encode(array_map(fn($question) => [
-                'text' => $question->getText(),
-                'options' => $question->getOptions(),
-                'answer' => $question->getAnswer(),
-            ], $openAiCompletion->getQuestions())),
-            'usage_prompt_tokens' => $openAiCompletion->getUsage()->getPromptTokens(),
-            'usage_completion_tokens' => $openAiCompletion->getUsage()->getCompletionTokens(),
-            'usage_total_tokens' => $openAiCompletion->getUsage()->getTotalTokens(),
-        ]);
-
-        // Close current flow
-        $flow->is_completed = 1;
-        $flow->save();
-
-        if (!$this->canContinue()) {
-            $this->subscribeToCommunity();
-            return;
-        }
-
-        // Show message about next action
-        $message = "Выберите, что делать дальше:";
-        $buttons = [
-            new ButtonDto(
-                callbackData: '/' . CommandEnum::START->value,
-                text: 'Выбрать другую тему'
-            ),
-            new ButtonDto(
-                callbackData: SurveyCallbackEnum::REPEAT_FLOW->value,
-                text: 'Создать еще 5 вопросов'
-            ),
-            new ButtonDto(
-                callbackData: SurveyCallbackEnum::SEND_TO_CHANNEL->value,
-                text: 'Отправить в сообщество/канал'
-            )
-        ];
-
-        $this->sendMessage($message, $buttons);
     }
 
     public function someProblemMessage(): void

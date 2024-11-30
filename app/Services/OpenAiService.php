@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Constants\StateConstants;
-use App\Enums\SurveyCallbackEnum;
+use App\Enums\PollEnum;
+use App\Enums\StateEnum;
 use App\Models\Sector;
 use App\Models\Subject;
 use App\Models\User;
@@ -73,7 +73,7 @@ class OpenAiService
         ];
 
         $hasCorrectAnswer = '';
-        if ($data[StateConstants::TYPE_CHOICE] === SurveyCallbackEnum::TYPE_QUIZ->value) {
+        if ($data[StateEnum::POLL_TYPE_CHOICE->value] === PollEnum::TYPE_QUIZ->value) {
             $template['question1']['correct_answer'] = 'c';
             $template['question2']['correct_answer'] = 'a';
 
@@ -81,14 +81,14 @@ class OpenAiService
         }
 
         $difficultyData = [
-            SurveyCallbackEnum::LEVEL_EASY->value => 'низкой',
-            SurveyCallbackEnum::LEVEL_MIDDLE->value => 'средней',
-            SurveyCallbackEnum::LEVEL_HARD->value => 'высокой',
-            SurveyCallbackEnum::LEVEL_ANY->value => 'любой',
+            PollEnum::LEVEL_EASY->value => 'низкой',
+            PollEnum::LEVEL_MIDDLE->value => 'средней',
+            PollEnum::LEVEL_HARD->value => 'высокой',
+            PollEnum::LEVEL_ANY->value => 'любой',
         ];
 
-        $sector = Sector::where('code', $data[StateConstants::SECTOR_CHOICE])->first()->title;
-        $difficulty = $difficultyData[$data[StateConstants::DIFFICULTY_CHOICE]];
+        $sector = Sector::where('code', $data[StateEnum::POLL_SECTOR_CHOICE->value])->first()->title;
+        $difficulty = $difficultyData[$data[StateEnum::POLL_DIFFICULTY_CHOICE->value]];
 
         $body = [
             'model' => config('services.openai.model'),
@@ -105,8 +105,8 @@ class OpenAiService
         ];
 
         // If subject choice exists
-        if (isset($data[StateConstants::SUBJECT_CHOICE])) {
-            $subject = Subject::where('code', $data[StateConstants::SUBJECT_CHOICE])->first()->title;
+        if (isset($data[StateEnum::POLL_SUBJECT_CHOICE->value])) {
+            $subject = Subject::where('code', $data[StateEnum::POLL_SUBJECT_CHOICE->value])->first()->title;
             $body['messages'][] = [
                 'role' => 'user',
                 'content' => "Предмет: $subject"
@@ -114,8 +114,8 @@ class OpenAiService
         }
 
         // If theme request exists
-        if (isset($data[StateConstants::THEME_REQUEST])) {
-            $theme = $data[StateConstants::THEME_REQUEST];
+        if (isset($data[StateEnum::POLL_THEME_WAITING->value])) {
+            $theme = $data[StateEnum::POLL_THEME_WAITING->value];
             $body['messages'][] = [
                 'role' => 'user',
                 'content' => "Тема: $theme"

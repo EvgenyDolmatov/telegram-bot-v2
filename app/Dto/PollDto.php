@@ -115,7 +115,7 @@ class PollDto
         return $this->correctOptionId;
     }
 
-    public function setCorrectOptionId(int $correctOptionId): self
+    public function setCorrectOptionId(?int $correctOptionId): self
     {
         $this->correctOptionId = $correctOptionId;
 

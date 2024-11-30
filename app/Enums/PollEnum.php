@@ -44,6 +44,8 @@ enum PollEnum: string
             self::LEVEL_MIDDLE => "Средняя сложность",
             self::LEVEL_EASY => "Низкая сложность",
             self::LEVEL_ANY => "Любая сложность",
+            self::REPEAT_FLOW => "Создать еще 5 вопросов",
+            self::SEND_TO_CHANNEL => "Отправить в сообщество/канал",
         };
     }
 }

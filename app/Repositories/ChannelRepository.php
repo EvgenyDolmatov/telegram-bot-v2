@@ -12,8 +12,6 @@ class ChannelRepository extends AbstractRepository
      */
     public function getDto(): ChannelDto
     {
-        Log::debug("Channel Repo: " . $this->response);
-
         try {
             $data = json_decode($this->response, true)['result'];
 

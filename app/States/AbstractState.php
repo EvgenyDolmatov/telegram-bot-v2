@@ -2,30 +2,22 @@
 
 namespace App\States;
 
-use App\Builder\Message\MessageBuilder;
-use App\Builder\MessageSender;
 use App\Enums\CommandEnum;
 use App\Enums\PollEnum;
 use App\Enums\StateEnum;
 use App\Models\User;
 use App\Repositories\RequestRepository;
-use App\Services\SenderService;
 use App\Services\TelegramService;
 use Illuminate\Http\Request;
 
 abstract class AbstractState implements UserState
 {
-    protected SenderService $senderService;
-    protected MessageSender $messageSender;
     protected User $user;
 
     public function __construct(
         protected readonly Request $request,
         protected readonly TelegramService $telegramService
     ) {
-        $this->senderService = new SenderService($request, $telegramService);
-        $this->messageSender = (new MessageSender())->setBuilder(new MessageBuilder());
-
         $this->user = User::getOrCreate(new RequestRepository($this->request));
     }
 
@@ -58,7 +50,7 @@ abstract class AbstractState implements UserState
     {
         $this->updateState($state, $context);
 
-        $sender = $state->sender($this->request, $this->messageSender, $this->senderService);
+        $sender = $state->sender($this->request, $this->telegramService, $this->user);
         $sender->send();
     }
 
