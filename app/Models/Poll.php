@@ -11,6 +11,7 @@ class Poll extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'tg_message_id',
         'question',
         'is_anonymous',

@@ -15,7 +15,7 @@ enum PollEnum: string
     case LEVEL_ANY = 'level_any';
     case REPEAT_FLOW = 'repeat_flow';
     case SEND_TO_CHANNEL = 'send_to_channel';
-    case POLLS_CHOSEN = 'polls_chosen';
+    case ACCEPT_POLLS = 'accept_polls_and_send_to_channel';
 
     public function toState(): StateEnum
     {
@@ -29,6 +29,8 @@ enum PollEnum: string
             self::LEVEL_MIDDLE,
             self::LEVEL_EASY,
             self::LEVEL_ANY => StateEnum::POLL_SECTOR_CHOICE,
+            self::SEND_TO_CHANNEL => StateEnum::CHANNEL_POLLS_CHOICE,
+            self::ACCEPT_POLLS => StateEnum::CHANNEL_NAME_WAITING,
         };
     }
 
@@ -46,6 +48,7 @@ enum PollEnum: string
             self::LEVEL_ANY => "Любая сложность",
             self::REPEAT_FLOW => "Создать еще 5 вопросов",
             self::SEND_TO_CHANNEL => "Отправить в сообщество/канал",
+            self::ACCEPT_POLLS => "Отправить выбранные вопросы",
         };
     }
 }

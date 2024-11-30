@@ -2,23 +2,22 @@
 
 namespace App\States\Poll;
 
-use App\Enums\PollEnum;
 use App\Enums\StateEnum;
+use App\Models\Subject;
 use App\States\AbstractState;
 use App\States\UserContext;
 use App\States\UserState;
 
-class AiRespondedChoiceState extends AbstractState implements UserState
+class ChannelNameWaitingState extends AbstractState implements UserState
 {
-    private const StateEnum STATE = StateEnum::POLL_AI_RESPONDED_CHOICE;
+    private const StateEnum STATE = StateEnum::CHANNEL_NAME_WAITING;
 
     public function handleInput(string $input, UserContext $context): void
     {
         // Get next state by callback
         $state = $this->getState($input);
 
-        // Update user step and flow
-        $this->user->updateFlow(self::STATE, $input);
+        // Update user step
         $this->updateState($state, $context);
 
         // Send message to chat
@@ -28,10 +27,6 @@ class AiRespondedChoiceState extends AbstractState implements UserState
 
     private function getState(string $input): StateEnum
     {
-        return match ($input) {
-            PollEnum::REPEAT_FLOW->value => StateEnum::POLL_AI_RESPONDED_CHOICE,
-            PollEnum::SEND_TO_CHANNEL->value => StateEnum::CHANNEL_POLLS_CHOICE,
-            default => StateEnum::START,
-        };
+        return StateEnum::CHANNEL_POLLS_SENT_SUCCESS;
     }
 }

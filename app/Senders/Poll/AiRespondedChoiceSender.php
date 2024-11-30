@@ -11,6 +11,7 @@ use App\Enums\StateEnum;
 use App\Models\AiRequest;
 use App\Models\Poll;
 use App\Models\PollOption;
+use App\Models\PreparedPoll;
 use App\Models\UserFlow;
 use App\Repositories\OpenAiRepository;
 use App\Repositories\PollRepository;
@@ -102,8 +103,6 @@ class AiRespondedChoiceSender extends AbstractSender
                 'correct_option_id' => $pollDto->getCorrectOptionId(),
             ]);
 
-            Log::debug("sendPoll: " . $poll->tg_message_id);
-
             // Save poll options to database
             foreach ($pollDto->getOptions() as $option) {
                 PollOption::create([
@@ -111,6 +110,9 @@ class AiRespondedChoiceSender extends AbstractSender
                     'text' => $option->getText()
                 ]);
             }
+
+            // Save prepared polls
+            $this->savePreparedPollToDb($poll);
         } catch (\Throwable $exception) {
             throw new Exception('Poll data was occurrence');
         }
@@ -172,6 +174,27 @@ class AiRespondedChoiceSender extends AbstractSender
             'usage_prompt_tokens' => $aiCompletionDto->getUsage()->getPromptTokens(),
             'usage_completion_tokens' => $aiCompletionDto->getUsage()->getCompletionTokens(),
             'usage_total_tokens' => $aiCompletionDto->getUsage()->getTotalTokens(),
+        ]);
+    }
+
+    private function savePreparedPollToDb(Poll $poll): void
+    {
+        $preparedPoll = $this->user->preparedPolls()->first();
+        if ($preparedPoll) {
+            $pollIds = explode(',', $preparedPoll->poll_ids);
+            $pollIds[] = $poll->tg_message_id;
+
+            $preparedPoll->update([
+                'tg_message_id' => $poll->tg_message_id,
+                'poll_ids' => implode(',', $pollIds)
+            ]);
+            return;
+        }
+
+        PreparedPoll::create([
+            'user_id' => $this->user->id,
+            'tg_message_id' => $poll->tg_message_id,
+            'poll_ids' => $poll->tg_message_id
         ]);
     }
 

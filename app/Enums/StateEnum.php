@@ -10,7 +10,10 @@ use App\Senders\Commands\HelpSender;
 use App\Senders\Commands\StartSender;
 use App\Senders\Poll\AiRespondedChoiceSender;
 use App\Senders\Poll\AnonymityChoiceSender;
+use App\Senders\Poll\ChannelNameWaitingSender;
 use App\Senders\Poll\DifficultyChoiceSender;
+use App\Senders\Poll\ChannelPollsSentSuccessSender;
+use App\Senders\Poll\ChannelPollsChoiceSender;
 use App\Senders\Poll\SectorChoiceSender;
 use App\Senders\Poll\SubjectChoiceSender;
 use App\Senders\Poll\ThemeWaitingSender;
@@ -23,7 +26,10 @@ use App\States\Channel\ChannelState;
 use App\States\Help\HelpState;
 use App\States\Poll\AiRespondedChoiceState;
 use App\States\Poll\AnonymityChoiceState;
+use App\States\Poll\ChannelNameWaitingState;
 use App\States\Poll\DifficultyChoiceState;
+use App\States\Poll\ChannelPollsSentSuccessState;
+use App\States\Poll\ChannelPollsChoiceState;
 use App\States\Poll\SectorChoiceState;
 use App\States\Poll\SubjectChoiceState;
 use App\States\Poll\ThemeWaitingState;
@@ -41,6 +47,8 @@ enum StateEnum: string
     case CHANNEL = 'channel';
     case HELP = 'help';
     case START = 'start';
+
+    /** Poll */
     case POLL_TYPE_CHOICE = 'poll_type_choice';
     case POLL_ANONYMITY_CHOICE = 'poll_anonymity_choice';
     case POLL_DIFFICULTY_CHOICE = 'poll_difficulty_choice';
@@ -48,6 +56,11 @@ enum StateEnum: string
     case POLL_SUBJECT_CHOICE = 'poll_subject_choice';
     case POLL_THEME_WAITING = 'poll_theme_waiting';
     case POLL_AI_RESPONDED_CHOICE = 'poll_ai_responded_choice';
+
+    /** Channel */
+    case CHANNEL_POLLS_CHOICE = 'channel_polls_choice';
+    case CHANNEL_NAME_WAITING = 'channel_name_waiting';
+    case CHANNEL_POLLS_SENT_SUCCESS = 'channel_polls_sent_success';
 
     public function userState(Request $request, TelegramService $telegramService): UserState
     {
@@ -64,6 +77,9 @@ enum StateEnum: string
             self::POLL_SUBJECT_CHOICE => new SubjectChoiceState($request, $telegramService),
             self::POLL_THEME_WAITING => new ThemeWaitingState($request, $telegramService),
             self::POLL_AI_RESPONDED_CHOICE => new AiRespondedChoiceState($request, $telegramService),
+            self::CHANNEL_POLLS_CHOICE => new ChannelPollsChoiceState($request, $telegramService),
+            self::CHANNEL_NAME_WAITING => new ChannelNameWaitingState($request, $telegramService),
+            self::CHANNEL_POLLS_SENT_SUCCESS => new ChannelPollsSentSuccessState($request, $telegramService),
         };
     }
 
@@ -82,6 +98,9 @@ enum StateEnum: string
             self::POLL_SUBJECT_CHOICE => new SubjectChoiceSender($request, $telegramService, $user),
             self::POLL_THEME_WAITING => new ThemeWaitingSender($request, $telegramService, $user),
             self::POLL_AI_RESPONDED_CHOICE => new AiRespondedChoiceSender($request, $telegramService, $user),
+            self::CHANNEL_POLLS_CHOICE => new ChannelPollsChoiceSender($request, $telegramService, $user),
+            self::CHANNEL_NAME_WAITING => new ChannelNameWaitingSender($request, $telegramService, $user),
+            self::CHANNEL_POLLS_SENT_SUCCESS => new ChannelPollsSentSuccessSender($request, $telegramService, $user),
         };
     }
 
@@ -96,6 +115,9 @@ enum StateEnum: string
             self::POLL_SUBJECT_CHOICE => "Выберите предмет:",
             self::POLL_THEME_WAITING => "Введите свой вопрос:",
             self::POLL_AI_RESPONDED_CHOICE => "Подождите. Ваш запрос обрабатывается...",
+            self::CHANNEL_POLLS_CHOICE => "Выберите, какие вопросы нужно отправить?",
+            self::CHANNEL_NAME_WAITING => "Напишите название канала или ссылку на канал:",
+            self::CHANNEL_POLLS_SENT_SUCCESS => "Выбранные тесты успешно отправлены в канал.",
 
             self::ACCOUNT => "Мой аккаунт:",
             self::ADMIN => "Меню администратора:",
