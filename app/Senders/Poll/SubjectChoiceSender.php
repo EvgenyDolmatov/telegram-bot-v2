@@ -17,7 +17,8 @@ class SubjectChoiceSender extends AbstractSender
 
         $subjects = $this->getSubjects();
 
-        if ($subjects->count() === 0) {
+        // TODO: Check !!!
+        if (!$subjects || count($subjects) === 0) {
             $this->someProblemMessage();
             return;
         }

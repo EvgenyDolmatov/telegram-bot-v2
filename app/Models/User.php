@@ -265,15 +265,12 @@ class User extends Model
 
             // Delete flow key if pressed on back step
             if ($value === CommonConstants::BACK) {
-                if (array_key_exists($state->backState()->value, $flowData)) {
+                if (array_key_exists($state->value, $flowData)) {
                     unset($flowData[$state->value]);
                 }
-
-                return;
+            } else {
+                $flowData[$state->value] = $value;
             }
-
-            $flowData[$state->value] = $value;
-            $isCompleted = array_key_exists(StateEnum::POLL_AI_RESPONDED_CHOICE->value, $flowData);
 
             $openedFlow->update([
                 'flow' => json_encode($flowData),

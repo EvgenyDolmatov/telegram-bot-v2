@@ -18,7 +18,7 @@ class AiRespondedChoiceState extends AbstractState implements UserState
         $state = $this->getState($input, self::STATE);
 
         // Update user step and flow
-        $this->user->updateFlow(self::STATE, $input);
+        $this->user->updateFlow(self::STATE, $input, true);
         $this->updateState($state, $context);
 
         // Send message to chat
