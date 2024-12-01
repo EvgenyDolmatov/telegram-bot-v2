@@ -22,9 +22,19 @@ class ChannelPollsChoiceSender extends AbstractSender
         $this->senderService->sendMessage($message);
     }
 
+    /**
+     * @throws \Exception
+     */
     private function getButtons(): array
     {
-        $polls = $this->user->polls()->latest()->take(5)->get();
+        $preparedPoll = $this->user->preparedPolls()->first();
+        if (!$preparedPoll) {
+            throw new \Exception('Prepared poll not found');
+        }
+
+        $polls = $this->user->polls()
+            ->whereIn('tg_message_id', explode(',', $preparedPoll->poll_ids))
+            ->get();
 
         $buttons = array_map(fn($poll) => new ButtonDto(
             callbackData: self::POLL_PREFIX . $poll['tg_message_id'],

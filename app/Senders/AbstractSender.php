@@ -66,4 +66,9 @@ abstract class AbstractSender implements SenderInterface
 
         return true;
     }
+
+    protected function getInputText(): string
+    {
+        return (new RequestRepository($this->request))->getDto()->getText();
+    }
 }

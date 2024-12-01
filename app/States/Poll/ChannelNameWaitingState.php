@@ -4,7 +4,6 @@ namespace App\States\Poll;
 
 use App\Constants\CommonConstants;
 use App\Enums\StateEnum;
-use App\Models\Subject;
 use App\States\AbstractState;
 use App\States\UserContext;
 use App\States\UserState;

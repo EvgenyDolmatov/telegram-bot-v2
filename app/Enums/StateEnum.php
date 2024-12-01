@@ -42,8 +42,6 @@ use Illuminate\Http\Request;
 
 enum StateEnum: string
 {
-//    case ADMIN_START = 'admin_start';
-
     case ACCOUNT = 'account';
     case ADMIN = 'admin';
     case CHANNEL = 'channel';
@@ -105,7 +103,7 @@ enum StateEnum: string
             self::POLL_SECTOR_CHOICE => self::POLL_DIFFICULTY_CHOICE,
             self::POLL_SUBJECT_CHOICE => self::POLL_SECTOR_CHOICE,
             self::POLL_THEME_WAITING => self::POLL_SUBJECT_CHOICE,
-            self::CHANNEL_NAME_WAITING => self::CHANNEL_NAME_WAITING,
+            self::CHANNEL_NAME_WAITING => self::CHANNEL_POLLS_CHOICE,
         };
     }
 

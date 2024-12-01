@@ -8,7 +8,6 @@ use App\Dto\ChannelDto;
 use App\Enums\CommandEnum;
 use App\Enums\StateEnum;
 use App\Models\Poll;
-use App\Repositories\RequestRepository;
 use App\Senders\AbstractSender;
 
 class ChannelPollsSentSuccessSender extends AbstractSender
@@ -62,7 +61,7 @@ class ChannelPollsSentSuccessSender extends AbstractSender
 
     private function getChannelName(): string
     {
-        $channelName = (new RequestRepository($this->request))->getDto()->getText();
+        $channelName = $this->getInputText();
         if (str_contains($channelName, 'https://t.me/')) {
             return "@" . substr($channelName, 13);
         }

@@ -43,6 +43,12 @@ class SubjectChoiceSender extends AbstractSender
             return null;
         }
 
+        // If pressed "back" button
+        if ($this->getInputText() === CommonConstants::BACK) {
+            $sector = Sector::where('code', $flowData[StateEnum::POLL_SECTOR_CHOICE->value])->first();
+            return $sector->subjects()->where('parent_id', null)->get();
+        }
+
         // Get children subjects
         if (array_key_exists(StateEnum::POLL_SUBJECT_CHOICE->value, $flowData)) {
             return $this->getChildrenSubjects($flowData);
