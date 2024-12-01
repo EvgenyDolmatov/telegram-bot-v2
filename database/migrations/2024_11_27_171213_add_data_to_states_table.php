@@ -54,6 +54,11 @@ return new class extends Migration
                 'code' => StateEnum::CHANNEL_POLLS_SENT_SUCCESS->value,
                 'text' => StateEnum::CHANNEL_POLLS_SENT_SUCCESS->title()
             ]);
+
+            State::create([
+                'code' => StateEnum::POLL_SUPPORT->value,
+                'text' => StateEnum::POLL_SUPPORT->title()
+            ]);
         }
     }
 

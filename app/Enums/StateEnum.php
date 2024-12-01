@@ -16,6 +16,7 @@ use App\Senders\Poll\ChannelPollsSentSuccessSender;
 use App\Senders\Poll\ChannelPollsChoiceSender;
 use App\Senders\Poll\SectorChoiceSender;
 use App\Senders\Poll\SubjectChoiceSender;
+use App\Senders\Poll\SupportSender;
 use App\Senders\Poll\ThemeWaitingSender;
 use App\Senders\Poll\TypeChoiceSender;
 use App\Senders\SenderInterface;
@@ -32,6 +33,7 @@ use App\States\Poll\ChannelPollsSentSuccessState;
 use App\States\Poll\ChannelPollsChoiceState;
 use App\States\Poll\SectorChoiceState;
 use App\States\Poll\SubjectChoiceState;
+use App\States\Poll\SupportState;
 use App\States\Poll\ThemeWaitingState;
 use App\States\Poll\TypeChoiceState;
 use App\States\StartState;
@@ -49,6 +51,7 @@ enum StateEnum: string
     case START = 'start';
 
     /** Poll */
+    case POLL_SUPPORT = 'poll_support';
     case POLL_TYPE_CHOICE = 'poll_type_choice';
     case POLL_ANONYMITY_CHOICE = 'poll_anonymity_choice';
     case POLL_DIFFICULTY_CHOICE = 'poll_difficulty_choice';
@@ -70,6 +73,7 @@ enum StateEnum: string
             self::CHANNEL => new ChannelState($request, $telegramService),
             self::HELP => new HelpState($request, $telegramService),
             self::START => new StartState($request, $telegramService),
+            self::POLL_SUPPORT => new SupportState($request, $telegramService),
             self::POLL_TYPE_CHOICE => new TypeChoiceState($request, $telegramService),
             self::POLL_ANONYMITY_CHOICE => new AnonymityChoiceState($request, $telegramService),
             self::POLL_DIFFICULTY_CHOICE => new DifficultyChoiceState($request, $telegramService),
@@ -91,6 +95,7 @@ enum StateEnum: string
             self::CHANNEL => new ChannelSender($request, $telegramService, $user),
             self::HELP => new HelpSender($request, $telegramService, $user),
             self::START => new StartSender($request, $telegramService, $user),
+            self::POLL_SUPPORT => new SupportSender($request, $telegramService, $user),
             self::POLL_TYPE_CHOICE => new TypeChoiceSender($request, $telegramService, $user),
             self::POLL_ANONYMITY_CHOICE => new AnonymityChoiceSender($request, $telegramService, $user),
             self::POLL_DIFFICULTY_CHOICE => new DifficultyChoiceSender($request, $telegramService, $user),
@@ -109,6 +114,7 @@ enum StateEnum: string
         return match ($this) {
             self::START => "Привет! Выбери вариант:",
             self::POLL_TYPE_CHOICE => "Выберите тип опроса:",
+            self::POLL_SUPPORT => "Если у вас есть вопросы, напишите мне в личные сообщения: <a href='https://t.me/nkm_studio'>https://t.me/nkm_studio</a>",
             self::POLL_ANONYMITY_CHOICE => "Опрос будет анонимный?",
             self::POLL_DIFFICULTY_CHOICE => "Выберите сложность вопросов:",
             self::POLL_SECTOR_CHOICE => "Выберите направление:",
@@ -122,7 +128,7 @@ enum StateEnum: string
             self::ACCOUNT => "Мой аккаунт:",
             self::ADMIN => "Меню администратора:",
             self::CHANNEL => "... Channel ...",
-            self::HELP => "Если у вас есть вопросы, напишите мне в личные сообщения: <a href='https://t.me/nkm_studio'>https://t.me/nkm_studio</a>",
+            self::HELP => "...help message...",
         };
     }
 }

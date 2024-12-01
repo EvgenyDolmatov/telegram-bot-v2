@@ -20,4 +20,15 @@ enum CommandEnum: string
             self::START => StateEnum::START,
         };
     }
+
+    public function getCommand(): string
+    {
+        return match ($this) {
+            self::ACCOUNT => '/' . self::ACCOUNT->value,
+            self::ADMIN => '/' . self::ADMIN->value,
+            self::CHANNEL => '/' . self::CHANNEL->value,
+            self::HELP => '/' . self::HELP->value,
+            self::START => '/' . self::START->value,
+        };
+    }
 }

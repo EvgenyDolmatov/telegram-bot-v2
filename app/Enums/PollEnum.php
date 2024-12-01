@@ -5,6 +5,7 @@ namespace App\Enums;
 enum PollEnum: string
 {
     case CREATE_SURVEY = 'create_survey';
+    case SUPPORT = 'support';
     case TYPE_QUIZ = 'type_quiz';
     case TYPE_SURVEY = 'type_survey';
     case IS_ANON = 'is_anon';
@@ -21,6 +22,7 @@ enum PollEnum: string
     {
         return match ($this) {
             self::CREATE_SURVEY => StateEnum::POLL_TYPE_CHOICE,
+            self::SUPPORT => StateEnum::POLL_SUPPORT,
             self::TYPE_QUIZ,
             self::TYPE_SURVEY => StateEnum::POLL_ANONYMITY_CHOICE,
             self::IS_ANON,
@@ -38,6 +40,7 @@ enum PollEnum: string
     {
         return match ($this) {
             self::CREATE_SURVEY => "Создать тест",
+            self::SUPPORT => "Поддержка",
             self::TYPE_QUIZ => "Викторина (1 вариант ответа)",
             self::TYPE_SURVEY => "Опрос (несколько вариантов)",
             self::IS_ANON => "Да",
