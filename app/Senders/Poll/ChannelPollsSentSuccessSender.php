@@ -4,20 +4,18 @@ namespace App\Senders\Poll;
 
 use App\Builder\Poll\PollBuilder;
 use App\Dto\ButtonDto;
+use App\Dto\ChannelDto;
 use App\Enums\CommandEnum;
 use App\Enums\StateEnum;
 use App\Models\Poll;
 use App\Repositories\RequestRepository;
 use App\Senders\AbstractSender;
-use Illuminate\Support\Facades\Log;
 
 class ChannelPollsSentSuccessSender extends AbstractSender
 {
     public function send(): void
     {
         $this->addToTrash();
-
-        // Send polls to channel
         $this->sendPollsToChannel();
 
         $text = StateEnum::CHANNEL_POLLS_SENT_SUCCESS->title();
@@ -27,19 +25,9 @@ class ChannelPollsSentSuccessSender extends AbstractSender
         $this->senderService->sendMessage($message);
     }
 
-    private function normalizeChannelName(): string
-    {
-        $channelName = $this->getInput();
-        if (str_contains($channelName, 'https://t.me/')) {
-            return "@" . substr($channelName, 13);
-        }
-
-        return '@' . ltrim($channelName, '@');
-    }
-
     private function sendPollsToChannel(): void
     {
-        $channelName = $this->getInput();
+        $chatId = $this->getChannelDto()->getId();
         $preparedPolls = $this->user->preparedPolls()->first();
 
         if ($preparedPolls) {
@@ -53,28 +41,57 @@ class ChannelPollsSentSuccessSender extends AbstractSender
                         $options[] = $pollOption->text;
                     }
 
-                    Log::debug('ChannelPollsSentSuccessSender: ' . $poll->question);
-
+                    // TODO: Check if poll is anonymous
                     $pollBuilder = $this->pollBuilder
                         ->setBuilder(new PollBuilder())
                         ->createPoll(
                             question: $poll->question,
                             options: $options,
-                            isAnonymous: (bool)$poll->isAnonymous,
+                            isAnonymous: true,
                             isQuiz: !$poll->allows_multiple_answers,
                             correctOptionId: $poll->correct_option_id,
                         );
 
-                    $this->senderService->sendPoll($pollBuilder, $channelName);
+                    $this->senderService->sendPoll($pollBuilder, $chatId);
                 }
             }
+
+            $preparedPolls->delete();
         }
     }
 
-    private function getInput(): string
+    private function getChannelName(): string
     {
-        return (new RequestRepository($this->request))->getDto()->getText();
+        $channelName = (new RequestRepository($this->request))->getDto()->getText();
+        if (str_contains($channelName, 'https://t.me/')) {
+            return "@" . substr($channelName, 13);
+        }
+
+        return '@' . ltrim($channelName, '@');
     }
 
-    // TODO: Write method for getting channel id
+    private function getChannelDto(): ChannelDto
+    {
+        $channelName = $this->getChannelName();
+        $response = $this->senderService->getChatByChannelName($channelName);
+        $data = json_decode($response, true);
+
+        if (!array_key_exists('result', $data)) {
+            throw new \Exception("Chat name not found");
+        }
+
+        $payload = $data['result'];
+        return (new ChannelDto())
+            ->setId($payload['id'])
+            ->setTitle($payload['title'])
+            ->setUsername($payload['username'])
+            ->setType($payload['type'])
+            ->setActiveUsernames($payload['active_usernames'])
+            ->setInviteLink($payload['invite_link'])
+            ->setIsHasVisibleHistory($payload['has_visible_history'])
+            ->setIsCanSendPaidMedia($payload['can_send_paid_media'])
+            ->setAvailableReactions($payload['available_reactions'])
+            ->setMaxReactionCount($payload['max_reaction_count'])
+            ->setAccentColorId($payload['accent_color_id']);
+    }
 }

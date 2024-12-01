@@ -110,12 +110,12 @@ class AiRespondedChoiceSender extends AbstractSender
                     'text' => $option->getText()
                 ]);
             }
-
-            // Save prepared polls
-            $this->savePreparedPollToDb($poll);
         } catch (\Throwable $exception) {
             throw new Exception('Poll data was occurrence');
         }
+
+        // Save prepared polls
+        $this->savePreparedPollToDb($poll);
 
         return $response;
     }

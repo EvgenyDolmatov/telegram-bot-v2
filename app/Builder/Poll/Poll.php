@@ -55,7 +55,7 @@ class Poll
         $this->correctOptionId = $correctOptionId;
     }
 
-    public function getCorrectOptionId(): int
+    public function getCorrectOptionId(): ?int
     {
         return $this->correctOptionId;
     }

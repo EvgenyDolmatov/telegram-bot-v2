@@ -272,7 +272,7 @@ readonly class SenderService
 
     public function getChatByChannelName(string $channelName): Response
     {
-        return Http::get($this->getUrl("getChat?chat_id=@{$channelName}"));
+        return Http::get($this->getUrl("getChat?chat_id={$channelName}"));
     }
 
     private function getUrl(string $path): string
