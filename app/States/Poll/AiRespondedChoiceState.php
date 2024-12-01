@@ -17,7 +17,12 @@ class AiRespondedChoiceState extends AbstractState implements UserState
         // Get next state by callback
         $state = $this->getState($input, self::STATE);
 
-        // Update user step and flow
+        // Create polls again by the same data
+        if ($input === PollEnum::REPEAT_FLOW->value) {
+            $this->user->duplicateFlow();
+        }
+
+        // Update user step and update flow
         $this->user->updateFlow(self::STATE, $input, true);
         $this->updateState($state, $context);
 
@@ -29,7 +34,7 @@ class AiRespondedChoiceState extends AbstractState implements UserState
     protected function getState(string $input, StateEnum $baseState): StateEnum
     {
         return match ($input) {
-            PollEnum::REPEAT_FLOW->value => StateEnum::POLL_AI_RESPONDED_CHOICE,
+            PollEnum::REPEAT_FLOW->value => self::STATE,
             PollEnum::SEND_TO_CHANNEL->value => StateEnum::CHANNEL_POLLS_CHOICE,
             default => StateEnum::START,
         };

@@ -287,6 +287,17 @@ class User extends Model
         ]);
     }
 
+    public function duplicateFlow(): void
+    {
+        $lastFlow = $this->flows()->where('is_completed', true)->latest()->first();
+        Log::debug('$lastFlow: ' . $lastFlow->user_id);
+
+        UserFlow::create([
+            'user_id' => $lastFlow->user_id,
+            'flow' => $lastFlow->flow
+        ]);
+    }
+
     public function resetFlow(): void
     {
         if ($openedFlow = $this->getOpenedFlow()){
