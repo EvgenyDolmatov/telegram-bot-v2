@@ -202,7 +202,7 @@ class AiRespondedChoiceSender extends AbstractSender
     {
         $text = "Выберите, что делать дальше:";
         $buttons = [
-            new ButtonDto('/' . CommandEnum::START->value, 'Выбрать другую тему'),
+            new ButtonDto(CommandEnum::START->getCommand(), 'Выбрать другую тему'),
             new ButtonDto(PollEnum::REPEAT_FLOW->value, PollEnum::REPEAT_FLOW->buttonText()),
             new ButtonDto(PollEnum::SEND_TO_CHANNEL->value, PollEnum::SEND_TO_CHANNEL->buttonText()),
         ];

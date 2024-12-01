@@ -2,6 +2,7 @@
 
 namespace App\States\Poll;
 
+use App\Constants\CommonConstants;
 use App\Enums\StateEnum;
 use App\Models\Subject;
 use App\States\AbstractState;
@@ -15,7 +16,7 @@ class ChannelPollsChoiceState extends AbstractState implements UserState
     public function handleInput(string $input, UserContext $context): void
     {
         // Get next state by callback
-        $state = $this->getState($input);
+        $state = $this->getState($input, self::STATE);
 
         // Update user step
         $this->updateState($state, $context);
@@ -25,8 +26,12 @@ class ChannelPollsChoiceState extends AbstractState implements UserState
         $sender->send();
     }
 
-    private function getState(string $input): StateEnum
+    protected function getState(string $input, StateEnum $baseState): StateEnum
     {
+        if ($input === CommonConstants::BACK) {
+            return $baseState->backState();
+        }
+
         return StateEnum::CHANNEL_NAME_WAITING;
     }
 }

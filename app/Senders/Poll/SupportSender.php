@@ -2,6 +2,7 @@
 
 namespace App\Senders\Poll;
 
+use App\Constants\CommonConstants;
 use App\Dto\ButtonDto;
 use App\Enums\CommandEnum;
 use App\Enums\PollEnum;
@@ -14,7 +15,7 @@ class SupportSender extends AbstractSender
     {
         $this->addToTrash();
 
-        $buttons = [new ButtonDto(CommandEnum::START->getCommand(), "Назад")];
+        $buttons = [new ButtonDto(CommonConstants::BACK, "Назад")];
 
         $message = $this->messageBuilder->createMessage(StateEnum::POLL_SUPPORT->title(), $buttons);
         $this->senderService->sendMessage($message);

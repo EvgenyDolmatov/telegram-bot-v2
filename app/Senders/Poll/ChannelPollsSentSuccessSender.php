@@ -19,7 +19,7 @@ class ChannelPollsSentSuccessSender extends AbstractSender
         $this->sendPollsToChannel();
 
         $text = StateEnum::CHANNEL_POLLS_SENT_SUCCESS->title();
-        $buttons = [new ButtonDto("/" . CommandEnum::START->value, "Вернуться в начало")];
+        $buttons = [new ButtonDto(CommandEnum::START->getCommand(), "Вернуться в начало")];
 
         $message = $this->messageBuilder->createMessage($text, $buttons);
         $this->senderService->sendMessage($message);

@@ -15,7 +15,7 @@ class AiRespondedChoiceState extends AbstractState implements UserState
     public function handleInput(string $input, UserContext $context): void
     {
         // Get next state by callback
-        $state = $this->getState($input);
+        $state = $this->getState($input, self::STATE);
 
         // Update user step and flow
         $this->user->updateFlow(self::STATE, $input);
@@ -26,7 +26,7 @@ class AiRespondedChoiceState extends AbstractState implements UserState
         $sender->send();
     }
 
-    private function getState(string $input): StateEnum
+    protected function getState(string $input, StateEnum $baseState): StateEnum
     {
         return match ($input) {
             PollEnum::REPEAT_FLOW->value => StateEnum::POLL_AI_RESPONDED_CHOICE,

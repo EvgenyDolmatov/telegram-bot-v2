@@ -2,6 +2,7 @@
 
 namespace App\States\Poll;
 
+use App\Constants\CommonConstants;
 use App\Enums\StateEnum;
 use App\Models\Subject;
 use App\States\AbstractState;
@@ -15,7 +16,7 @@ class SubjectChoiceState extends AbstractState implements UserState
     public function handleInput(string $input, UserContext $context): void
     {
         // Get next state by callback
-        $state = $this->getState($input);
+        $state = $this->getState($input, self::STATE);
 
         // Update user step and flow
         $this->user->updateFlow(self::STATE, $input);
@@ -26,10 +27,16 @@ class SubjectChoiceState extends AbstractState implements UserState
         $sender->send();
     }
 
-    private function getState(string $input): StateEnum
+    protected function getState(string $input, StateEnum $baseState): StateEnum
     {
+        if ($input === CommonConstants::BACK) {
+            return $baseState->backState();
+        }
+
         $subject = Subject::where('code', $input)->first();
 
-        return $subject->has_child ? self::STATE : StateEnum::POLL_THEME_WAITING;
+        return $subject->has_child
+            ? self::STATE // TODO: Need to send error message if sector does not exist
+            : StateEnum::POLL_THEME_WAITING;
     }
 }

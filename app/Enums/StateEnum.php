@@ -87,6 +87,28 @@ enum StateEnum: string
         };
     }
 
+    public function backState(): self
+    {
+        return match ($this) {
+            self::ACCOUNT,
+            self::ADMIN,
+            self::CHANNEL,
+            self::HELP,
+            self::START,
+            self::POLL_SUPPORT,
+            self::POLL_TYPE_CHOICE,
+            self::POLL_AI_RESPONDED_CHOICE,
+            self::CHANNEL_POLLS_CHOICE,
+            self::CHANNEL_POLLS_SENT_SUCCESS => self::START,
+            self::POLL_ANONYMITY_CHOICE => self::POLL_TYPE_CHOICE,
+            self::POLL_DIFFICULTY_CHOICE => self::POLL_ANONYMITY_CHOICE,
+            self::POLL_SECTOR_CHOICE => self::POLL_DIFFICULTY_CHOICE,
+            self::POLL_SUBJECT_CHOICE => self::POLL_SECTOR_CHOICE,
+            self::POLL_THEME_WAITING => self::POLL_SUBJECT_CHOICE,
+            self::CHANNEL_NAME_WAITING => self::CHANNEL_NAME_WAITING,
+        };
+    }
+
     public function sender(Request $request, TelegramService $telegramService, User $user): SenderInterface
     {
         return match ($this) {

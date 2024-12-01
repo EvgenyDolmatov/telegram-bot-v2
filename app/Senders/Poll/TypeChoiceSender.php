@@ -2,6 +2,7 @@
 
 namespace App\Senders\Poll;
 
+use App\Constants\CommonConstants;
 use App\Dto\ButtonDto;
 use App\Enums\PollEnum;
 use App\Enums\StateEnum;
@@ -16,6 +17,7 @@ class TypeChoiceSender extends AbstractSender
         $buttons = [
             new ButtonDto(PollEnum::TYPE_QUIZ->value, PollEnum::TYPE_QUIZ->buttonText()),
             new ButtonDto(PollEnum::TYPE_SURVEY->value, PollEnum::TYPE_SURVEY->buttonText()),
+            new ButtonDto(CommonConstants::BACK, "Назад"),
         ];
 
         $message = $this->messageBuilder->createMessage(StateEnum::POLL_TYPE_CHOICE->title(), $buttons);

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Constants\CommonConstants;
 use App\Constants\StateConstants;
 use App\Constants\TransitionConstants;
 use App\Enums\CommandEnum;
@@ -261,6 +262,16 @@ class User extends Model
     {
         if ($openedFlow = $this->getOpenedFlow()) {
             $flowData = json_decode($openedFlow->flow, true);
+
+            // Delete flow key if pressed on back step
+            if ($value === CommonConstants::BACK) {
+                if (array_key_exists($state->backState()->value, $flowData)) {
+                    unset($flowData[$state->value]);
+                }
+
+                return;
+            }
+
             $flowData[$state->value] = $value;
             $isCompleted = array_key_exists(StateEnum::POLL_AI_RESPONDED_CHOICE->value, $flowData);
 

@@ -2,6 +2,7 @@
 
 namespace App\States;
 
+use App\Constants\CommonConstants;
 use App\Enums\CommandEnum;
 use App\Enums\PollEnum;
 use App\Enums\StateEnum;
@@ -34,10 +35,11 @@ abstract class AbstractState implements UserState
 
     protected function handleSimpleInput(string $input, UserContext $context, StateEnum $baseState): void
     {
-        $state = PollEnum::from($input)->toState();
+        $nextState = $this->getState($input, $baseState);
+//        $state = PollEnum::from($input)->toState();
 
         $this->user->updateFlow($baseState, $input);
-        $this->baseHandle($state, $context);
+        $this->baseHandle($nextState, $context);
     }
 
     protected function updateState(StateEnum $state, UserContext $context): void
@@ -57,5 +59,12 @@ abstract class AbstractState implements UserState
     private function clearCommand(string $command): string
     {
         return ltrim($command, '/');
+    }
+
+    protected function getState(string $input, StateEnum $baseState): StateEnum
+    {
+        return $input === CommonConstants::BACK
+            ? $baseState->backState()
+            : PollEnum::from($input)->toState();
     }
 }

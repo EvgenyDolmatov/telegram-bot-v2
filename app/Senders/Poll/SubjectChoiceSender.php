@@ -2,6 +2,7 @@
 
 namespace App\Senders\Poll;
 
+use App\Constants\CommonConstants;
 use App\Dto\ButtonDto;
 use App\Enums\StateEnum;
 use App\Models\Sector;
@@ -25,6 +26,8 @@ class SubjectChoiceSender extends AbstractSender
             fn($subject) => new ButtonDto($subject['code'], $subject['title']),
             $subjects->toArray()
         );
+
+        $buttons[] = new ButtonDto(CommonConstants::BACK, "Назад");
 
         $message = $this->messageBuilder->createMessage(StateEnum::POLL_SUBJECT_CHOICE->title(), $buttons);
         $this->senderService->sendMessage($message);
