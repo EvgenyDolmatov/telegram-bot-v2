@@ -19,7 +19,20 @@ class ChannelPollsChoiceSender extends AbstractSender
         $buttons = $this->getButtons();
 
         $message = $this->messageBuilder->createMessage($text, $buttons);
-        $this->senderService->sendMessage($message);
+
+        $preparedPoll = $this->user->preparedPolls()->first();
+        if (!$preparedPoll) {
+            throw new \Exception('Prepared poll not found');
+        }
+
+        if (str_starts_with($this->getInputText(), self::POLL_PREFIX)) {
+            $this->senderService->editMessage($message, $preparedPoll->tg_message_id);
+        } else {
+            $response = $this->senderService->sendMessage($message);
+            $data = json_decode($response, true);
+
+            $preparedPoll->update(['tg_message_id' => $data['result']['message_id']] ?? null);
+        }
     }
 
     /**
@@ -32,14 +45,31 @@ class ChannelPollsChoiceSender extends AbstractSender
             throw new \Exception('Prepared poll not found');
         }
 
-        $polls = $this->user->polls()
-            ->whereIn('tg_message_id', explode(',', $preparedPoll->poll_ids))
-            ->get();
+        $allPollIds = explode(',', $preparedPoll->poll_ids);
+        $checkedPollIds = explode(',', $preparedPoll->checked_poll_ids);
 
-        $buttons = array_map(fn($poll) => new ButtonDto(
-            callbackData: self::POLL_PREFIX . $poll['tg_message_id'],
-            text: "✅ {$poll['question']}"
-        ), $polls->toArray());
+        $input = $this->getInputText();
+        if (str_starts_with($input, self::POLL_PREFIX)) {
+            $pollId = mb_substr($input, strlen(self::POLL_PREFIX));
+
+            if (!in_array($pollId, $checkedPollIds)) {
+                $checkedPollIds[] = $pollId;
+            } else {
+                $checkedPollIds = array_diff($checkedPollIds, [$pollId]);
+            }
+
+            $preparedPoll->update(['checked_poll_ids' => implode(',', $checkedPollIds)]);
+        }
+
+        $polls = $this->user->polls() ->whereIn('tg_message_id', $allPollIds)->get();
+
+        $buttons = [];
+        foreach ($polls as $poll) {
+            $symbol = in_array($poll->tg_message_id, $checkedPollIds) ? "✅ " : "❌ " ;
+            $buttons[] = new ButtonDto(
+                callbackData: self::POLL_PREFIX . $poll->tg_message_id,
+                text: $symbol . $poll['question']);
+        }
 
         $buttons[] = new ButtonDto(PollEnum::ACCEPT_POLLS->value, PollEnum::ACCEPT_POLLS->buttonText());
 

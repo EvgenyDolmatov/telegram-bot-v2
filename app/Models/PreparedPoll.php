@@ -10,5 +10,5 @@ class PreparedPoll extends Model
     use HasFactory;
 
     protected $table = 'prepared_polls';
-    protected $fillable = ['user_id', 'tg_message_id', 'poll_ids', 'channel'];
+    protected $fillable = ['user_id', 'tg_message_id', 'poll_ids', 'checked_poll_ids', 'channel'];
 }

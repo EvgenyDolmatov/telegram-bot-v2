@@ -181,11 +181,15 @@ class AiRespondedChoiceSender extends AbstractSender
         $preparedPoll = $this->user->preparedPolls()->first();
         if ($preparedPoll) {
             $pollIds = explode(',', $preparedPoll->poll_ids);
+            $checkedPollIds = explode(',', $preparedPoll->checked_poll_ids);
+
             $pollIds[] = $poll->tg_message_id;
+            $checkedPollIds[] = $poll->tg_message_id;
 
             $preparedPoll->update([
                 'tg_message_id' => $poll->tg_message_id,
-                'poll_ids' => implode(',', $pollIds)
+                'poll_ids' => implode(',', $pollIds),
+                'checked_poll_ids' => implode(',', $checkedPollIds),
             ]);
             return;
         }
@@ -193,7 +197,8 @@ class AiRespondedChoiceSender extends AbstractSender
         PreparedPoll::create([
             'user_id' => $this->user->id,
             'tg_message_id' => $poll->tg_message_id,
-            'poll_ids' => $poll->tg_message_id
+            'poll_ids' => $poll->tg_message_id,
+            'checked_poll_ids' => $poll->tg_message_id,
         ]);
     }
 
@@ -207,6 +212,6 @@ class AiRespondedChoiceSender extends AbstractSender
         ];
 
         $message = $this->messageBuilder->createMessage($text, $buttons);
-        $this->senderService->sendMessage($message);
+        $this->senderService->sendMessage($message, false);
     }
 }
