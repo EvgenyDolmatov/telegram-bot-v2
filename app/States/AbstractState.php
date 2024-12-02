@@ -36,7 +36,6 @@ abstract class AbstractState implements UserState
     protected function handleSimpleInput(string $input, UserContext $context, StateEnum $baseState): void
     {
         $nextState = $this->getState($input, $baseState);
-//        $state = PollEnum::from($input)->toState();
 
         $this->user->updateFlow($baseState, $input);
         $this->baseHandle($nextState, $context);
@@ -66,5 +65,12 @@ abstract class AbstractState implements UserState
         return $input === CommonConstants::BACK
             ? $baseState->backState()
             : PollEnum::from($input)->toState();
+    }
+
+    protected function deletePreparedPoll(): void
+    {
+        if ($preparedPoll = $this->user->preparedPolls()->first()) {
+            $preparedPoll->delete();
+        }
     }
 }

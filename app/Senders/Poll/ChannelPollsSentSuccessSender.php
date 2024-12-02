@@ -27,10 +27,10 @@ class ChannelPollsSentSuccessSender extends AbstractSender
     private function sendPollsToChannel(): void
     {
         $chatId = $this->getChannelDto()->getId();
-        $preparedPolls = $this->user->preparedPolls()->first();
+        $preparedPoll = $this->user->preparedPolls()->first();
 
-        if ($preparedPolls) {
-            $pollIds = explode(',', $preparedPolls->poll_ids);
+        if ($preparedPoll) {
+            $pollIds = explode(',', $preparedPoll->poll_ids);
 
             foreach ($pollIds as $pollId) {
                 if ($poll = Poll::where('tg_message_id', $pollId)->first()) {
@@ -55,7 +55,7 @@ class ChannelPollsSentSuccessSender extends AbstractSender
                 }
             }
 
-            $preparedPolls->delete();
+            $preparedPoll->delete();
         }
     }
 
