@@ -59,7 +59,6 @@ class AiRespondedChoiceSender extends AbstractSender
 
         try {
             $aiCompletionDto = $aiRepository->getCompletion();
-            Log::debug('getAiCompletionDto: ' . $aiCompletionDto->getId());
         } catch (\Throwable $exception) {
             Log::error("Open AI completion has error", [
                 'exception' => $exception

@@ -193,8 +193,6 @@ class User extends Model
                 } else {
                     // TODO: Make handler about unexpected text
 
-                    Log::debug('USER.php : previousState : ' . $previousState->code);
-
                     if (
                         $previousState->code !== StateConstants::THEME_REQUEST &&
                         !in_array($message, $previousState->prepareCallbackItems($this))
@@ -284,17 +282,6 @@ class User extends Model
             'user_id' => $this->id,
             'flow' => json_encode([$state->value => $value]),
             'is_completed' => $isCompleted,
-        ]);
-    }
-
-    public function duplicateFlow(): void
-    {
-        $lastFlow = $this->flows()->where('is_completed', true)->latest()->first();
-        Log::debug('$lastFlow: ' . $lastFlow->user_id);
-
-        UserFlow::create([
-            'user_id' => $lastFlow->user_id,
-            'flow' => $lastFlow->flow
         ]);
     }
 

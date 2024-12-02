@@ -31,6 +31,7 @@ enum PollEnum: string
             self::LEVEL_MIDDLE,
             self::LEVEL_EASY,
             self::LEVEL_ANY => StateEnum::POLL_SECTOR_CHOICE,
+            self::REPEAT_FLOW => StateEnum::POLL_AI_RESPONDED_CHOICE,
             self::SEND_TO_CHANNEL => StateEnum::CHANNEL_POLLS_CHOICE,
             self::ACCEPT_POLLS => StateEnum::CHANNEL_NAME_WAITING,
         };

@@ -4,6 +4,7 @@ namespace App\States\Poll;
 
 use App\Enums\PollEnum;
 use App\Enums\StateEnum;
+use App\Models\UserFlow;
 use App\States\AbstractState;
 use App\States\UserContext;
 use App\States\UserState;
@@ -17,13 +18,8 @@ class AiRespondedChoiceState extends AbstractState implements UserState
         // Get next state by callback
         $state = $this->getState($input, self::STATE);
 
-        // Create polls again by the same data
-        if ($input === PollEnum::REPEAT_FLOW->value) {
-            $this->user->duplicateFlow();
-        }
-
         // Update user step and update flow
-        $this->user->updateFlow(self::STATE, $input, true);
+        $this->flowHandler($input);
         $this->updateState($state, $context);
 
         // Send message to chat
@@ -31,12 +27,35 @@ class AiRespondedChoiceState extends AbstractState implements UserState
         $sender->send();
     }
 
-    protected function getState(string $input, StateEnum $baseState): StateEnum
+    /**
+     * Rules for flow update
+     *
+     * @param string $input
+     * @return void
+     */
+    private function flowHandler(string $input): void
     {
-        return match ($input) {
-            PollEnum::REPEAT_FLOW->value => self::STATE,
-            PollEnum::SEND_TO_CHANNEL->value => StateEnum::CHANNEL_POLLS_CHOICE,
-            default => StateEnum::START,
+        match ($input) {
+            PollEnum::REPEAT_FLOW->value => $this->duplicateLastFlow(),
+            default => $this->user->updateFlow(self::STATE, $input, true)
         };
+    }
+
+    private function duplicateLastFlow(): void
+    {
+        $lastFlow = $this->user->flows()->where('is_completed', true)->latest()->first();
+
+        if ($lastFlow) {
+            $data = $lastFlow->flow ? json_decode($lastFlow->flow, true): null;
+            if ($data && array_key_exists(StateEnum::POLL_AI_RESPONDED_CHOICE->value, $data)) {
+                unset($data[StateEnum::POLL_AI_RESPONDED_CHOICE->value]);
+            }
+
+            UserFlow::create([
+                'user_id' => $lastFlow->user_id,
+                'flow' => json_encode($data),
+                'is_completed' => false,
+            ]);
+        }
     }
 }

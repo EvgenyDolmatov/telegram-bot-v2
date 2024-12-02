@@ -50,8 +50,6 @@ class OpenAiService
         $user = $this->user;
         $data = $user->getFlowData();
 
-        Log::debug('Open AI: ' . json_encode($data));
-
         $url = 'https://api.openai.com/v1/chat/completions';
         $template = [
             'question1' => [
@@ -75,10 +73,6 @@ class OpenAiService
         ];
 
         $hasCorrectAnswer = '';
-
-        Log::debug("OpenAI: " . $data[StateEnum::POLL_TYPE_CHOICE->value]);
-        Log::debug("OpenAI: " . PollEnum::TYPE_QUIZ->value);
-
         if ($data[StateEnum::POLL_TYPE_CHOICE->value] === PollEnum::TYPE_QUIZ->value) {
             $template['question1']['correct_answer'] = 'c';
             $template['question2']['correct_answer'] = 'a';
