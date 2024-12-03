@@ -88,22 +88,9 @@ class AiRespondedChoiceSender extends AbstractSender
             throw new Exception('An error occurred while submitting the poll');
         }
 
-        // TODO: Correct options...
         try {
             $messageId = $response['result']['message_id'] ?? null;
-            $currentPoll = Poll::where('tg_message_id', $messageId)->first();
             $pollDto = (new PollRepository($response))->getDto();
-
-            Log::debug('poll: ' . $response);
-            Log::debug('poll dto user_id: ' . $this->user->id);
-            Log::debug('poll dto tg_message_id: ' . $response['result']['message_id'] ?? null);
-            Log::debug('poll dto question: ' . $pollDto->getQuestion());
-            Log::debug('poll dto is_anonymous: ' . ($pollDto->getQuestion() ? "1" : "0"));
-            Log::debug('poll dto allows_multiple_answers: ' . ($pollDto->getIsAllowsMultipleAnswers() ? "1" : "0"));
-            Log::debug('poll dto type: ' . $pollDto->getType());
-            Log::debug('poll dto correct_option_id: ' . $pollDto->getCorrectOptionId());
-
-            $correctOptionLetters = ['a', 'b', 'c', 'd'];
 
             // Save poll to database
             $poll = Poll::create([
@@ -113,7 +100,7 @@ class AiRespondedChoiceSender extends AbstractSender
                 'is_anonymous' => $pollDto->getIsAnonymous(),
                 'allows_multiple_answers' => $pollDto->getIsAllowsMultipleAnswers(),
                 'type' => $pollDto->getType(),
-                'correct_option_id' => $correctOptionLetters[$currentPoll->correct_option_id],
+                'correct_option_id' => $pollDto->getCorrectOptionId(),
             ]);
 
             // Save poll options to database

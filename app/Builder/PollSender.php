@@ -36,6 +36,7 @@ class PollSender
         $builder->setIsAnonymous($isAnonymous);
         $builder->setIsQuiz($isQuiz);
 
+        // TODO: Разобраться с приходящими значениями. Ссылка app/Senders/Poll/ChannelPollsSentSuccessSender.php:29
         if ($correctOptionId) {
             $builder->setCorrectOptionId(self::OPTION_INDEXES[$correctOptionId]);
         }

@@ -26,6 +26,7 @@ class ChannelPollsSentSuccessSender extends AbstractSender
 
     private function sendPollsToChannel(): void
     {
+        $optionLetters = ['a','b','c','d'];
         $chatId = $this->getChannelDto()->getId();
         $preparedPoll = $this->user->preparedPolls()->first();
 
@@ -40,7 +41,9 @@ class ChannelPollsSentSuccessSender extends AbstractSender
                         $options[] = $pollOption->text;
                     }
 
-                    // TODO: Check if poll is anonymous
+                    $correctOptionId = $poll->correct_option_id ? $optionLetters[$poll->correct_option_id] : null;
+
+                    // TODO: Сделать проверку и вывести сообщение пользователю о том, что нельзя добаавлять неанонимные опросы на канал
                     $pollBuilder = $this->pollBuilder
                         ->setBuilder(new PollBuilder())
                         ->createPoll(
@@ -48,7 +51,7 @@ class ChannelPollsSentSuccessSender extends AbstractSender
                             options: $options,
                             isAnonymous: true,
                             isQuiz: !$poll->allows_multiple_answers,
-                            correctOptionId: $poll->correct_option_id,
+                            correctOptionId: $correctOptionId,
                         );
 
                     $this->senderService->sendPoll($pollBuilder, $chatId);
