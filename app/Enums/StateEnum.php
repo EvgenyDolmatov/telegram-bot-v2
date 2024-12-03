@@ -2,6 +2,8 @@
 
 namespace App\Enums;
 
+use App\Constants\CommonConstants;
+use App\Dto\ButtonDto;
 use App\Models\User;
 use App\Senders\Commands\AccountSender;
 use App\Senders\Commands\AdminSender;
@@ -149,6 +151,29 @@ enum StateEnum: string
             self::ADMIN => "Меню администратора:",
             self::CHANNEL => "... Channel ...",
             self::HELP => "...help message...",
+        };
+    }
+
+    public function buttons(): array
+    {
+        return match ($this) {
+            self::START => [
+                new ButtonDto(PollEnum::CREATE_SURVEY->value, PollEnum::CREATE_SURVEY->buttonText()),
+                new ButtonDto(CommonCallbackEnum::SUPPORT->value, 'Поддержка'),
+            ],
+            self::POLL_TYPE_CHOICE => [
+                new ButtonDto(PollEnum::TYPE_QUIZ->value, PollEnum::TYPE_QUIZ->buttonText()),
+                new ButtonDto(PollEnum::TYPE_SURVEY->value, PollEnum::TYPE_SURVEY->buttonText()),
+                new ButtonDto(CommonConstants::BACK, "Назад"),
+            ],
+            self::POLL_SUPPORT => [
+                new ButtonDto(CommonConstants::BACK, "Назад")
+            ],
+            self::POLL_ANONYMITY_CHOICE => [
+                new ButtonDto(PollEnum::IS_ANON->value, PollEnum::IS_ANON->buttonText()),
+                new ButtonDto(PollEnum::IS_NOT_ANON->value, PollEnum::IS_NOT_ANON->buttonText()),
+                new ButtonDto(CommonConstants::BACK, "Назад"),
+            ]
         };
     }
 }

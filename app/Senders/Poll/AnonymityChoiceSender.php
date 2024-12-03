@@ -2,9 +2,6 @@
 
 namespace App\Senders\Poll;
 
-use App\Constants\CommonConstants;
-use App\Dto\ButtonDto;
-use App\Enums\PollEnum;
 use App\Enums\StateEnum;
 use App\Senders\AbstractSender;
 
@@ -14,13 +11,10 @@ class AnonymityChoiceSender extends AbstractSender
     {
         $this->addToTrash();
 
-        $buttons = [
-            new ButtonDto(PollEnum::IS_ANON->value, PollEnum::IS_ANON->buttonText()),
-            new ButtonDto(PollEnum::IS_NOT_ANON->value, PollEnum::IS_NOT_ANON->buttonText()),
-            new ButtonDto(CommonConstants::BACK, "Назад"),
-        ];
-
-        $message = $this->messageBuilder->createMessage(StateEnum::POLL_ANONYMITY_CHOICE->title(), $buttons);
+        $message = $this->messageBuilder->createMessage(
+            text: StateEnum::POLL_ANONYMITY_CHOICE->title(),
+            buttons: StateEnum::POLL_ANONYMITY_CHOICE->buttons()
+        );
         $this->senderService->sendMessage($message);
     }
 }

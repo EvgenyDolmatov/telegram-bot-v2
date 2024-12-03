@@ -41,6 +41,11 @@ abstract class AbstractState implements UserState
         $this->baseHandle($nextState, $context);
     }
 
+    protected function handleRepeatSimpleInput(UserContext $context, StateEnum $baseState): void
+    {
+        $this->baseHandle($baseState, $context);
+    }
+
     protected function updateState(StateEnum $state, UserContext $context): void
     {
         $context->setState($state->userState($this->request, $this->telegramService));
