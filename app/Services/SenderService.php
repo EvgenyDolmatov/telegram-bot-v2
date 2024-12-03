@@ -5,13 +5,16 @@ namespace App\Services;
 use App\Builder\Message\Message;
 use App\Builder\Poll\Poll;
 use App\Constants\CommonConstants;
+use App\Exceptions\ChatNotFoundException;
 use App\Models\TrashMessage;
 use App\Repositories\RequestRepository;
+use Exception;
 use Illuminate\Http\Client\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 readonly class SenderService
 {
@@ -270,9 +273,21 @@ readonly class SenderService
         return $path;
     }
 
+    /**
+     * @throws ChatNotFoundException
+     * @throws Exception
+     */
     public function getChatByChannelName(string $channelName): Response
     {
-        return Http::get($this->getUrl("getChat?chat_id={$channelName}"));
+        try {
+            return Http::get($this->getUrl("getChat?chat_id={$channelName}"));
+        } catch (Throwable $e) {
+            if ($e->getCode() === 400) {
+                throw new ChatNotFoundException("Chat $channelName not found");
+            }
+
+            throw new Exception("Error of getting chat info by chat name $channelName", $e->getCode(), $e);
+        }
     }
 
     private function getUrl(string $path): string

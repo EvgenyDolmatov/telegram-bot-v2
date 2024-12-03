@@ -22,13 +22,9 @@ class MessageStrategy
     ) {
     }
 
-    /**
-     * @throws \Exception
-     */
     public function defineHandler(): self
     {
         $message = $this->getMessage();
-//        $handler = new StateHandler($this->telegramService, $this->request);
 
         if (str_starts_with($message, '/')) {
             $handler = new CommandHandler($this->telegramService, $this->request);
@@ -36,19 +32,9 @@ class MessageStrategy
             $handler = new StateHandler($this->telegramService, $this->request);
         }
 
-
-
-//        $buttonCallbacks = array_column(CommonCallbackEnum::cases(), 'value');
-//        if (in_array($message, $buttonCallbacks)) {
-//            $handler = new CallbackHandler($this->telegramService, $this->request);
-//        }
-
         return $this->setHandler($handler);
     }
 
-    /**
-     * @throws \Exception
-     */
     public function process(): void
     {
         $this->handler->handle($this->getMessage());
@@ -61,10 +47,6 @@ class MessageStrategy
         return $this;
     }
 
-
-    /**
-     * @throws \Exception
-     */
     private function getMessage(): string
     {
         return (new RequestRepository($this->request))->getDto()->getText();

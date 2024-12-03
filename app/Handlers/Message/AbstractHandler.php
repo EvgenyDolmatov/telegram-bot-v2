@@ -13,9 +13,6 @@ abstract class AbstractHandler
     protected StepAction $helper;
     protected User $user;
 
-    /**
-     * @throws \Exception
-     */
     public function __construct(
         protected readonly TelegramService $telegramService,
         protected readonly Request $request

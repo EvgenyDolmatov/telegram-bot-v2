@@ -7,8 +7,10 @@ use App\Dto\ButtonDto;
 use App\Dto\ChannelDto;
 use App\Enums\CommandEnum;
 use App\Enums\StateEnum;
+use App\Exceptions\ChatNotFoundException;
 use App\Models\Poll;
 use App\Senders\AbstractSender;
+use Throwable;
 
 class ChannelPollsSentSuccessSender extends AbstractSender
 {
@@ -72,28 +74,32 @@ class ChannelPollsSentSuccessSender extends AbstractSender
         return '@' . ltrim($channelName, '@');
     }
 
+    /**
+     * @throws ChatNotFoundException
+     */
     private function getChannelDto(): ChannelDto
     {
         $channelName = $this->getChannelName();
-        $response = $this->senderService->getChatByChannelName($channelName);
-        $data = json_decode($response, true);
 
-        if (!array_key_exists('result', $data)) {
-            throw new \Exception("Chat name not found");
+        try {
+            $response = $this->senderService->getChatByChannelName($channelName);
+            $data = json_decode($response, true);
+            $payload = $data['result'];
+
+            return (new ChannelDto())
+                ->setId($payload['id'])
+                ->setTitle($payload['title'])
+                ->setUsername($payload['username'])
+                ->setType($payload['type'])
+                ->setActiveUsernames($payload['active_usernames'])
+                ->setInviteLink($payload['invite_link'])
+                ->setIsHasVisibleHistory($payload['has_visible_history'])
+                ->setIsCanSendPaidMedia($payload['can_send_paid_media'])
+                ->setAvailableReactions($payload['available_reactions'])
+                ->setMaxReactionCount($payload['max_reaction_count'])
+                ->setAccentColorId($payload['accent_color_id']);
+        } catch (Throwable $e) {
+            throw new ChatNotFoundException("Wrong channel name $channelName");
         }
-
-        $payload = $data['result'];
-        return (new ChannelDto())
-            ->setId($payload['id'])
-            ->setTitle($payload['title'])
-            ->setUsername($payload['username'])
-            ->setType($payload['type'])
-            ->setActiveUsernames($payload['active_usernames'])
-            ->setInviteLink($payload['invite_link'])
-            ->setIsHasVisibleHistory($payload['has_visible_history'])
-            ->setIsCanSendPaidMedia($payload['can_send_paid_media'])
-            ->setAvailableReactions($payload['available_reactions'])
-            ->setMaxReactionCount($payload['max_reaction_count'])
-            ->setAccentColorId($payload['accent_color_id']);
     }
 }

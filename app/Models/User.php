@@ -56,9 +56,6 @@ class User extends Model
         return $this->hasMany(PreparedPoll::class, 'user_id');
     }
 
-    /**
-     * @throws \Exception
-     */
     public static function getByRequestRepository(RequestRepository $repository): ?User
     {
         $telegramUserId = $repository->getDto()->getFrom()->getId();
@@ -84,9 +81,6 @@ class User extends Model
         ]);
     }
 
-    /**
-     * @throws \Exception
-     */
     public static function getOrCreate(RequestRepository $repository): User
     {
         if ($user = self::getByRequestRepository($repository)) {
