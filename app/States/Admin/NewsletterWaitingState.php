@@ -2,6 +2,7 @@
 
 namespace App\States\Admin;
 
+use App\Constants\CommonConstants;
 use App\Enums\StateEnum;
 use App\States\AbstractState;
 
@@ -11,6 +12,22 @@ class NewsletterWaitingState extends AbstractState
 
     public function handleInput(string $input, $context): void
     {
-        $this->handleSimpleInput($input, $context, self::STATE);
+        // Get next state by callback
+        $state = $this->getState($input, self::STATE);
+
+        // Update user step
+        $this->updateState($state, $context);
+
+        // Send message to chat
+        $this->sendMessage($state);
+    }
+
+    protected function getState(string $input, StateEnum $baseState): StateEnum
+    {
+        if ($input === CommonConstants::BACK) {
+            return $baseState->backState();
+        }
+
+        return StateEnum::ADMIN_NEWSLETTER_CONFIRMATION;
     }
 }

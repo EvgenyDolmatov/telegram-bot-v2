@@ -5,6 +5,7 @@ namespace App\Enums;
 use App\Constants\CommonConstants;
 use App\Dto\ButtonDto;
 use App\Models\User;
+use App\Senders\Admin\NewsletterConfirmationSender;
 use App\Senders\Admin\NewsletterWaitingSender;
 use App\Senders\Commands\AccountSender;
 use App\Senders\Commands\AdminSender;
@@ -25,6 +26,7 @@ use App\Senders\SenderInterface;
 use App\Services\TelegramService;
 use App\States\Account\AccountState;
 use App\States\Admin\AdminState;
+use App\States\Admin\NewsletterConfirmationState;
 use App\States\Admin\NewsletterWaitingState;
 use App\States\Help\HelpState;
 use App\States\Poll\AiRespondedChoiceState;
@@ -66,6 +68,8 @@ enum StateEnum: string
     /** Admin */
     case ADMIN = 'admin';
     case ADMIN_NEWSLETTER_WAITING = 'admin_newsletter_waiting';
+    case ADMIN_NEWSLETTER_CONFIRMATION = 'admin_newsletter_confirmation';
+    case ADMIN_NEWSLETTER_SENT_SUCCESS = 'admin_newsletter_sent_success';
 
     /** Help */
     case HELP = 'help';
@@ -92,6 +96,7 @@ enum StateEnum: string
             /** Admin states */
             self::ADMIN => new AdminState($request, $telegramService),
             self::ADMIN_NEWSLETTER_WAITING => new NewsletterWaitingState($request, $telegramService),
+            self::ADMIN_NEWSLETTER_CONFIRMATION => new NewsletterConfirmationState($request, $telegramService),
             /** Help states */
             self::HELP => new HelpState($request, $telegramService),
         };
@@ -116,6 +121,7 @@ enum StateEnum: string
             self::POLL_THEME_WAITING => self::POLL_SUBJECT_CHOICE,
             self::CHANNEL_NAME_WAITING => self::CHANNEL_POLLS_CHOICE,
             self::ADMIN_NEWSLETTER_WAITING => self::ADMIN,
+            self::ADMIN_NEWSLETTER_CONFIRMATION => self::ADMIN_NEWSLETTER_WAITING,
         };
     }
 
@@ -138,6 +144,7 @@ enum StateEnum: string
             self::CHANNEL_POLLS_SENT_SUCCESS => new ChannelPollsSentSuccessSender($request, $telegramService, $user),
             self::ADMIN => new AdminSender($request, $telegramService, $user),
             self::ADMIN_NEWSLETTER_WAITING => new NewsletterWaitingSender($request, $telegramService, $user),
+            self::ADMIN_NEWSLETTER_CONFIRMATION => new NewsletterConfirmationSender($request, $telegramService, $user),
         };
     }
 
@@ -161,6 +168,7 @@ enum StateEnum: string
 
             self::ADMIN => "Меню администратора:",
             self::ADMIN_NEWSLETTER_WAITING => "Введите сообщение и прикрепите файлы (если необходимо) для рассылки пользователям:\n\n❗️После отправки сообщения отменить или удалить его будет невозможно!!!",
+            self::ADMIN_NEWSLETTER_CONFIRMATION => "Внимательно проверьте Ваше сообщение!!! \n\nПосле подтверждения, это сообщение отправится всем подписчикам бота.",
 
             self::HELP => "Инструкция по работе с ботом:\n\nДля того, чтобы Corgish-бот корректно составил тест, ответьте на вопросы бота и пройдите все шаги.\n\n/start - начать сначала\n/help - помощь и техподдержка",
         };
@@ -207,9 +215,13 @@ enum StateEnum: string
             ],
 
             self::ADMIN => [
-                new ButtonDto(CommonCallbackEnum::ADMIN_CREATE_NEWSLETTER->value, 'Создать рассылку'),
-                new ButtonDto(CommonCallbackEnum::ADMIN_STATISTIC_MENU->value, 'Статистика бота'),
-                new ButtonDto(CommandEnum::START->value, 'Вернуться в начало')
+                new ButtonDto(CallbackEnum::ADMIN_NEWSLETTER_CREATE->value, CallbackEnum::ADMIN_NEWSLETTER_CREATE->buttonText()),
+                new ButtonDto(CallbackEnum::ADMIN_STATISTIC_MENU->value, CallbackEnum::ADMIN_STATISTIC_MENU->buttonText()),
+                new ButtonDto(CommandEnum::START->getCommand(), 'Вернуться в начало')
+            ],
+            self::ADMIN_NEWSLETTER_CONFIRMATION => [
+                new ButtonDto(CallbackEnum::ADMIN_NEWSLETTER_ACCEPT->value, CallbackEnum::ADMIN_NEWSLETTER_ACCEPT->buttonText()),
+                new ButtonDto(CallbackEnum::ADMIN_NEWSLETTER_CHANGE->value, CallbackEnum::ADMIN_NEWSLETTER_CHANGE->buttonText()),
             ]
         };
     }

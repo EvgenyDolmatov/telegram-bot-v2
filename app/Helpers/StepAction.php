@@ -83,27 +83,6 @@ class StepAction implements StepConstants
     }
 
     /**
-     * Edit message
-     *
-     * @param int $messageId
-     * @param string $text
-     * @param array|null $buttons
-     * @param bool $isTrash
-     * @param int|null $chatId
-     * @return string
-     */
-    public function editMessage(
-        int $messageId,
-        string $text,
-        ?array $buttons = null,
-        bool $isTrash = true,
-        int $chatId = null
-    ): string {
-        $message = $this->messageSender->createMessage($text, $buttons);
-        return $this->senderService->editMessage($message, $messageId, $isTrash, $chatId);
-    }
-
-    /**
      * Send poll message
      *
      * @param string $question
@@ -283,66 +262,6 @@ class StepAction implements StepConstants
         );
     }
 
-    /**
-     * Send message to channel
-     * Example: /channel @evd_test_channel {534523,123213}
-     * @throws \Exception
-     */
-    public function sendToChannel(array $messageData): void
-    {
-        $channelName = $messageData['parameter'] ?? "@" . ltrim($messageData['parameter'], '@');
-        $messageIds = $messageData['arguments'] ?
-            explode(',', trim($messageData['arguments'], '{}')) :
-            null;
-
-        Log::debug('Message ID\'s: ' . json_encode($messageIds));
-
-        foreach ($messageIds as $messageId) {
-            $channelResponse = $this->senderService->getChatByChannelName($channelName);
-            $channelDto = (new ChannelRepository($channelResponse))->getDto();
-            $poll = Poll::where('tg_message_id', $messageId)->first();
-
-            $options = [];
-            $correctOptionLetters = ['a', 'b', 'c', 'd'];
-
-            foreach ($poll->options as $option) {
-                $options[] = $option->text;
-            }
-
-            $this->sendPoll(
-                question: $poll->question,
-                options: $options,
-                isAnonymous: $poll->is_anonymous,
-                isQuiz: !$poll->allows_multiple_answers,
-                correctOptionId: $correctOptionLetters[$poll->correct_option_id],
-                chatId: $channelDto->getId(),
-                isTrash: false
-            );
-        }
-    }
-
-    /**
-     * Admin menu
-     */
-    public function adminMenu(): void
-    {
-        $user = User::getOrCreate($this->repository);
-        $buttons = [
-            new ButtonDto(CommonCallbackEnum::ADMIN_CREATE_NEWSLETTER->value, 'Создать рассылку'),
-            new ButtonDto(CommonCallbackEnum::ADMIN_STATISTIC_MENU->value, 'Статистика бота'),
-            new ButtonDto(CommandEnum::START->value, 'Вернуться в начало')
-        ];
-
-        if ($user->is_admin) {
-            $this->sendMessage(
-                text: 'Меню администратора:',
-                buttons: $buttons
-            );
-            return;
-        }
-
-        $this->someProblemMessage();
-    }
 
     /**
      * Waiting newsletter content (text and photo) from admin

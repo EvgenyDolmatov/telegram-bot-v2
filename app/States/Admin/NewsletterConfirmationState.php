@@ -5,14 +5,12 @@ namespace App\States\Admin;
 use App\Enums\StateEnum;
 use App\States\AbstractState;
 
-class AdminState extends AbstractState
+class NewsletterConfirmationState extends AbstractState
 {
-    private const StateEnum STATE = StateEnum::ADMIN;
+    private const StateEnum STATE = StateEnum::ADMIN_NEWSLETTER_CONFIRMATION;
 
     public function handleInput(string $input, $context): void
     {
-        $this->deletePreparedPoll();
-
         // Get next state by callback
         $state = $this->getState($input, self::STATE);
 
