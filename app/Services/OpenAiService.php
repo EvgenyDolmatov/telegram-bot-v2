@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Enums\PollEnum;
+use App\Enums\CallbackEnum;
 use App\Enums\StateEnum;
 use App\Models\Sector;
 use App\Models\Subject;
@@ -73,7 +73,7 @@ class OpenAiService
         ];
 
         $hasCorrectAnswer = '';
-        if ($data[StateEnum::POLL_TYPE_CHOICE->value] === PollEnum::TYPE_QUIZ->value) {
+        if ($data[StateEnum::POLL_TYPE_CHOICE->value] === CallbackEnum::TYPE_QUIZ->value) {
             $template['question1']['correct_answer'] = 'c';
             $template['question2']['correct_answer'] = 'a';
 
@@ -81,10 +81,10 @@ class OpenAiService
         }
 
         $difficultyData = [
-            PollEnum::LEVEL_EASY->value => 'низкой',
-            PollEnum::LEVEL_MIDDLE->value => 'средней',
-            PollEnum::LEVEL_HARD->value => 'высокой',
-            PollEnum::LEVEL_ANY->value => 'любой',
+            CallbackEnum::LEVEL_EASY->value => 'низкой',
+            CallbackEnum::LEVEL_MIDDLE->value => 'средней',
+            CallbackEnum::LEVEL_HARD->value => 'высокой',
+            CallbackEnum::LEVEL_ANY->value => 'любой',
         ];
 
         $sector = Sector::where('code', $data[StateEnum::POLL_SECTOR_CHOICE->value])->first()->title;

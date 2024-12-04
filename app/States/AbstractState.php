@@ -4,7 +4,7 @@ namespace App\States;
 
 use App\Constants\CommonConstants;
 use App\Enums\CommandEnum;
-use App\Enums\PollEnum;
+use App\Enums\CallbackEnum;
 use App\Enums\StateEnum;
 use App\Models\User;
 use App\Repositories\RequestRepository;
@@ -71,7 +71,7 @@ abstract class AbstractState implements UserState
     {
         return $input === CommonConstants::BACK
             ? $baseState->backState()
-            : PollEnum::from($input)->toState();
+            : CallbackEnum::from($input)->toState();
     }
 
     protected function getAvailableCallbackValues(StateEnum $baseState): array

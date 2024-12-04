@@ -3,7 +3,7 @@
 namespace App\Senders\Poll;
 
 use App\Dto\ButtonDto;
-use App\Enums\PollEnum;
+use App\Enums\CallbackEnum;
 use App\Enums\StateEnum;
 use App\Senders\AbstractSender;
 
@@ -70,7 +70,7 @@ class ChannelPollsChoiceSender extends AbstractSender
                 text: $symbol . $poll['question']);
         }
 
-        $buttons[] = new ButtonDto(PollEnum::ACCEPT_POLLS->value, PollEnum::ACCEPT_POLLS->buttonText());
+        $buttons[] = new ButtonDto(CallbackEnum::ACCEPT_POLLS->value, CallbackEnum::ACCEPT_POLLS->buttonText());
 
         return $buttons;
     }

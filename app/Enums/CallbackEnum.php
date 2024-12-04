@@ -2,8 +2,9 @@
 
 namespace App\Enums;
 
-enum PollEnum: string
+enum CallbackEnum: string
 {
+    /** Poll */
     case CREATE_SURVEY = 'create_survey';
     case SUPPORT = 'support';
     case TYPE_QUIZ = 'type_quiz';
@@ -17,6 +18,10 @@ enum PollEnum: string
     case REPEAT_FLOW = 'repeat_flow';
     case SEND_TO_CHANNEL = 'send_to_channel';
     case ACCEPT_POLLS = 'accept_polls_and_send_to_channel';
+
+    /** Admin */
+    case CREATE_NEWSLETTER = 'admin_create_newsletter';
+    case STATISTIC_MENU = 'admin_statistic_menu';
 
     public function toState(): StateEnum
     {
@@ -34,6 +39,7 @@ enum PollEnum: string
             self::REPEAT_FLOW => StateEnum::POLL_AI_RESPONDED_CHOICE,
             self::SEND_TO_CHANNEL => StateEnum::CHANNEL_POLLS_CHOICE,
             self::ACCEPT_POLLS => StateEnum::CHANNEL_NAME_WAITING,
+            self::CREATE_NEWSLETTER => StateEnum::ADMIN_NEWSLETTER_WAITING
         };
     }
 
@@ -53,6 +59,8 @@ enum PollEnum: string
             self::REPEAT_FLOW => "Создать еще 5 вопросов",
             self::SEND_TO_CHANNEL => "Отправить в сообщество/канал",
             self::ACCEPT_POLLS => "Отправить выбранные вопросы",
+            self::CREATE_NEWSLETTER => 'Создать рассылку',
+            self::STATISTIC_MENU => 'Статистика бота',
         };
     }
 }

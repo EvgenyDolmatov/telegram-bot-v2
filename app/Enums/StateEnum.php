@@ -5,9 +5,9 @@ namespace App\Enums;
 use App\Constants\CommonConstants;
 use App\Dto\ButtonDto;
 use App\Models\User;
+use App\Senders\Admin\NewsletterWaitingSender;
 use App\Senders\Commands\AccountSender;
 use App\Senders\Commands\AdminSender;
-use App\Senders\Commands\ChannelSender;
 use App\Senders\Commands\HelpSender;
 use App\Senders\Commands\StartSender;
 use App\Senders\Poll\AiRespondedChoiceSender;
@@ -25,7 +25,7 @@ use App\Senders\SenderInterface;
 use App\Services\TelegramService;
 use App\States\Account\AccountState;
 use App\States\Admin\AdminState;
-use App\States\Channel\ChannelState;
+use App\States\Admin\NewsletterWaitingState;
 use App\States\Help\HelpState;
 use App\States\Poll\AiRespondedChoiceState;
 use App\States\Poll\AnonymityChoiceState;
@@ -44,13 +44,8 @@ use Illuminate\Http\Request;
 
 enum StateEnum: string
 {
-    case ACCOUNT = 'account';
-    case ADMIN = 'admin';
-    case CHANNEL = 'channel';
-    case HELP = 'help';
-    case START = 'start';
-
     /** Poll */
+    case START = 'start';
     case POLL_SUPPORT = 'poll_support';
     case POLL_TYPE_CHOICE = 'poll_type_choice';
     case POLL_ANONYMITY_CHOICE = 'poll_anonymity_choice';
@@ -65,13 +60,20 @@ enum StateEnum: string
     case CHANNEL_NAME_WAITING = 'channel_name_waiting';
     case CHANNEL_POLLS_SENT_SUCCESS = 'channel_polls_sent_success';
 
+    /** Account */
+    case ACCOUNT = 'account';
+
+    /** Admin */
+    case ADMIN = 'admin';
+    case ADMIN_NEWSLETTER_WAITING = 'admin_newsletter_waiting';
+
+    /** Help */
+    case HELP = 'help';
+
     public function userState(Request $request, TelegramService $telegramService): UserState
     {
         return match ($this) {
-            self::ACCOUNT => new AccountState($request, $telegramService),
-            self::ADMIN => new AdminState($request, $telegramService),
-            self::CHANNEL => new ChannelState($request, $telegramService),
-            self::HELP => new HelpState($request, $telegramService),
+            /** Poll states */
             self::START => new StartState($request, $telegramService),
             self::POLL_SUPPORT => new SupportState($request, $telegramService),
             self::POLL_TYPE_CHOICE => new TypeChoiceState($request, $telegramService),
@@ -81,9 +83,17 @@ enum StateEnum: string
             self::POLL_SUBJECT_CHOICE => new SubjectChoiceState($request, $telegramService),
             self::POLL_THEME_WAITING => new ThemeWaitingState($request, $telegramService),
             self::POLL_AI_RESPONDED_CHOICE => new AiRespondedChoiceState($request, $telegramService),
+            /** Channel states */
             self::CHANNEL_POLLS_CHOICE => new ChannelPollsChoiceState($request, $telegramService),
             self::CHANNEL_NAME_WAITING => new ChannelNameWaitingState($request, $telegramService),
             self::CHANNEL_POLLS_SENT_SUCCESS => new ChannelPollsSentSuccessState($request, $telegramService),
+            /** Account states */
+            self::ACCOUNT => new AccountState($request, $telegramService),
+            /** Admin states */
+            self::ADMIN => new AdminState($request, $telegramService),
+            self::ADMIN_NEWSLETTER_WAITING => new NewsletterWaitingState($request, $telegramService),
+            /** Help states */
+            self::HELP => new HelpState($request, $telegramService),
         };
     }
 
@@ -92,7 +102,6 @@ enum StateEnum: string
         return match ($this) {
             self::ACCOUNT,
             self::ADMIN,
-            self::CHANNEL,
             self::HELP,
             self::START,
             self::POLL_SUPPORT,
@@ -106,6 +115,7 @@ enum StateEnum: string
             self::POLL_SUBJECT_CHOICE => self::POLL_SECTOR_CHOICE,
             self::POLL_THEME_WAITING => self::POLL_SUBJECT_CHOICE,
             self::CHANNEL_NAME_WAITING => self::CHANNEL_POLLS_CHOICE,
+            self::ADMIN_NEWSLETTER_WAITING => self::ADMIN,
         };
     }
 
@@ -113,8 +123,6 @@ enum StateEnum: string
     {
         return match ($this) {
             self::ACCOUNT => new AccountSender($request, $telegramService, $user),
-            self::ADMIN => new AdminSender($request, $telegramService, $user),
-            self::CHANNEL => new ChannelSender($request, $telegramService, $user),
             self::HELP => new HelpSender($request, $telegramService, $user),
             self::START => new StartSender($request, $telegramService, $user),
             self::POLL_SUPPORT => new SupportSender($request, $telegramService, $user),
@@ -128,6 +136,8 @@ enum StateEnum: string
             self::CHANNEL_POLLS_CHOICE => new ChannelPollsChoiceSender($request, $telegramService, $user),
             self::CHANNEL_NAME_WAITING => new ChannelNameWaitingSender($request, $telegramService, $user),
             self::CHANNEL_POLLS_SENT_SUCCESS => new ChannelPollsSentSuccessSender($request, $telegramService, $user),
+            self::ADMIN => new AdminSender($request, $telegramService, $user),
+            self::ADMIN_NEWSLETTER_WAITING => new NewsletterWaitingSender($request, $telegramService, $user),
         };
     }
 
@@ -148,9 +158,11 @@ enum StateEnum: string
             self::CHANNEL_POLLS_SENT_SUCCESS => "Выбранные тесты успешно отправлены в канал.",
 
             self::ACCOUNT => "Мой аккаунт:",
+
             self::ADMIN => "Меню администратора:",
-            self::CHANNEL => "... Channel ...",
-            self::HELP => "...help message...",
+            self::ADMIN_NEWSLETTER_WAITING => "Введите сообщение и прикрепите файлы (если необходимо) для рассылки пользователям:\n\n❗️После отправки сообщения отменить или удалить его будет невозможно!!!",
+
+            self::HELP => "Инструкция по работе с ботом:\n\nДля того, чтобы Corgish-бот корректно составил тест, ответьте на вопросы бота и пройдите все шаги.\n\n/start - начать сначала\n/help - помощь и техподдержка",
         };
     }
 
@@ -158,38 +170,46 @@ enum StateEnum: string
     {
         return match ($this) {
             self::START => [
-                new ButtonDto(PollEnum::CREATE_SURVEY->value, PollEnum::CREATE_SURVEY->buttonText()),
+                new ButtonDto(CallbackEnum::CREATE_SURVEY->value, CallbackEnum::CREATE_SURVEY->buttonText()),
                 new ButtonDto(CommonCallbackEnum::SUPPORT->value, 'Поддержка'),
             ],
             self::POLL_TYPE_CHOICE => [
-                new ButtonDto(PollEnum::TYPE_QUIZ->value, PollEnum::TYPE_QUIZ->buttonText()),
-                new ButtonDto(PollEnum::TYPE_SURVEY->value, PollEnum::TYPE_SURVEY->buttonText()),
+                new ButtonDto(CallbackEnum::TYPE_QUIZ->value, CallbackEnum::TYPE_QUIZ->buttonText()),
+                new ButtonDto(CallbackEnum::TYPE_SURVEY->value, CallbackEnum::TYPE_SURVEY->buttonText()),
                 new ButtonDto(CommonConstants::BACK, "Назад"),
             ],
             self::POLL_SUPPORT,
             self::POLL_THEME_WAITING,
-            self::CHANNEL_NAME_WAITING => [
+            self::CHANNEL_NAME_WAITING,
+            self::ADMIN_NEWSLETTER_WAITING,
+            self::HELP => [
                 new ButtonDto(CommonConstants::BACK, "Назад")
             ],
             self::POLL_ANONYMITY_CHOICE => [
-                new ButtonDto(PollEnum::IS_ANON->value, PollEnum::IS_ANON->buttonText()),
-                new ButtonDto(PollEnum::IS_NOT_ANON->value, PollEnum::IS_NOT_ANON->buttonText()),
+                new ButtonDto(CallbackEnum::IS_ANON->value, CallbackEnum::IS_ANON->buttonText()),
+                new ButtonDto(CallbackEnum::IS_NOT_ANON->value, CallbackEnum::IS_NOT_ANON->buttonText()),
                 new ButtonDto(CommonConstants::BACK, "Назад"),
             ],
             self::POLL_DIFFICULTY_CHOICE => [
-                new ButtonDto(PollEnum::LEVEL_EASY->value, PollEnum::LEVEL_EASY->buttonText()),
-                new ButtonDto(PollEnum::LEVEL_MIDDLE->value, PollEnum::LEVEL_MIDDLE->buttonText()),
-                new ButtonDto(PollEnum::LEVEL_HARD->value, PollEnum::LEVEL_HARD->buttonText()),
-                new ButtonDto(PollEnum::LEVEL_ANY->value, PollEnum::LEVEL_ANY->buttonText()),
+                new ButtonDto(CallbackEnum::LEVEL_EASY->value, CallbackEnum::LEVEL_EASY->buttonText()),
+                new ButtonDto(CallbackEnum::LEVEL_MIDDLE->value, CallbackEnum::LEVEL_MIDDLE->buttonText()),
+                new ButtonDto(CallbackEnum::LEVEL_HARD->value, CallbackEnum::LEVEL_HARD->buttonText()),
+                new ButtonDto(CallbackEnum::LEVEL_ANY->value, CallbackEnum::LEVEL_ANY->buttonText()),
                 new ButtonDto(CommonConstants::BACK, "Назад")
             ],
             self::POLL_AI_RESPONDED_CHOICE => [
                 new ButtonDto(CommandEnum::START->getCommand(), 'Выбрать другую тему'),
-                new ButtonDto(PollEnum::REPEAT_FLOW->value, PollEnum::REPEAT_FLOW->buttonText()),
-                new ButtonDto(PollEnum::SEND_TO_CHANNEL->value, PollEnum::SEND_TO_CHANNEL->buttonText()),
+                new ButtonDto(CallbackEnum::REPEAT_FLOW->value, CallbackEnum::REPEAT_FLOW->buttonText()),
+                new ButtonDto(CallbackEnum::SEND_TO_CHANNEL->value, CallbackEnum::SEND_TO_CHANNEL->buttonText()),
             ],
             self::CHANNEL_POLLS_SENT_SUCCESS => [
                 new ButtonDto(CommandEnum::START->getCommand(), "Вернуться в начало")
+            ],
+
+            self::ADMIN => [
+                new ButtonDto(CommonCallbackEnum::ADMIN_CREATE_NEWSLETTER->value, 'Создать рассылку'),
+                new ButtonDto(CommonCallbackEnum::ADMIN_STATISTIC_MENU->value, 'Статистика бота'),
+                new ButtonDto(CommandEnum::START->value, 'Вернуться в начало')
             ]
         };
     }
