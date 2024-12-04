@@ -35,15 +35,18 @@ abstract class AbstractState implements UserState
 
     protected function handleSimpleInput(string $input, UserContext $context, StateEnum $baseState): void
     {
+        // If unexpected callback, staying at current step
+        $availableValues = $this->getAvailableCallbackValues($baseState);
+        if (!empty($availableValues) && !in_array($input, $availableValues)) {
+            $this->sendMessage($baseState);
+            return;
+        }
+
+        // Move to the next step
         $nextState = $this->getState($input, $baseState);
 
         $this->user->updateFlow($baseState, $input);
         $this->baseHandle($nextState, $context);
-    }
-
-    protected function handleRepeatSimpleInput(UserContext $context, StateEnum $baseState): void
-    {
-        $this->baseHandle($baseState, $context);
     }
 
     protected function updateState(StateEnum $state, UserContext $context): void
@@ -55,14 +58,13 @@ abstract class AbstractState implements UserState
     private function baseHandle(StateEnum $state, UserContext $context): void
     {
         $this->updateState($state, $context);
-
-        $sender = $state->sender($this->request, $this->telegramService, $this->user);
-        $sender->send();
+        $this->sendMessage($state);
     }
 
-    private function clearCommand(string $command): string
+    protected function sendMessage(StateEnum $state): void
     {
-        return ltrim($command, '/');
+        $sender = $state->sender($this->request, $this->telegramService, $this->user);
+        $sender->send();
     }
 
     protected function getState(string $input, StateEnum $baseState): StateEnum
@@ -72,10 +74,25 @@ abstract class AbstractState implements UserState
             : PollEnum::from($input)->toState();
     }
 
+    protected function getAvailableCallbackValues(StateEnum $baseState): array
+    {
+        $values = [];
+        foreach ($baseState->buttons() as $button) {
+            $values[] = $button->getCallbackData();
+        }
+
+        return $values;
+    }
+
     protected function deletePreparedPoll(): void
     {
         if ($preparedPoll = $this->user->preparedPolls()->first()) {
             $preparedPoll->delete();
         }
+    }
+
+    private function clearCommand(string $command): string
+    {
+        return ltrim($command, '/');
     }
 }

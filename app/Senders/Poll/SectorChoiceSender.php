@@ -4,7 +4,6 @@ namespace App\Senders\Poll;
 
 use App\Constants\CommonConstants;
 use App\Dto\ButtonDto;
-use App\Enums\PollEnum;
 use App\Enums\StateEnum;
 use App\Models\Sector;
 use App\Senders\AbstractSender;

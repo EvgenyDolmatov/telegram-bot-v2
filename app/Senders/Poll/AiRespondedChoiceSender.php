@@ -3,10 +3,7 @@
 namespace App\Senders\Poll;
 
 use App\Builder\Poll\PollBuilder;
-use App\Dto\ButtonDto;
 use App\Dto\OpenAiCompletionDto;
-use App\Enums\CommandEnum;
-use App\Enums\PollEnum;
 use App\Enums\StateEnum;
 use App\Models\AiRequest;
 use App\Models\Poll;
@@ -28,7 +25,7 @@ class AiRespondedChoiceSender extends AbstractSender
         $this->addToTrash();
 
         // Send message about waiting...
-        $message = $this->messageBuilder->createMessage(StateEnum::POLL_AI_RESPONDED_CHOICE->title());
+        $message = $this->messageBuilder->createMessage('Подождите. Ваш запрос обрабатывается...');
         $this->senderService->sendMessage($message);
 
         // Get response dto from open ai
@@ -205,14 +202,10 @@ class AiRespondedChoiceSender extends AbstractSender
 
     private function sendMessageAfterAiResponse(): void
     {
-        $text = "Выберите, что делать дальше:";
-        $buttons = [
-            new ButtonDto(CommandEnum::START->getCommand(), 'Выбрать другую тему'),
-            new ButtonDto(PollEnum::REPEAT_FLOW->value, PollEnum::REPEAT_FLOW->buttonText()),
-            new ButtonDto(PollEnum::SEND_TO_CHANNEL->value, PollEnum::SEND_TO_CHANNEL->buttonText()),
-        ];
-
-        $message = $this->messageBuilder->createMessage($text, $buttons);
+        $message = $this->messageBuilder->createMessage(
+            text: StateEnum::POLL_AI_RESPONDED_CHOICE->title(),
+            buttons: StateEnum::POLL_AI_RESPONDED_CHOICE->buttons()
+        );
         $this->senderService->sendMessage($message, false);
     }
 }

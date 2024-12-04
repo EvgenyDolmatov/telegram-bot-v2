@@ -3,9 +3,7 @@
 namespace App\Senders\Poll;
 
 use App\Builder\Poll\PollBuilder;
-use App\Dto\ButtonDto;
 use App\Dto\ChannelDto;
-use App\Enums\CommandEnum;
 use App\Enums\StateEnum;
 use App\Exceptions\ChatNotFoundException;
 use App\Models\Poll;
@@ -19,10 +17,10 @@ class ChannelPollsSentSuccessSender extends AbstractSender
         $this->addToTrash();
         $this->sendPollsToChannel();
 
-        $text = StateEnum::CHANNEL_POLLS_SENT_SUCCESS->title();
-        $buttons = [new ButtonDto(CommandEnum::START->getCommand(), "Вернуться в начало")];
-
-        $message = $this->messageBuilder->createMessage($text, $buttons);
+        $message = $this->messageBuilder->createMessage(
+            text: StateEnum::CHANNEL_POLLS_SENT_SUCCESS->title(),
+            buttons: StateEnum::CHANNEL_POLLS_SENT_SUCCESS->buttons()
+        );
         $this->senderService->sendMessage($message);
     }
 

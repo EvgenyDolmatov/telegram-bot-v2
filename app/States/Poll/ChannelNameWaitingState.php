@@ -21,8 +21,7 @@ class ChannelNameWaitingState extends AbstractState implements UserState
         $this->updateState($state, $context);
 
         // Send message to chat
-        $sender = $state->sender($this->request, $this->telegramService, $this->user);
-        $sender->send();
+        $this->sendMessage($state);
     }
 
     protected function getState(string $input, StateEnum $baseState): StateEnum

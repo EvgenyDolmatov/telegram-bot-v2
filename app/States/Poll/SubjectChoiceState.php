@@ -23,8 +23,7 @@ class SubjectChoiceState extends AbstractState implements UserState
         $this->updateState($state, $context);
 
         // Send message to chat
-        $sender = $state->sender($this->request, $this->telegramService, $this->user);
-        $sender->send();
+        $this->sendMessage($state);
     }
 
     protected function getState(string $input, StateEnum $baseState): StateEnum
@@ -33,10 +32,12 @@ class SubjectChoiceState extends AbstractState implements UserState
             return $baseState->backState();
         }
 
-        $subject = Subject::where('code', $input)->first();
+        if (!$subject = Subject::where('code', $input)->first()) {
+            return self::STATE;
+        }
 
         return $subject->has_child
-            ? self::STATE // TODO: Need to send error message if sector does not exist
+            ? self::STATE
             : StateEnum::POLL_THEME_WAITING;
     }
 }

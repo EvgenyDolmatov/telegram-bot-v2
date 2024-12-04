@@ -3,7 +3,6 @@
 namespace App\States\Poll;
 
 use App\Enums\StateEnum;
-use App\Models\Subject;
 use App\States\AbstractState;
 use App\States\UserContext;
 use App\States\UserState;
@@ -21,7 +20,6 @@ class ChannelPollsSentSuccessState extends AbstractState implements UserState
         $this->updateState($state, $context);
 
         // Send message to chat
-        $sender = $state->sender($this->request, $this->telegramService, $this->user);
-        $sender->send();
+        $this->sendMessage($state);
     }
 }

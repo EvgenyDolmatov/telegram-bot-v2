@@ -142,7 +142,7 @@ enum StateEnum: string
             self::POLL_SECTOR_CHOICE => "Выберите направление:",
             self::POLL_SUBJECT_CHOICE => "Выберите предмет:",
             self::POLL_THEME_WAITING => "Введите свой вопрос:",
-            self::POLL_AI_RESPONDED_CHOICE => "Подождите. Ваш запрос обрабатывается...",
+            self::POLL_AI_RESPONDED_CHOICE => "Выберите, что делать дальше:",
             self::CHANNEL_POLLS_CHOICE => "Выберите, какие вопросы нужно отправить?",
             self::CHANNEL_NAME_WAITING => "Напишите название канала или ссылку на канал:",
             self::CHANNEL_POLLS_SENT_SUCCESS => "Выбранные тесты успешно отправлены в канал.",
@@ -166,13 +166,30 @@ enum StateEnum: string
                 new ButtonDto(PollEnum::TYPE_SURVEY->value, PollEnum::TYPE_SURVEY->buttonText()),
                 new ButtonDto(CommonConstants::BACK, "Назад"),
             ],
-            self::POLL_SUPPORT => [
+            self::POLL_SUPPORT,
+            self::POLL_THEME_WAITING,
+            self::CHANNEL_NAME_WAITING => [
                 new ButtonDto(CommonConstants::BACK, "Назад")
             ],
             self::POLL_ANONYMITY_CHOICE => [
                 new ButtonDto(PollEnum::IS_ANON->value, PollEnum::IS_ANON->buttonText()),
                 new ButtonDto(PollEnum::IS_NOT_ANON->value, PollEnum::IS_NOT_ANON->buttonText()),
                 new ButtonDto(CommonConstants::BACK, "Назад"),
+            ],
+            self::POLL_DIFFICULTY_CHOICE => [
+                new ButtonDto(PollEnum::LEVEL_EASY->value, PollEnum::LEVEL_EASY->buttonText()),
+                new ButtonDto(PollEnum::LEVEL_MIDDLE->value, PollEnum::LEVEL_MIDDLE->buttonText()),
+                new ButtonDto(PollEnum::LEVEL_HARD->value, PollEnum::LEVEL_HARD->buttonText()),
+                new ButtonDto(PollEnum::LEVEL_ANY->value, PollEnum::LEVEL_ANY->buttonText()),
+                new ButtonDto(CommonConstants::BACK, "Назад")
+            ],
+            self::POLL_AI_RESPONDED_CHOICE => [
+                new ButtonDto(CommandEnum::START->getCommand(), 'Выбрать другую тему'),
+                new ButtonDto(PollEnum::REPEAT_FLOW->value, PollEnum::REPEAT_FLOW->buttonText()),
+                new ButtonDto(PollEnum::SEND_TO_CHANNEL->value, PollEnum::SEND_TO_CHANNEL->buttonText()),
+            ],
+            self::CHANNEL_POLLS_SENT_SUCCESS => [
+                new ButtonDto(CommandEnum::START->getCommand(), "Вернуться в начало")
             ]
         };
     }
