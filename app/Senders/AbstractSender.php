@@ -44,8 +44,7 @@ abstract class AbstractSender implements SenderInterface
         $text = "Что-то пошло не так. Попробуйте еще раз...";
         $buttons = [new ButtonDto('/' . CommandEnum::START->value, 'Начать сначала')];
 
-        $message = $this->messageBuilder->createMessage($text, $buttons);
-        $this->senderService->sendMessage($message);
+        $this->sendMessage($text, $buttons);
     }
 
     protected function subscribeToCommunity(): void
@@ -53,8 +52,7 @@ abstract class AbstractSender implements SenderInterface
         $text = "Подпишись на <a href='https://t.me/corgish_ru'>наш канал</a>, чтобы продолжить...";
         $buttons = [new ButtonDto('/' . CommandEnum::START->value, 'Я подписался')];
 
-        $message = $this->messageBuilder->createMessage($text, $buttons);
-        $this->senderService->sendMessage($message);
+        $this->sendMessage($text, $buttons);
     }
 
     protected function canContinue(): bool
@@ -70,5 +68,19 @@ abstract class AbstractSender implements SenderInterface
     protected function getInputText(): string
     {
         return (new RequestRepository($this->request))->getDto()->getText();
+    }
+
+    /**
+     * @param string $text
+     * @param array<ButtonDto>|null $buttons
+     * @param bool $isTrash
+     * @return string
+     * @throws \Exception
+     */
+    protected function sendMessage(string $text, ?array $buttons = null, bool $isTrash = true): string
+    {
+        $message = $this->messageBuilder->createMessage($text, $buttons);
+
+        return $this->senderService->sendMessage($message, $isTrash);
     }
 }

@@ -18,17 +18,16 @@ class ChannelPollsChoiceSender extends AbstractSender
         $text = StateEnum::CHANNEL_POLLS_CHOICE->title();
         $buttons = $this->getButtons();
 
-        $message = $this->messageBuilder->createMessage($text, $buttons);
-
         $preparedPoll = $this->user->preparedPolls()->first();
         if (!$preparedPoll) {
             throw new \Exception('Prepared poll not found');
         }
 
         if (str_starts_with($this->getInputText(), self::POLL_PREFIX)) {
+            $message = $this->messageBuilder->createMessage($text, $buttons);
             $this->senderService->editMessage($message, $preparedPoll->tg_message_id);
         } else {
-            $response = $this->senderService->sendMessage($message);
+            $response = $this->sendMessage($text, $buttons);
             $data = json_decode($response, true);
 
             $preparedPoll->update(['tg_message_id' => $data['result']['message_id']] ?? null);

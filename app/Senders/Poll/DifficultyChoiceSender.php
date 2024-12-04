@@ -11,10 +11,9 @@ class DifficultyChoiceSender extends AbstractSender
     {
         $this->addToTrash();
 
-        $message = $this->messageBuilder->createMessage(
+        $this->sendMessage(
             text: StateEnum::POLL_DIFFICULTY_CHOICE->title(),
             buttons: StateEnum::POLL_DIFFICULTY_CHOICE->buttons()
         );
-        $this->senderService->sendMessage($message);
     }
 }

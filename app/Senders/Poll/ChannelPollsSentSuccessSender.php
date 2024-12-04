@@ -17,11 +17,10 @@ class ChannelPollsSentSuccessSender extends AbstractSender
         $this->addToTrash();
         $this->sendPollsToChannel();
 
-        $message = $this->messageBuilder->createMessage(
+        $this->sendMessage(
             text: StateEnum::CHANNEL_POLLS_SENT_SUCCESS->title(),
             buttons: StateEnum::CHANNEL_POLLS_SENT_SUCCESS->buttons()
         );
-        $this->senderService->sendMessage($message);
     }
 
     private function sendPollsToChannel(): void

@@ -30,8 +30,7 @@ class SubjectChoiceSender extends AbstractSender
 
         $buttons[] = new ButtonDto(CommonConstants::BACK, "Назад");
 
-        $message = $this->messageBuilder->createMessage(StateEnum::POLL_SUBJECT_CHOICE->title(), $buttons);
-        $this->senderService->sendMessage($message);
+        $this->sendMessage(StateEnum::POLL_SUBJECT_CHOICE->title(), $buttons);
     }
 
     private function getSubjects()

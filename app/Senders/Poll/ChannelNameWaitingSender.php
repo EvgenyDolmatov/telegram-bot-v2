@@ -11,10 +11,9 @@ class ChannelNameWaitingSender extends AbstractSender
     {
         $this->addToTrash();
 
-        $message = $this->messageBuilder->createMessage(
+        $this->sendMessage(
             text: StateEnum::CHANNEL_NAME_WAITING->title(),
             buttons: StateEnum::CHANNEL_NAME_WAITING->buttons()
         );
-        $this->senderService->sendMessage($message);
     }
 }

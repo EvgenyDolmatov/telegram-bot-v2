@@ -25,8 +25,7 @@ class AiRespondedChoiceSender extends AbstractSender
         $this->addToTrash();
 
         // Send message about waiting...
-        $message = $this->messageBuilder->createMessage('Подождите. Ваш запрос обрабатывается...');
-        $this->senderService->sendMessage($message);
+        $this->sendMessage('Подождите. Ваш запрос обрабатывается...');
 
         // Get response dto from open ai
         if (!$aiCompletionDto = $this->getAiCompletionDto()) {
@@ -44,7 +43,11 @@ class AiRespondedChoiceSender extends AbstractSender
         }
 
         // Send message after AI response
-        $this->sendMessageAfterAiResponse();
+        $this->sendMessage(
+            text: StateEnum::POLL_AI_RESPONDED_CHOICE->title(),
+            buttons: StateEnum::POLL_AI_RESPONDED_CHOICE->buttons(),
+            isTrash: false
+        );
     }
 
     private function getAiCompletionDto(): OpenAiCompletionDto
@@ -146,8 +149,10 @@ class AiRespondedChoiceSender extends AbstractSender
 
             // Send message with correct answers
             if ($correctAnswers !== '') {
-                $message = $this->messageBuilder->createMessage($correctAnswers);
-                $this->senderService->sendMessage($message, false);
+                $this->sendMessage(
+                    text: $correctAnswers,
+                    isTrash: false
+                );
             }
 
             // Save AI response to database
@@ -198,14 +203,5 @@ class AiRespondedChoiceSender extends AbstractSender
             'poll_ids' => $poll->tg_message_id,
             'checked_poll_ids' => $poll->tg_message_id,
         ]);
-    }
-
-    private function sendMessageAfterAiResponse(): void
-    {
-        $message = $this->messageBuilder->createMessage(
-            text: StateEnum::POLL_AI_RESPONDED_CHOICE->title(),
-            buttons: StateEnum::POLL_AI_RESPONDED_CHOICE->buttons()
-        );
-        $this->senderService->sendMessage($message, false);
     }
 }

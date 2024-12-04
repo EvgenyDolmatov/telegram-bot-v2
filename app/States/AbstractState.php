@@ -49,16 +49,16 @@ abstract class AbstractState implements UserState
         $this->baseHandle($nextState, $context);
     }
 
-    protected function updateState(StateEnum $state, UserContext $context): void
-    {
-        $context->setState($state->userState($this->request, $this->telegramService));
-        $this->user->updateStateByCode($state->value);
-    }
-
     private function baseHandle(StateEnum $state, UserContext $context): void
     {
         $this->updateState($state, $context);
         $this->sendMessage($state);
+    }
+
+    protected function updateState(StateEnum $state, UserContext $context): void
+    {
+        $context->setState($state->userState($this->request, $this->telegramService));
+        $this->user->updateStateByCode($state->value);
     }
 
     protected function sendMessage(StateEnum $state): void

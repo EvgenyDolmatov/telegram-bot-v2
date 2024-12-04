@@ -13,9 +13,9 @@ class ThemeWaitingSender extends AbstractSender
     {
         $this->addToTrash();
 
-        $buttons = [new ButtonDto(CommonConstants::BACK, "Назад")];
-
-        $message = $this->messageBuilder->createMessage(StateEnum::POLL_THEME_WAITING->title(), $buttons);
-        $this->senderService->sendMessage($message);
+        $this->sendMessage(
+            text: StateEnum::POLL_THEME_WAITING->title(),
+            buttons: [new ButtonDto(CommonConstants::BACK, "Назад")]
+        );
     }
 }

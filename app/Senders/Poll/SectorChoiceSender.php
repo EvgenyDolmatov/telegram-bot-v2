@@ -21,7 +21,6 @@ class SectorChoiceSender extends AbstractSender
 
         $buttons[] = new ButtonDto(CommonConstants::BACK, "Назад");
 
-        $message = $this->messageBuilder->createMessage(StateEnum::POLL_SECTOR_CHOICE->title(), $buttons);
-        $this->senderService->sendMessage($message);
+        $this->sendMessage(StateEnum::POLL_SECTOR_CHOICE->title(), $buttons);
     }
 }

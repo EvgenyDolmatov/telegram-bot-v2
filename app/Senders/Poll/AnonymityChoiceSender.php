@@ -11,10 +11,9 @@ class AnonymityChoiceSender extends AbstractSender
     {
         $this->addToTrash();
 
-        $message = $this->messageBuilder->createMessage(
+        $this->sendMessage(
             text: StateEnum::POLL_ANONYMITY_CHOICE->title(),
             buttons: StateEnum::POLL_ANONYMITY_CHOICE->buttons()
         );
-        $this->senderService->sendMessage($message);
     }
 }
