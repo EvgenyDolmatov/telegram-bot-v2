@@ -72,15 +72,40 @@ abstract class AbstractSender implements SenderInterface
 
     /**
      * @param string $text
-     * @param array<ButtonDto>|null $buttons
+     * @param ButtonDto[]|null $buttons
      * @param bool $isTrash
+     * @param int|null $chatId
      * @return string
      * @throws \Exception
      */
-    protected function sendMessage(string $text, ?array $buttons = null, bool $isTrash = true): string
-    {
+    protected function sendMessage(
+        string $text,
+        ?array $buttons = null,
+        bool   $isTrash = true,
+        ?int   $chatId = null
+    ): string {
         $message = $this->messageBuilder->createMessage($text, $buttons);
 
-        return $this->senderService->sendMessage($message, $isTrash);
+        return $this->senderService->sendMessage($message, $isTrash, $chatId);
+    }
+
+    /**
+     * @param string $text
+     * @param ButtonDto[]|null $buttons
+     * @param string $imageUrl
+     * @param bool $isTrash
+     * @param int|null $chatId
+     * @throws \Exception
+     */
+    protected function sendPhoto(
+        string $text,
+        ?array $buttons,
+        string $imageUrl,
+        bool   $isTrash = true,
+        ?int   $chatId = null
+    ): void {
+        $message = $this->messageBuilder->createMessage($text, $buttons);
+
+        $this->senderService->sendPhoto($message, $imageUrl, $isTrash, $chatId);
     }
 }

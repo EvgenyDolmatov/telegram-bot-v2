@@ -5,6 +5,8 @@ namespace App\Enums;
 use App\Constants\CommonConstants;
 use App\Dto\ButtonDto;
 use App\Models\User;
+use App\Senders\Account\ReferralLinkShowSender;
+use App\Senders\Account\ReferredUsersShowSender;
 use App\Senders\Admin\NewsletterConfirmationSender;
 use App\Senders\Admin\NewsletterWaitingSender;
 use App\Senders\Commands\AccountSender;
@@ -25,6 +27,8 @@ use App\Senders\Poll\TypeChoiceSender;
 use App\Senders\SenderInterface;
 use App\Services\TelegramService;
 use App\States\Account\AccountState;
+use App\States\Account\ReferralLinkShowState;
+use App\States\Account\ReferredUsersShowState;
 use App\States\Admin\AdminState;
 use App\States\Admin\NewsletterConfirmationState;
 use App\States\Admin\NewsletterWaitingState;
@@ -64,6 +68,8 @@ enum StateEnum: string
 
     /** Account */
     case ACCOUNT = 'account';
+    case ACCOUNT_REFERRAL_LINK_SHOW = 'account_referral_link_show';
+    case ACCOUNT_REFERRED_USERS_SHOW = 'account_referred_users_show';
 
     /** Admin */
     case ADMIN = 'admin';
@@ -93,6 +99,8 @@ enum StateEnum: string
             self::CHANNEL_POLLS_SENT_SUCCESS => new ChannelPollsSentSuccessState($request, $telegramService),
             /** Account states */
             self::ACCOUNT => new AccountState($request, $telegramService),
+            self::ACCOUNT_REFERRAL_LINK_SHOW => new ReferralLinkShowState($request, $telegramService),
+            self::ACCOUNT_REFERRED_USERS_SHOW => new ReferredUsersShowState($request, $telegramService),
             /** Admin states */
             self::ADMIN => new AdminState($request, $telegramService),
             self::ADMIN_NEWSLETTER_WAITING => new NewsletterWaitingState($request, $telegramService),
@@ -120,6 +128,8 @@ enum StateEnum: string
             self::POLL_SUBJECT_CHOICE => self::POLL_SECTOR_CHOICE,
             self::POLL_THEME_WAITING => self::POLL_SUBJECT_CHOICE,
             self::CHANNEL_NAME_WAITING => self::CHANNEL_POLLS_CHOICE,
+            self::ACCOUNT_REFERRAL_LINK_SHOW,
+            self::ACCOUNT_REFERRED_USERS_SHOW => self::ACCOUNT,
             self::ADMIN_NEWSLETTER_WAITING => self::ADMIN,
             self::ADMIN_NEWSLETTER_CONFIRMATION => self::ADMIN_NEWSLETTER_WAITING,
         };
@@ -142,6 +152,8 @@ enum StateEnum: string
             self::CHANNEL_POLLS_CHOICE => new ChannelPollsChoiceSender($request, $telegramService, $user),
             self::CHANNEL_NAME_WAITING => new ChannelNameWaitingSender($request, $telegramService, $user),
             self::CHANNEL_POLLS_SENT_SUCCESS => new ChannelPollsSentSuccessSender($request, $telegramService, $user),
+            self::ACCOUNT_REFERRAL_LINK_SHOW => new ReferralLinkShowSender($request, $telegramService, $user),
+            self::ACCOUNT_REFERRED_USERS_SHOW => new ReferredUsersShowSender($request, $telegramService, $user),
             self::ADMIN => new AdminSender($request, $telegramService, $user),
             self::ADMIN_NEWSLETTER_WAITING => new NewsletterWaitingSender($request, $telegramService, $user),
             self::ADMIN_NEWSLETTER_CONFIRMATION => new NewsletterConfirmationSender($request, $telegramService, $user),
@@ -165,6 +177,7 @@ enum StateEnum: string
             self::CHANNEL_POLLS_SENT_SUCCESS => "Выбранные тесты успешно отправлены в канал.",
 
             self::ACCOUNT => "Мой аккаунт:",
+            self::ACCOUNT_REFERRED_USERS_SHOW => "Ваши приглашенные пользователи:\n",
 
             self::ADMIN => "Меню администратора:",
             self::ADMIN_NEWSLETTER_WAITING => "Введите сообщение и прикрепите файлы (если необходимо) для рассылки пользователям:\n\n❗️После отправки сообщения отменить или удалить его будет невозможно!!!",
@@ -189,6 +202,8 @@ enum StateEnum: string
             self::POLL_SUPPORT,
             self::POLL_THEME_WAITING,
             self::CHANNEL_NAME_WAITING,
+            self::ACCOUNT_REFERRAL_LINK_SHOW,
+            self::ACCOUNT_REFERRED_USERS_SHOW,
             self::ADMIN_NEWSLETTER_WAITING,
             self::HELP => [
                 new ButtonDto(CommonConstants::BACK, "Назад")
@@ -211,6 +226,12 @@ enum StateEnum: string
                 new ButtonDto(CallbackEnum::SEND_TO_CHANNEL->value, CallbackEnum::SEND_TO_CHANNEL->buttonText()),
             ],
             self::CHANNEL_POLLS_SENT_SUCCESS => [
+                new ButtonDto(CommandEnum::START->getCommand(), "Вернуться в начало")
+            ],
+
+            self::ACCOUNT => [
+                new ButtonDto(CallbackEnum::ACCOUNT_REFERRED_USERS->value, CallbackEnum::ACCOUNT_REFERRED_USERS->buttonText()),
+                new ButtonDto(CallbackEnum::ACCOUNT_REFERRAL_LINK->value, CallbackEnum::ACCOUNT_REFERRAL_LINK->buttonText()),
                 new ButtonDto(CommandEnum::START->getCommand(), "Вернуться в начало")
             ],
 

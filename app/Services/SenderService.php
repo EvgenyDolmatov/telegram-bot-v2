@@ -72,7 +72,7 @@ readonly class SenderService
      * @return string
      * @throws \Exception
      */
-    public function sendMessage(Message $message, bool $isTrash = true, int $chatId = null): string
+    public function sendMessage(Message $message, bool $isTrash = true, ?int $chatId = null): string
     {
         $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/sendMessage';
 
