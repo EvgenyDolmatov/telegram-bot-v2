@@ -2,8 +2,8 @@
 
 namespace App\Senders\Poll;
 
-use App\Constants\CommonConstants;
 use App\Dto\ButtonDto;
+use App\Enums\CallbackEnum;
 use App\Enums\StateEnum;
 use App\Models\Sector;
 use App\Models\Subject;
@@ -28,7 +28,7 @@ class SubjectChoiceSender extends AbstractSender
             $subjects->toArray()
         );
 
-        $buttons[] = new ButtonDto(CommonConstants::BACK, "Назад");
+        $buttons[] = new ButtonDto(CallbackEnum::BACK->value, CallbackEnum::BACK->buttonText());
 
         $this->sendMessage(StateEnum::POLL_SUBJECT_CHOICE->title(), $buttons);
     }
@@ -43,7 +43,7 @@ class SubjectChoiceSender extends AbstractSender
         }
 
         // If pressed "back" button or unavailable value
-        if ($this->getInputText() === CommonConstants::BACK
+        if ($this->getInputText() === CallbackEnum::BACK->value
             || !Subject::where('code', $this->getInputText())->first()) {
             $sector = Sector::where('code', $flowData[StateEnum::POLL_SECTOR_CHOICE->value])->first();
             return $sector->subjects()->where('parent_id', null)->get();

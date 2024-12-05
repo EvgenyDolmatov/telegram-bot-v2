@@ -2,7 +2,7 @@
 
 namespace App\States\Admin;
 
-use App\Constants\CommonConstants;
+use App\Enums\CallbackEnum;
 use App\Enums\StateEnum;
 use App\States\AbstractState;
 
@@ -24,7 +24,7 @@ class NewsletterWaitingState extends AbstractState
 
     protected function getState(string $input, StateEnum $baseState): StateEnum
     {
-        if ($input === CommonConstants::BACK) {
+        if ($input === CallbackEnum::BACK->value) {
             return $baseState->backState();
         }
 

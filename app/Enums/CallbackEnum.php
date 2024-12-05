@@ -4,6 +4,9 @@ namespace App\Enums;
 
 enum CallbackEnum: string
 {
+    /** Common */
+    case BACK = 'back';
+
     /** Poll */
     case CREATE_SURVEY = 'create_survey';
     case SUPPORT = 'support';
@@ -56,6 +59,7 @@ enum CallbackEnum: string
     public function buttonText(): string
     {
         return match ($this) {
+            self::BACK => "Назад",
             self::CREATE_SURVEY => "Создать тест",
             self::SUPPORT => "Поддержка",
             self::TYPE_QUIZ => "Викторина (1 вариант ответа)",

@@ -2,8 +2,8 @@
 
 namespace App\Senders\Poll;
 
-use App\Constants\CommonConstants;
 use App\Dto\ButtonDto;
+use App\Enums\CallbackEnum;
 use App\Enums\StateEnum;
 use App\Models\Sector;
 use App\Senders\AbstractSender;
@@ -19,7 +19,7 @@ class SectorChoiceSender extends AbstractSender
             Sector::all()->toArray()
         );
 
-        $buttons[] = new ButtonDto(CommonConstants::BACK, "Назад");
+        $buttons[] = new ButtonDto(CallbackEnum::BACK->value, CallbackEnum::BACK->buttonText());
 
         $this->sendMessage(StateEnum::POLL_SECTOR_CHOICE->title(), $buttons);
     }

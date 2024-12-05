@@ -2,7 +2,7 @@
 
 namespace App\States\Poll;
 
-use App\Constants\CommonConstants;
+use App\Enums\CallbackEnum;
 use App\Enums\StateEnum;
 use App\States\AbstractState;
 use App\States\UserContext;
@@ -27,7 +27,7 @@ class ChannelPollsChoiceState extends AbstractState implements UserState
 
     protected function getState(string $input, StateEnum $baseState): StateEnum
     {
-        if ($input === CommonConstants::BACK) {
+        if ($input === CallbackEnum::BACK->value) {
             return $baseState->backState();
         }
 

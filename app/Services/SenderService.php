@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Builder\Message\Message;
 use App\Builder\Poll\Poll;
-use App\Constants\CommonConstants;
 use App\Exceptions\ChatNotFoundException;
 use App\Models\TrashMessage;
 use App\Repositories\RequestRepository;
@@ -36,7 +35,7 @@ readonly class SenderService
      */
     public function sendPhoto(Message $message, string $imageUrl, bool $isTrash = true, int $chatId = null): void
     {
-        $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/sendPhoto';
+        $url = TelegramService::BASE_URL . $this->telegramService->token . '/sendPhoto';
 
         if (!$chatId) {
             $chat = (new RequestRepository($this->request))->getDto()->getChat();
@@ -74,7 +73,7 @@ readonly class SenderService
      */
     public function sendMessage(Message $message, bool $isTrash = true, ?int $chatId = null): string
     {
-        $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/sendMessage';
+        $url = TelegramService::BASE_URL . $this->telegramService->token . '/sendMessage';
 
         if (!$chatId) {
             $chat = (new RequestRepository($this->request))->getDto()->getChat();
@@ -163,7 +162,7 @@ readonly class SenderService
      */
     public function sendPoll(Poll $poll, ?int $chatId = null, bool $isTrash = true): Response
     {
-        $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/sendPoll';
+        $url = TelegramService::BASE_URL . $this->telegramService->token . '/sendPoll';
         $chat = (new RequestRepository($this->request))->getDto()->getChat();
 
         $body = [
@@ -199,7 +198,7 @@ readonly class SenderService
      */
     public function updateChatMessages(Request $request, bool $isTrash = true): void
     {
-        $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/deleteMessages';
+        $url = TelegramService::BASE_URL . $this->telegramService->token . '/deleteMessages';
         $requestDto = (new RequestRepository($this->request))->getDto();
         $chatId = $requestDto->getChat()->getId();
         $trashMessages = TrashMessage::where('chat_id', $chatId)->where('is_trash', true)->get();
@@ -233,7 +232,7 @@ readonly class SenderService
      */
     public function isMembership(): bool
     {
-        $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/getChatMember';
+        $url = TelegramService::BASE_URL . $this->telegramService->token . '/getChatMember';
         $user = (new RequestRepository($this->request))->getDto()->getFrom();
 
         $body = [
@@ -255,14 +254,14 @@ readonly class SenderService
      */
     public function uploadPhoto(string $fileId): ?string
     {
-        $url = CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/getFile?file_id=' . $fileId;
+        $url = TelegramService::BASE_URL . $this->telegramService->token . '/getFile?file_id=' . $fileId;
         $response = Http::get($url);
         $path = null;
 
         if ($response->successful()) {
             $fileInfo = json_decode($response, true);
             $filePath = $fileInfo['result']['file_path'];
-            $photoUrl = CommonConstants::TELEGRAM_ROOT_URL . '/file/bot' . $this->telegramService->token . '/' . $filePath;
+            $photoUrl = TelegramService::BASE_URL . '/file/bot' . $this->telegramService->token . '/' . $filePath;
 
             $path = 'newsletters/' . time() . '.jpg';
             $file = Http::get($photoUrl)->body();
@@ -292,6 +291,6 @@ readonly class SenderService
 
     private function getUrl(string $path): string
     {
-        return CommonConstants::TELEGRAM_BASE_URL . $this->telegramService->token . '/' . ltrim($path, '/');
+        return TelegramService::BASE_URL . $this->telegramService->token . '/' . ltrim($path, '/');
     }
 }

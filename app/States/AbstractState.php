@@ -2,7 +2,6 @@
 
 namespace App\States;
 
-use App\Constants\CommonConstants;
 use App\Enums\CommandEnum;
 use App\Enums\CallbackEnum;
 use App\Enums\StateEnum;
@@ -69,7 +68,7 @@ abstract class AbstractState implements UserState
 
     protected function getState(string $input, StateEnum $baseState): StateEnum
     {
-        return $input === CommonConstants::BACK
+        return $input === CallbackEnum::BACK->value
             ? $baseState->backState()
             : CallbackEnum::from($input)->toState();
     }

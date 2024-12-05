@@ -4,35 +4,24 @@ namespace App\Helpers;
 
 use App\Builder\Message\MessageBuilder;
 use App\Builder\MessageSender;
-use App\Builder\Poll\PollBuilder;
-use App\Builder\PollSender;
 use App\Constants\StateConstants;
-use App\Constants\StepConstants;
 use App\Dto\ButtonDto;
 use App\Enums\CommandEnum;
 use App\Enums\CommonCallbackEnum;
 use App\Models\AiRequest;
 use App\Models\Newsletter;
-use App\Models\Poll;
-use App\Models\PollOption;
 use App\Models\State;
 use App\Models\TrashMessage;
 use App\Models\User;
-use App\Repositories\ChannelRepository;
-use App\Repositories\PollRepository;
 use App\Repositories\RequestRepository;
 use App\Services\SenderService;
 use App\Services\TelegramService;
 use Carbon\Carbon;
-use Illuminate\Http\Client\Response;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use PHPUnit\Logging\Exception;
 
-class StepAction implements StepConstants
+class StepAction
 {
     private MessageSender $messageSender;
-    private PollSender $pollSender;
     private SenderService $senderService;
     private RequestRepository $repository;
 
@@ -40,7 +29,6 @@ class StepAction implements StepConstants
     {
         $this->senderService = new SenderService($request, $telegramService);
         $this->messageSender = (new MessageSender())->setBuilder(new MessageBuilder());
-        $this->pollSender = new PollSender();
         $this->repository = new RequestRepository($request);
     }
 
@@ -82,65 +70,6 @@ class StepAction implements StepConstants
         return $response;
     }
 
-    /**
-     * Send poll message
-     *
-     * @param string $question
-     * @param array $options
-     * @param bool $isAnonymous
-     * @param bool $isQuiz
-     * @param string|null $correctOptionId
-     * @param int|null $chatId
-     * @param bool $isTrash
-     * @return Response
-     * @throws \Exception
-     */
-    public function sendPoll(
-        string  $question,
-        array   $options,
-        bool    $isAnonymous,
-        bool    $isQuiz = false,
-        ?string $correctOptionId = null,
-        int     $chatId = null,
-        bool    $isTrash = true
-    ): Response
-    {
-        $poll = $this->pollSender
-            ->setBuilder(new PollBuilder())
-            ->createPoll($question, $options, $isAnonymous, $isQuiz, $correctOptionId);
-
-        // Send poll to telegram
-        $response = $this->senderService->sendPoll($poll, $chatId, $isTrash);
-
-        try {
-            // Save the poll with options to database
-            $pollDto = (new PollRepository($response))->getDto();
-            $pollModel = Poll::create([
-                'tg_message_id' => $response['result']['message_id'],
-                'question' => $pollDto->getQuestion(),
-                'is_anonymous' => $pollDto->getIsAnonymous(),
-                'allows_multiple_answers' => $pollDto->getIsAllowsMultipleAnswers(),
-                'type' => $pollDto->getType(),
-                'correct_option_id' => $pollDto->getCorrectOptionId(),
-            ]);
-
-            foreach ($pollDto->getOptions() as $option) {
-                PollOption::create([
-                    'poll_id' => $pollModel->id,
-                    'text' => $option->getText()
-                ]);
-            }
-        } catch (\Throwable $exception) {
-            throw new Exception('Poll data was occurrence');
-        }
-
-        return $response;
-    }
-
-    public function getChatByChannelName(string $channelName): Response
-    {
-        return $this->senderService->getChatByChannelName($channelName);
-    }
 
     /**
      * @throws \Exception
@@ -150,116 +79,6 @@ class StepAction implements StepConstants
         $requestDto = $this->repository->getDto();
 
         TrashMessage::add($requestDto->getChat()->getId(), $requestDto->getId(), true);
-    }
-
-    public function canContinue(): bool
-    {
-        $user = User::getOrCreate($this->repository);
-        $aiRequest = AiRequest::where('tg_chat_id', $user->tg_chat_id)->get();
-
-        if ($aiRequest->count()) {
-            return $this->senderService->isMembership();
-        }
-
-        return true;
-    }
-
-    /**
-     * If user pressed "/start" button
-     *
-     * @return void
-     */
-    public function mainChoice(): void
-    {
-        $this->addToTrash();
-
-        $repository = $this->repository;
-        $user = User::getOrCreate($repository);
-        $startState = State::where('code', StateConstants::START)->first();
-
-        $this->sendPhoto(
-            imageUrl: asset('assets/img/start.png'),
-            text: $startState->text,
-            buttons: $startState->prepareButtons($user)
-        );
-    }
-
-    /**
-     * If user pressed "/help" button
-     *
-     * @return void
-     */
-    public function help(): void
-    {
-        $this->addToTrash();
-
-        $this->sendMessage(
-            text: self::HELP_TEXT,
-            buttons: [new ButtonDto(CommandEnum::START->value, 'Назад')]
-        );
-    }
-
-    /**
-     * If user pressed "/account" button
-     *
-     * @return void
-     */
-    public function account(): void
-    {
-        $this->addToTrash();
-
-        $buttons = [
-            new ButtonDto(CommonCallbackEnum::ACCOUNT_REFERRED_USERS->value, 'Приглашенные пользователи'),
-            new ButtonDto(CommonCallbackEnum::ACCOUNT_REFERRAL_LINK->value, 'Моя реферальная ссылка'),
-            new ButtonDto(CommandEnum::START->value, 'Назад'),
-        ];
-
-        $this->sendMessage(
-            text: self::ACCOUNT_TEXT,
-            buttons: $buttons
-        );
-    }
-
-    /**
-     * @return void
-     */
-    public function showReferralLink(): void
-    {
-        $user = User::getOrCreate($this->repository);
-        $referrerLink = config('services.telegram.botLink') . '?start=' . $user->referrer_link;
-
-        $text = "🎓 Создавай тесты, играй в квиз с друзьями не выходя из телеграмма. ";
-        $text .= "Участвуй в акциях и выигрывай ценные призы!\n\n";
-        $text .= "🎲 Присоединяйся сейчас\n\n{$referrerLink}";
-
-        $this->sendPhoto(
-            imageUrl: asset('assets/img/referral.png'),
-            text: $text,
-            buttons: [new ButtonDto(CommandEnum::ACCOUNT->value, 'Назад')]
-        );
-    }
-
-    /**
-     * @return void
-     */
-    public function showReferredUsers(): void
-    {
-        $text = 'У вас пока нет приглашенных пользователей.';
-
-        $user = User::getOrCreate($this->repository);
-        $referredUsers = $user->referredUsers;
-        if ($referredUsers->count()) {
-            $text = "Ваши приглашенные пользователи:\n";
-            foreach ($referredUsers as $referredUser) {
-                $refUser = User::find($referredUser->referred_user_id);
-                $text .= "\n<a href='https://t.me/{$refUser->username}'>{$refUser->username}</a>\n";
-            }
-        }
-
-        $this->sendMessage(
-            text: $text,
-            buttons: [new ButtonDto(CommandEnum::ACCOUNT->value, 'Назад')]
-        );
     }
 
 
@@ -618,36 +437,11 @@ class StepAction implements StepConstants
         );
     }
 
-    /**
-     * If user pressed to "support" button
-     *
-     * @return void
-     * @throws \Exception
-     */
-    public function support(): void
-    {
-        $this->addToTrash();
-
-        $this->sendMessage(
-            text: self::SUPPORT_TEXT,
-            buttons: [new ButtonDto(CommandEnum::START->value, 'Назад')]
-        );
-    }
-
     public function someProblemMessage(): void
     {
         $this->sendMessage(
             'Что-то пошло не так. Попробуйте еще раз',
             [new ButtonDto(CommandEnum::START->value, 'Начать сначала')]
-        );
-    }
-
-    public function subscribeToCommunity(): void
-    {
-        $message = "Подпишись на <a href='https://t.me/corgish_ru'>наш канал</a>, чтобы продолжить...";
-        $this->sendMessage(
-            $message,
-            [new ButtonDto(CommandEnum::START->value, 'Я подписался')]
         );
     }
 }

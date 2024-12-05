@@ -2,7 +2,6 @@
 
 namespace App\Enums;
 
-use App\Constants\CommonConstants;
 use App\Dto\ButtonDto;
 use App\Models\User;
 use App\Senders\Account\ReferralLinkShowSender;
@@ -192,12 +191,12 @@ enum StateEnum: string
         return match ($this) {
             self::START => [
                 new ButtonDto(CallbackEnum::CREATE_SURVEY->value, CallbackEnum::CREATE_SURVEY->buttonText()),
-                new ButtonDto(CommonCallbackEnum::SUPPORT->value, 'Поддержка'),
+                new ButtonDto(CallbackEnum::SUPPORT->value, CallbackEnum::SUPPORT->buttonText()),
             ],
             self::POLL_TYPE_CHOICE => [
                 new ButtonDto(CallbackEnum::TYPE_QUIZ->value, CallbackEnum::TYPE_QUIZ->buttonText()),
                 new ButtonDto(CallbackEnum::TYPE_SURVEY->value, CallbackEnum::TYPE_SURVEY->buttonText()),
-                new ButtonDto(CommonConstants::BACK, "Назад"),
+                new ButtonDto(CallbackEnum::BACK->value, CallbackEnum::BACK->buttonText()),
             ],
             self::POLL_SUPPORT,
             self::POLL_THEME_WAITING,
@@ -206,19 +205,19 @@ enum StateEnum: string
             self::ACCOUNT_REFERRED_USERS_SHOW,
             self::ADMIN_NEWSLETTER_WAITING,
             self::HELP => [
-                new ButtonDto(CommonConstants::BACK, "Назад")
+                new ButtonDto(CallbackEnum::BACK->value, CallbackEnum::BACK->buttonText())
             ],
             self::POLL_ANONYMITY_CHOICE => [
                 new ButtonDto(CallbackEnum::IS_ANON->value, CallbackEnum::IS_ANON->buttonText()),
                 new ButtonDto(CallbackEnum::IS_NOT_ANON->value, CallbackEnum::IS_NOT_ANON->buttonText()),
-                new ButtonDto(CommonConstants::BACK, "Назад"),
+                new ButtonDto(CallbackEnum::BACK->value, CallbackEnum::BACK->buttonText()),
             ],
             self::POLL_DIFFICULTY_CHOICE => [
                 new ButtonDto(CallbackEnum::LEVEL_EASY->value, CallbackEnum::LEVEL_EASY->buttonText()),
                 new ButtonDto(CallbackEnum::LEVEL_MIDDLE->value, CallbackEnum::LEVEL_MIDDLE->buttonText()),
                 new ButtonDto(CallbackEnum::LEVEL_HARD->value, CallbackEnum::LEVEL_HARD->buttonText()),
                 new ButtonDto(CallbackEnum::LEVEL_ANY->value, CallbackEnum::LEVEL_ANY->buttonText()),
-                new ButtonDto(CommonConstants::BACK, "Назад")
+                new ButtonDto(CallbackEnum::BACK->value, CallbackEnum::BACK->buttonText()),
             ],
             self::POLL_AI_RESPONDED_CHOICE => [
                 new ButtonDto(CommandEnum::START->getCommand(), 'Выбрать другую тему'),
