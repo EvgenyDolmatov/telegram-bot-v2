@@ -11,6 +11,11 @@ class NewsletterWaitingSender extends AbstractSender
     {
         $this->addToTrash();
 
+        if (!$this->user->is_admin) {
+            $this->someProblemMessage();
+            return;
+        }
+
         $this->sendMessage(
             text: StateEnum::ADMIN_NEWSLETTER_WAITING->title(),
             buttons: StateEnum::ADMIN_NEWSLETTER_WAITING->buttons()

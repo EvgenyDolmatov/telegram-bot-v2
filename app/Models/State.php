@@ -16,9 +16,4 @@ class State extends Model
     {
         return $this->belongsToMany(User::class, 'user_states');
     }
-
-    public function buttons()
-    {
-        return $this->hasMany(StateButton::class);
-    }
 }

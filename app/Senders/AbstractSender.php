@@ -6,6 +6,7 @@ use App\Builder\Message\MessageBuilder;
 use App\Builder\MessageSender;
 use App\Builder\PollSender;
 use App\Dto\ButtonDto;
+use App\Dto\MessageDto;
 use App\Enums\CommandEnum;
 use App\Models\AiRequest;
 use App\Models\TrashMessage;
@@ -20,6 +21,7 @@ abstract class AbstractSender implements SenderInterface
     protected SenderService $senderService;
     protected MessageSender $messageBuilder;
     protected PollSender $pollBuilder;
+    protected RequestRepository $requestRepository;
 
     public function __construct(
         protected readonly Request         $request,
@@ -29,14 +31,15 @@ abstract class AbstractSender implements SenderInterface
         $this->senderService = new SenderService($request, $telegramService);
         $this->messageBuilder = (new MessageSender())->setBuilder(new MessageBuilder());
         $this->pollBuilder = new PollSender();
+        $this->requestRepository = (new RequestRepository($request));
     }
 
     abstract public function send(): void;
 
     protected function addToTrash(): void
     {
-        $requestDto = (new RequestRepository($this->request))->getDto();
-        TrashMessage::add($requestDto->getChat()->getId(), $requestDto->getId(), true);
+        $messageDto = $this->getMessageDto();
+        TrashMessage::add($messageDto->getChat()->getId(), $messageDto->getId(), true);
     }
 
     protected function someProblemMessage(): void
@@ -65,9 +68,14 @@ abstract class AbstractSender implements SenderInterface
         return true;
     }
 
+    protected function getMessageDto(): MessageDto
+    {
+        return $this->requestRepository->getDto();
+    }
+
     protected function getInputText(): string
     {
-        return (new RequestRepository($this->request))->getDto()->getText();
+        return $this->getMessageDto()->getText();
     }
 
     /**
@@ -98,9 +106,9 @@ abstract class AbstractSender implements SenderInterface
      * @throws \Exception
      */
     protected function sendPhoto(
-        string $text,
-        ?array $buttons,
         string $imageUrl,
+        string $text,
+        ?array $buttons = null,
         bool   $isTrash = true,
         ?int   $chatId = null
     ): void {

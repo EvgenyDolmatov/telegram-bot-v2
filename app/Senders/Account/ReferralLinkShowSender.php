@@ -18,9 +18,9 @@ class ReferralLinkShowSender extends AbstractSender
         $text .= "🎲 Присоединяйся сейчас\n\n{$referrerLink}";
 
         $this->sendPhoto(
+            imageUrl: asset('assets/img/referral.png'),
             text: $text,
-            buttons: StateEnum::ACCOUNT_REFERRAL_LINK_SHOW->buttons(),
-            imageUrl: asset('assets/img/referral.png')
+            buttons: StateEnum::ACCOUNT_REFERRAL_LINK_SHOW->buttons()
         );
     }
 }

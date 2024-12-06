@@ -1,6 +1,6 @@
 <?php
 
-use App\Constants\StateConstants;
+use App\Enums\StateEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
@@ -28,38 +28,14 @@ return new class extends Migration
         });
 
         DB::table('states')->insert([
-            [
-                self::CODE => StateConstants::START,
-                self::TEXT => 'Привет! Выбери вариант:'
-            ],
-            [
-                self::CODE => StateConstants::TYPE_CHOICE,
-                self::TEXT => 'Выберите тип опроса:'
-            ],
-            [
-                self::CODE => StateConstants::ANON_CHOICE,
-                self::TEXT => 'Опрос будет анонимный?'
-            ],
-            [
-                self::CODE => StateConstants::DIFFICULTY_CHOICE,
-                self::TEXT => 'Выберите сложность вопросов:'
-            ],
-            [
-                self::CODE => StateConstants::SECTOR_CHOICE,
-                self::TEXT => 'Выберите направление:'
-            ],
-            [
-                self::CODE => StateConstants::SUBJECT_CHOICE,
-                self::TEXT => 'Выберите предмет:'
-            ],
-            [
-                self::CODE => StateConstants::THEME_REQUEST,
-                self::TEXT => 'Введите свой вопрос:'
-            ],
-            [
-                self::CODE => StateConstants::AI_RESPONSE,
-                self::TEXT => 'Подождите. Ваш запрос обрабатывается...'
-            ],
+            [self::CODE => StateEnum::START->value],
+            [self::CODE => StateEnum::POLL_TYPE_CHOICE->value],
+            [self::CODE => StateEnum::POLL_ANONYMITY_CHOICE->value],
+            [self::CODE => StateEnum::POLL_DIFFICULTY_CHOICE->value],
+            [self::CODE => StateEnum::POLL_SECTOR_CHOICE->value],
+            [self::CODE => StateEnum::POLL_SUBJECT_CHOICE->value],
+            [self::CODE => StateEnum::POLL_THEME_WAITING->value],
+            [self::CODE => StateEnum::POLL_AI_RESPONDED_CHOICE->value],
         ]);
     }
 

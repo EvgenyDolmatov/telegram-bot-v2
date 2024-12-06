@@ -14,6 +14,7 @@ return new class extends Migration
     public function up(): void
     {
         // TODO: prepare to prod...
+        /** Poll */
         foreach (State::all() as $state) {
             switch ($state->code) {
                 case 'type_choice':
@@ -38,28 +39,26 @@ return new class extends Migration
                     $state->update(['code' => StateEnum::POLL_AI_RESPONDED_CHOICE->value]);
                     break;
                 case 'newsletter_waiting':
-                    $state->update([
-                        'code' => StateEnum::CHANNEL_POLLS_CHOICE->value,
-                        'text' => StateEnum::CHANNEL_POLLS_CHOICE->title()
-                    ]);
+                    $state->update(['code' => StateEnum::POLL_SUPPORT->value]);
                     break;
             }
-
-            State::create([
-                'code' => StateEnum::CHANNEL_NAME_WAITING->value,
-                'text' => StateEnum::CHANNEL_NAME_WAITING->title()
-            ]);
-
-            State::create([
-                'code' => StateEnum::CHANNEL_POLLS_SENT_SUCCESS->value,
-                'text' => StateEnum::CHANNEL_POLLS_SENT_SUCCESS->title()
-            ]);
-
-            State::create([
-                'code' => StateEnum::POLL_SUPPORT->value,
-                'text' => StateEnum::POLL_SUPPORT->title()
-            ]);
         }
+
+        /** Channel */
+        State::create(['code' => StateEnum::CHANNEL_POLLS_CHOICE->value]);
+        State::create(['code' => StateEnum::CHANNEL_NAME_WAITING->value]);
+        State::create(['code' => StateEnum::CHANNEL_POLLS_SENT_SUCCESS->value]);
+
+        /** Admin */
+        State::create(['code' => StateEnum::ADMIN->value]);
+        State::create(['code' => StateEnum::ADMIN_NEWSLETTER_WAITING->value]);
+        State::create(['code' => StateEnum::ADMIN_NEWSLETTER_CONFIRMATION->value]);
+        State::create(['code' => StateEnum::ADMIN_NEWSLETTER_SENT_SUCCESS->value]);
+
+        /** Account */
+        State::create(['code' => StateEnum::ACCOUNT->value]);
+        State::create(['code' => StateEnum::ACCOUNT_REFERRAL_LINK_SHOW->value]);
+        State::create(['code' => StateEnum::ACCOUNT_REFERRED_USERS_SHOW->value]);
     }
 
     /**

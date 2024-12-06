@@ -59,7 +59,7 @@ enum CallbackEnum: string
     public function buttonText(): string
     {
         return match ($this) {
-            self::BACK => "Назад",
+            self::BACK => "↩️ Назад",
             self::CREATE_SURVEY => "Создать тест",
             self::SUPPORT => "Поддержка",
             self::TYPE_QUIZ => "Викторина (1 вариант ответа)",
@@ -76,8 +76,8 @@ enum CallbackEnum: string
             self::ACCOUNT_REFERRAL_LINK => "Моя реферальная ссылка",
             self::ACCOUNT_REFERRED_USERS => "Приглашенные пользователи",
             self::ADMIN_NEWSLETTER_CREATE => 'Создать рассылку',
-            self::ADMIN_NEWSLETTER_CHANGE => 'Загрузить другое сообщение',
-            self::ADMIN_NEWSLETTER_ACCEPT => 'Все верно, отправить сообщение всем участникам!',
+            self::ADMIN_NEWSLETTER_CHANGE => '❌ Загрузить другое сообщение',
+            self::ADMIN_NEWSLETTER_ACCEPT => '✅ Все верно, отправить сообщение всем участникам!',
             self::ADMIN_STATISTIC_MENU => 'Статистика бота',
         };
     }

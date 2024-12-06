@@ -261,7 +261,7 @@ readonly class SenderService
         if ($response->successful()) {
             $fileInfo = json_decode($response, true);
             $filePath = $fileInfo['result']['file_path'];
-            $photoUrl = TelegramService::BASE_URL . '/file/bot' . $this->telegramService->token . '/' . $filePath;
+            $photoUrl = TelegramService::ROOT_URL . '/file/bot' . $this->telegramService->token . '/' . $filePath;
 
             $path = 'newsletters/' . time() . '.jpg';
             $file = Http::get($photoUrl)->body();

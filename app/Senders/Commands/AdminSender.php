@@ -9,14 +9,14 @@ class AdminSender extends AbstractSender
 {
     public function send(): void
     {
-        if ($this->user->is_admin) {
-            $this->sendMessage(
-                text: StateEnum::ADMIN->title(),
-                buttons: StateEnum::ADMIN->buttons()
-            );
+        if (!$this->user->is_admin) {
+            $this->someProblemMessage();
             return;
         }
 
-        $this->someProblemMessage();
+        $this->sendMessage(
+            text: StateEnum::ADMIN->title(),
+            buttons: StateEnum::ADMIN->buttons()
+        );
     }
 }

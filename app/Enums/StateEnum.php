@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Senders\Account\ReferralLinkShowSender;
 use App\Senders\Account\ReferredUsersShowSender;
 use App\Senders\Admin\NewsletterConfirmationSender;
+use App\Senders\Admin\NewsletterSentSuccessSender;
 use App\Senders\Admin\NewsletterWaitingSender;
 use App\Senders\Commands\AccountSender;
 use App\Senders\Commands\AdminSender;
@@ -30,6 +31,7 @@ use App\States\Account\ReferralLinkShowState;
 use App\States\Account\ReferredUsersShowState;
 use App\States\Admin\AdminState;
 use App\States\Admin\NewsletterConfirmationState;
+use App\States\Admin\NewsletterSentSuccessState;
 use App\States\Admin\NewsletterWaitingState;
 use App\States\Help\HelpState;
 use App\States\Poll\AiRespondedChoiceState;
@@ -104,6 +106,7 @@ enum StateEnum: string
             self::ADMIN => new AdminState($request, $telegramService),
             self::ADMIN_NEWSLETTER_WAITING => new NewsletterWaitingState($request, $telegramService),
             self::ADMIN_NEWSLETTER_CONFIRMATION => new NewsletterConfirmationState($request, $telegramService),
+            self::ADMIN_NEWSLETTER_SENT_SUCCESS => new NewsletterSentSuccessState($request, $telegramService),
             /** Help states */
             self::HELP => new HelpState($request, $telegramService),
         };
@@ -129,7 +132,8 @@ enum StateEnum: string
             self::CHANNEL_NAME_WAITING => self::CHANNEL_POLLS_CHOICE,
             self::ACCOUNT_REFERRAL_LINK_SHOW,
             self::ACCOUNT_REFERRED_USERS_SHOW => self::ACCOUNT,
-            self::ADMIN_NEWSLETTER_WAITING => self::ADMIN,
+            self::ADMIN_NEWSLETTER_WAITING,
+            self::ADMIN_NEWSLETTER_SENT_SUCCESS => self::ADMIN,
             self::ADMIN_NEWSLETTER_CONFIRMATION => self::ADMIN_NEWSLETTER_WAITING,
         };
     }
@@ -156,6 +160,7 @@ enum StateEnum: string
             self::ADMIN => new AdminSender($request, $telegramService, $user),
             self::ADMIN_NEWSLETTER_WAITING => new NewsletterWaitingSender($request, $telegramService, $user),
             self::ADMIN_NEWSLETTER_CONFIRMATION => new NewsletterConfirmationSender($request, $telegramService, $user),
+            self::ADMIN_NEWSLETTER_SENT_SUCCESS => new NewsletterSentSuccessSender($request, $telegramService, $user),
         };
     }
 
@@ -180,7 +185,8 @@ enum StateEnum: string
 
             self::ADMIN => "Меню администратора:",
             self::ADMIN_NEWSLETTER_WAITING => "Введите сообщение и прикрепите файлы (если необходимо) для рассылки пользователям:\n\n❗️После отправки сообщения отменить или удалить его будет невозможно!!!",
-            self::ADMIN_NEWSLETTER_CONFIRMATION => "Внимательно проверьте Ваше сообщение!!! \n\nПосле подтверждения, это сообщение отправится всем подписчикам бота.",
+            self::ADMIN_NEWSLETTER_CONFIRMATION => "❗️Внимательно проверьте Ваше сообщение!!! \n\nПосле подтверждения, это сообщение отправится всем подписчикам бота.",
+            self::ADMIN_NEWSLETTER_SENT_SUCCESS => "✅ Сообщение успешно разослано всем подписчикам бота!",
 
             self::HELP => "Инструкция по работе с ботом:\n\nДля того, чтобы Corgish-бот корректно составил тест, ответьте на вопросы бота и пройдите все шаги.\n\n/start - начать сначала\n/help - помощь и техподдержка",
         };
@@ -224,6 +230,7 @@ enum StateEnum: string
                 new ButtonDto(CallbackEnum::REPEAT_FLOW->value, CallbackEnum::REPEAT_FLOW->buttonText()),
                 new ButtonDto(CallbackEnum::SEND_TO_CHANNEL->value, CallbackEnum::SEND_TO_CHANNEL->buttonText()),
             ],
+
             self::CHANNEL_POLLS_SENT_SUCCESS => [
                 new ButtonDto(CommandEnum::START->getCommand(), "Вернуться в начало")
             ],
@@ -242,6 +249,9 @@ enum StateEnum: string
             self::ADMIN_NEWSLETTER_CONFIRMATION => [
                 new ButtonDto(CallbackEnum::ADMIN_NEWSLETTER_ACCEPT->value, CallbackEnum::ADMIN_NEWSLETTER_ACCEPT->buttonText()),
                 new ButtonDto(CallbackEnum::ADMIN_NEWSLETTER_CHANGE->value, CallbackEnum::ADMIN_NEWSLETTER_CHANGE->buttonText()),
+            ],
+            self::ADMIN_NEWSLETTER_SENT_SUCCESS => [
+                new ButtonDto(CommandEnum::ADMIN->value, 'Вернуться в начало')
             ]
         };
     }
