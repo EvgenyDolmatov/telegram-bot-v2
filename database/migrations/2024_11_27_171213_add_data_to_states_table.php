@@ -54,6 +54,15 @@ return new class extends Migration
         State::create(['code' => StateEnum::ADMIN_NEWSLETTER_WAITING->value]);
         State::create(['code' => StateEnum::ADMIN_NEWSLETTER_CONFIRMATION->value]);
         State::create(['code' => StateEnum::ADMIN_NEWSLETTER_SENT_SUCCESS->value]);
+        State::create(['code' => StateEnum::ADMIN_STATISTIC_MENU_CHOICE->value]);
+        State::create(['code' => StateEnum::ADMIN_STATISTIC_POLLS_MENU_CHOICE->value]);
+        State::create(['code' => StateEnum::ADMIN_STATISTIC_POLLS_PER_YEAR_SHOW->value]);
+        State::create(['code' => StateEnum::ADMIN_STATISTIC_POLLS_PER_QUARTER_SHOW->value]);
+        State::create(['code' => StateEnum::ADMIN_STATISTIC_POLLS_PER_MONTH_SHOW->value]);
+        State::create(['code' => StateEnum::ADMIN_STATISTIC_POLLS_PER_WEEK_SHOW->value]);
+        State::create(['code' => StateEnum::ADMIN_STATISTIC_POLLS_PER_DAY_SHOW->value]);
+        State::create(['code' => StateEnum::ADMIN_STATISTIC_USERS_MENU_CHOICE->value]);
+        State::create(['code' => StateEnum::ADMIN_STATISTIC_USERS_PER_DAY_SHOW->value]);
 
         /** Account */
         State::create(['code' => StateEnum::ACCOUNT->value]);

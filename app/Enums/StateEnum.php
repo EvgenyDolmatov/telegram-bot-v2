@@ -9,6 +9,15 @@ use App\Senders\Account\ReferredUsersShowSender;
 use App\Senders\Admin\NewsletterConfirmationSender;
 use App\Senders\Admin\NewsletterSentSuccessSender;
 use App\Senders\Admin\NewsletterWaitingSender;
+use App\Senders\Admin\StatisticMenuChoiceSender;
+use App\Senders\Admin\StatisticPollsMenuChoiceSender;
+use App\Senders\Admin\StatisticPollsPerDayShowSender;
+use App\Senders\Admin\StatisticPollsPerMonthShowSender;
+use App\Senders\Admin\StatisticPollsPerQuarterShowSender;
+use App\Senders\Admin\StatisticPollsPerWeekShowSender;
+use App\Senders\Admin\StatisticPollsPerYearShowSender;
+use App\Senders\Admin\StatisticUsersMenuChoiceSender;
+use App\Senders\Admin\StatisticUsersPerDayShowSender;
 use App\Senders\Commands\AccountSender;
 use App\Senders\Commands\AdminSender;
 use App\Senders\Commands\HelpSender;
@@ -33,6 +42,15 @@ use App\States\Admin\AdminState;
 use App\States\Admin\NewsletterConfirmationState;
 use App\States\Admin\NewsletterSentSuccessState;
 use App\States\Admin\NewsletterWaitingState;
+use App\States\Admin\StatisticMenuChoiceState;
+use App\States\Admin\StatisticPollsMenuChoiceState;
+use App\States\Admin\StatisticPollsPerDayShowState;
+use App\States\Admin\StatisticPollsPerMonthShowState;
+use App\States\Admin\StatisticPollsPerQuarterShowState;
+use App\States\Admin\StatisticPollsPerWeekShowState;
+use App\States\Admin\StatisticPollsPerYearShowState;
+use App\States\Admin\StatisticUsersMenuChoiceState;
+use App\States\Admin\StatisticUsersPerDayShowState;
 use App\States\Help\HelpState;
 use App\States\Poll\AiRespondedChoiceState;
 use App\States\Poll\AnonymityChoiceState;
@@ -77,6 +95,15 @@ enum StateEnum: string
     case ADMIN_NEWSLETTER_WAITING = 'admin_newsletter_waiting';
     case ADMIN_NEWSLETTER_CONFIRMATION = 'admin_newsletter_confirmation';
     case ADMIN_NEWSLETTER_SENT_SUCCESS = 'admin_newsletter_sent_success';
+    case ADMIN_STATISTIC_MENU_CHOICE = 'admin_statistic_menu_choice';
+    case ADMIN_STATISTIC_POLLS_MENU_CHOICE = 'admin_statistic_polls_menu_choice';
+    case ADMIN_STATISTIC_POLLS_PER_YEAR_SHOW = 'admin_statistic_polls_per_year_show';
+    case ADMIN_STATISTIC_POLLS_PER_QUARTER_SHOW = 'admin_statistic_polls_per_quarter_show';
+    case ADMIN_STATISTIC_POLLS_PER_MONTH_SHOW = 'admin_statistic_polls_per_month_show';
+    case ADMIN_STATISTIC_POLLS_PER_WEEK_SHOW = 'admin_statistic_polls_per_week_show';
+    case ADMIN_STATISTIC_POLLS_PER_DAY_SHOW = 'admin_statistic_polls_per_day_show';
+    case ADMIN_STATISTIC_USERS_MENU_CHOICE = 'admin_statistic_users_menu_choice';
+    case ADMIN_STATISTIC_USERS_PER_DAY_SHOW = 'admin_statistic_users_per_day_show';
 
     /** Help */
     case HELP = 'help';
@@ -107,6 +134,15 @@ enum StateEnum: string
             self::ADMIN_NEWSLETTER_WAITING => new NewsletterWaitingState($request, $telegramService),
             self::ADMIN_NEWSLETTER_CONFIRMATION => new NewsletterConfirmationState($request, $telegramService),
             self::ADMIN_NEWSLETTER_SENT_SUCCESS => new NewsletterSentSuccessState($request, $telegramService),
+            self::ADMIN_STATISTIC_MENU_CHOICE => new StatisticMenuChoiceState($request, $telegramService),
+            self::ADMIN_STATISTIC_POLLS_MENU_CHOICE => new StatisticPollsMenuChoiceState($request, $telegramService),
+            self::ADMIN_STATISTIC_POLLS_PER_YEAR_SHOW => new StatisticPollsPerYearShowState($request, $telegramService),
+            self::ADMIN_STATISTIC_POLLS_PER_QUARTER_SHOW => new StatisticPollsPerQuarterShowState($request, $telegramService),
+            self::ADMIN_STATISTIC_POLLS_PER_MONTH_SHOW => new StatisticPollsPerMonthShowState($request, $telegramService),
+            self::ADMIN_STATISTIC_POLLS_PER_WEEK_SHOW => new StatisticPollsPerWeekShowState($request, $telegramService),
+            self::ADMIN_STATISTIC_POLLS_PER_DAY_SHOW => new StatisticPollsPerDayShowState($request, $telegramService),
+            self::ADMIN_STATISTIC_USERS_MENU_CHOICE => new StatisticUsersMenuChoiceState($request, $telegramService),
+            self::ADMIN_STATISTIC_USERS_PER_DAY_SHOW => new StatisticUsersPerDayShowState($request, $telegramService),
             /** Help states */
             self::HELP => new HelpState($request, $telegramService),
         };
@@ -133,8 +169,17 @@ enum StateEnum: string
             self::ACCOUNT_REFERRAL_LINK_SHOW,
             self::ACCOUNT_REFERRED_USERS_SHOW => self::ACCOUNT,
             self::ADMIN_NEWSLETTER_WAITING,
-            self::ADMIN_NEWSLETTER_SENT_SUCCESS => self::ADMIN,
+            self::ADMIN_NEWSLETTER_SENT_SUCCESS,
+            self::ADMIN_STATISTIC_MENU_CHOICE => self::ADMIN,
             self::ADMIN_NEWSLETTER_CONFIRMATION => self::ADMIN_NEWSLETTER_WAITING,
+            self::ADMIN_STATISTIC_POLLS_MENU_CHOICE,
+            self::ADMIN_STATISTIC_USERS_MENU_CHOICE => self::ADMIN_STATISTIC_MENU_CHOICE,
+            self::ADMIN_STATISTIC_POLLS_PER_YEAR_SHOW,
+            self::ADMIN_STATISTIC_POLLS_PER_QUARTER_SHOW,
+            self::ADMIN_STATISTIC_POLLS_PER_MONTH_SHOW,
+            self::ADMIN_STATISTIC_POLLS_PER_WEEK_SHOW,
+            self::ADMIN_STATISTIC_POLLS_PER_DAY_SHOW => self::ADMIN_STATISTIC_POLLS_MENU_CHOICE,
+            self::ADMIN_STATISTIC_USERS_PER_DAY_SHOW => self::ADMIN_STATISTIC_USERS_MENU_CHOICE,
         };
     }
 
@@ -161,6 +206,15 @@ enum StateEnum: string
             self::ADMIN_NEWSLETTER_WAITING => new NewsletterWaitingSender($request, $telegramService, $user),
             self::ADMIN_NEWSLETTER_CONFIRMATION => new NewsletterConfirmationSender($request, $telegramService, $user),
             self::ADMIN_NEWSLETTER_SENT_SUCCESS => new NewsletterSentSuccessSender($request, $telegramService, $user),
+            self::ADMIN_STATISTIC_MENU_CHOICE => new StatisticMenuChoiceSender($request, $telegramService, $user),
+            self::ADMIN_STATISTIC_POLLS_MENU_CHOICE => new StatisticPollsMenuChoiceSender($request, $telegramService, $user),
+            self::ADMIN_STATISTIC_POLLS_PER_YEAR_SHOW => new StatisticPollsPerYearShowSender($request, $telegramService, $user),
+            self::ADMIN_STATISTIC_POLLS_PER_QUARTER_SHOW => new StatisticPollsPerQuarterShowSender($request, $telegramService, $user),
+            self::ADMIN_STATISTIC_POLLS_PER_MONTH_SHOW => new StatisticPollsPerMonthShowSender($request, $telegramService, $user),
+            self::ADMIN_STATISTIC_POLLS_PER_WEEK_SHOW => new StatisticPollsPerWeekShowSender($request, $telegramService, $user),
+            self::ADMIN_STATISTIC_POLLS_PER_DAY_SHOW => new StatisticPollsPerDayShowSender($request, $telegramService, $user),
+            self::ADMIN_STATISTIC_USERS_MENU_CHOICE => new StatisticUsersMenuChoiceSender($request, $telegramService, $user),
+            self::ADMIN_STATISTIC_USERS_PER_DAY_SHOW => new StatisticUsersPerDayShowSender($request, $telegramService, $user),
         };
     }
 
@@ -187,6 +241,15 @@ enum StateEnum: string
             self::ADMIN_NEWSLETTER_WAITING => "Введите сообщение и прикрепите файлы (если необходимо) для рассылки пользователям:\n\n❗️После отправки сообщения отменить или удалить его будет невозможно!!!",
             self::ADMIN_NEWSLETTER_CONFIRMATION => "❗️Внимательно проверьте Ваше сообщение!!! \n\nПосле подтверждения, это сообщение отправится всем подписчикам бота.",
             self::ADMIN_NEWSLETTER_SENT_SUCCESS => "✅ Сообщение успешно разослано всем подписчикам бота!",
+            self::ADMIN_STATISTIC_MENU_CHOICE => "Статистика бота:",
+            self::ADMIN_STATISTIC_POLLS_MENU_CHOICE => "Статистика созданных тестов:",
+            self::ADMIN_STATISTIC_POLLS_PER_YEAR_SHOW => "За последний год не было создано ни одного теста.",
+            self::ADMIN_STATISTIC_POLLS_PER_QUARTER_SHOW => "За последний квартал не было создано ни одного теста.",
+            self::ADMIN_STATISTIC_POLLS_PER_MONTH_SHOW => "За последний месяц не было создано ни одного теста.",
+            self::ADMIN_STATISTIC_POLLS_PER_WEEK_SHOW => "За последнюю неделю не было создано ни одного теста.",
+            self::ADMIN_STATISTIC_POLLS_PER_DAY_SHOW => "Сегодня тесты еще не создавались.",
+            self::ADMIN_STATISTIC_USERS_PER_DAY_SHOW => "Новые пользователи сегодня не регистрировались.",
+            self::ADMIN_STATISTIC_USERS_MENU_CHOICE => "Статистика пользователей:",
 
             self::HELP => "Инструкция по работе с ботом:\n\nДля того, чтобы Corgish-бот корректно составил тест, ответьте на вопросы бота и пройдите все шаги.\n\n/start - начать сначала\n/help - помощь и техподдержка",
         };
@@ -207,6 +270,12 @@ enum StateEnum: string
             self::POLL_SUPPORT,
             self::POLL_THEME_WAITING,
             self::CHANNEL_NAME_WAITING,
+            self::ADMIN_STATISTIC_POLLS_PER_YEAR_SHOW,
+            self::ADMIN_STATISTIC_POLLS_PER_QUARTER_SHOW,
+            self::ADMIN_STATISTIC_POLLS_PER_MONTH_SHOW,
+            self::ADMIN_STATISTIC_POLLS_PER_WEEK_SHOW,
+            self::ADMIN_STATISTIC_POLLS_PER_DAY_SHOW,
+            self::ADMIN_STATISTIC_USERS_PER_DAY_SHOW,
             self::ACCOUNT_REFERRAL_LINK_SHOW,
             self::ACCOUNT_REFERRED_USERS_SHOW,
             self::ADMIN_NEWSLETTER_WAITING,
@@ -252,7 +321,25 @@ enum StateEnum: string
             ],
             self::ADMIN_NEWSLETTER_SENT_SUCCESS => [
                 new ButtonDto(CommandEnum::ADMIN->value, 'Вернуться в начало')
-            ]
+            ],
+            self::ADMIN_STATISTIC_MENU_CHOICE => [
+                new ButtonDto(CallbackEnum::ADMIN_STATISTIC_POLLS->value, CallbackEnum::ADMIN_STATISTIC_POLLS->buttonText()),
+                new ButtonDto(CallbackEnum::ADMIN_STATISTIC_USERS->value, CallbackEnum::ADMIN_STATISTIC_USERS->buttonText()),
+                new ButtonDto(CallbackEnum::BACK->value, CallbackEnum::BACK->buttonText())
+            ],
+            self::ADMIN_STATISTIC_POLLS_MENU_CHOICE => [
+                new ButtonDto(CallbackEnum::ADMIN_STATISTIC_POLLS_PER_YEAR->value, CallbackEnum::ADMIN_STATISTIC_POLLS_PER_YEAR->buttonText()),
+                new ButtonDto(CallbackEnum::ADMIN_STATISTIC_POLLS_PER_QUARTER->value, CallbackEnum::ADMIN_STATISTIC_POLLS_PER_QUARTER->buttonText()),
+                new ButtonDto(CallbackEnum::ADMIN_STATISTIC_POLLS_PER_MONTH->value, CallbackEnum::ADMIN_STATISTIC_POLLS_PER_MONTH->buttonText()),
+                new ButtonDto(CallbackEnum::ADMIN_STATISTIC_POLLS_PER_WEEK->value, CallbackEnum::ADMIN_STATISTIC_POLLS_PER_WEEK->buttonText()),
+                new ButtonDto(CallbackEnum::ADMIN_STATISTIC_POLLS_PER_DAY->value, CallbackEnum::ADMIN_STATISTIC_POLLS_PER_DAY->buttonText()),
+                new ButtonDto(CallbackEnum::BACK->value, CallbackEnum::BACK->buttonText())
+            ],
+            self::ADMIN_STATISTIC_USERS_MENU_CHOICE => [
+                new ButtonDto(CallbackEnum::ADMIN_STATISTIC_USERS_PER_DAY->value, CallbackEnum::ADMIN_STATISTIC_USERS_PER_DAY->buttonText()),
+                new ButtonDto(CallbackEnum::BACK->value, CallbackEnum::BACK->buttonText())
+            ],
+
         };
     }
 }

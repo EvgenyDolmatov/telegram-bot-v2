@@ -31,6 +31,14 @@ enum CallbackEnum: string
     case ADMIN_NEWSLETTER_CHANGE = 'admin_newsletter_change';
     case ADMIN_NEWSLETTER_ACCEPT = 'admin_newsletter_accept';
     case ADMIN_STATISTIC_MENU = 'admin_statistic_menu';
+    case ADMIN_STATISTIC_POLLS = 'admin_statistic_polls';
+    case ADMIN_STATISTIC_POLLS_PER_YEAR = 'admin_statistic_polls_per_year';
+    case ADMIN_STATISTIC_POLLS_PER_QUARTER = 'admin_statistic_polls_per_quarter';
+    case ADMIN_STATISTIC_POLLS_PER_MONTH = 'admin_statistic_polls_per_month';
+    case ADMIN_STATISTIC_POLLS_PER_WEEK = 'admin_statistic_polls_per_week';
+    case ADMIN_STATISTIC_POLLS_PER_DAY = 'admin_statistic_polls_per_day';
+    case ADMIN_STATISTIC_USERS = 'admin_statistic_users';
+    case ADMIN_STATISTIC_USERS_PER_DAY = 'admin_statistic_users_per_day';
 
     public function toState(): StateEnum
     {
@@ -53,6 +61,15 @@ enum CallbackEnum: string
             self::ADMIN_NEWSLETTER_CREATE,
             self::ADMIN_NEWSLETTER_CHANGE => StateEnum::ADMIN_NEWSLETTER_WAITING,
             self::ADMIN_NEWSLETTER_ACCEPT => StateEnum::ADMIN_NEWSLETTER_SENT_SUCCESS,
+            self::ADMIN_STATISTIC_MENU => StateEnum::ADMIN_STATISTIC_MENU_CHOICE,
+            self::ADMIN_STATISTIC_POLLS => StateEnum::ADMIN_STATISTIC_POLLS_MENU_CHOICE,
+            self::ADMIN_STATISTIC_POLLS_PER_YEAR => StateEnum::ADMIN_STATISTIC_POLLS_PER_YEAR_SHOW,
+            self::ADMIN_STATISTIC_POLLS_PER_QUARTER => StateEnum::ADMIN_STATISTIC_POLLS_PER_QUARTER_SHOW,
+            self::ADMIN_STATISTIC_POLLS_PER_MONTH => StateEnum::ADMIN_STATISTIC_POLLS_PER_MONTH_SHOW,
+            self::ADMIN_STATISTIC_POLLS_PER_WEEK => StateEnum::ADMIN_STATISTIC_POLLS_PER_WEEK_SHOW,
+            self::ADMIN_STATISTIC_POLLS_PER_DAY => StateEnum::ADMIN_STATISTIC_POLLS_PER_DAY_SHOW,
+            self::ADMIN_STATISTIC_USERS => StateEnum::ADMIN_STATISTIC_USERS_MENU_CHOICE,
+            self::ADMIN_STATISTIC_USERS_PER_DAY => StateEnum::ADMIN_STATISTIC_USERS_PER_DAY_SHOW,
         };
     }
 
@@ -79,6 +96,14 @@ enum CallbackEnum: string
             self::ADMIN_NEWSLETTER_CHANGE => '❌ Загрузить другое сообщение',
             self::ADMIN_NEWSLETTER_ACCEPT => '✅ Все верно, отправить сообщение всем участникам!',
             self::ADMIN_STATISTIC_MENU => 'Статистика бота',
+            self::ADMIN_STATISTIC_POLLS => 'Статистика тестов',
+            self::ADMIN_STATISTIC_POLLS_PER_YEAR => 'За год',
+            self::ADMIN_STATISTIC_POLLS_PER_QUARTER => 'За квартал',
+            self::ADMIN_STATISTIC_POLLS_PER_MONTH => 'За месяц',
+            self::ADMIN_STATISTIC_POLLS_PER_WEEK => 'За неделю',
+            self::ADMIN_STATISTIC_POLLS_PER_DAY => 'За сегодня',
+            self::ADMIN_STATISTIC_USERS => 'Статистика пользователей',
+            self::ADMIN_STATISTIC_USERS_PER_DAY => 'Новые пользователи сегодня',
         };
     }
 }
