@@ -35,6 +35,6 @@ class ChannelPollsChoiceState extends AbstractState implements UserState
             return self::STATE;
         }
 
-        return StateEnum::CHANNEL_NAME_WAITING;
+        return StateEnum::GAME_TITLE_WAITING;
     }
 }
