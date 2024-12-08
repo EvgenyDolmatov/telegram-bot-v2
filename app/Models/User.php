@@ -52,6 +52,11 @@ class User extends Model
         return $this->hasMany(PreparedPoll::class, 'user_id');
     }
 
+    public function games(): HasMany
+    {
+        return $this->hasMany(Game::class, 'user_id');
+    }
+
     public static function getByRequestRepository(RequestRepository $repository): ?User
     {
         $telegramUserId = $repository->getDto()->getFrom()->getId();

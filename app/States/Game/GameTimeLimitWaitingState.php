@@ -1,6 +1,6 @@
 <?php
 
-namespace App\States\Poll;
+namespace App\States\Game;
 
 use App\Enums\CallbackEnum;
 use App\Enums\StateEnum;
@@ -8,10 +8,9 @@ use App\States\AbstractState;
 use App\States\UserContext;
 use App\States\UserState;
 
-class ChannelPollsChoiceState extends AbstractState implements UserState
+class GameTimeLimitWaitingState extends AbstractState implements UserState
 {
-    private const StateEnum STATE = StateEnum::CHANNEL_POLLS_CHOICE;
-    private const string POLL_PREFIX = 'poll_';
+    private const StateEnum STATE = StateEnum::GAME_TIME_LIMIT_WAITING;
 
     public function handleInput(string $input, UserContext $context): void
     {
@@ -20,6 +19,10 @@ class ChannelPollsChoiceState extends AbstractState implements UserState
 
         // Update user step
         $this->updateState($state, $context);
+
+        // Update game
+        // TODO: Check if user sent integer value!!!
+        $this->updateGame('time_limit', $input);
 
         // Send message to chat
         $this->sendMessage($state);
@@ -31,10 +34,6 @@ class ChannelPollsChoiceState extends AbstractState implements UserState
             return $baseState->backState();
         }
 
-        if (str_starts_with($input, self::POLL_PREFIX)) {
-            return self::STATE;
-        }
-
-        return StateEnum::GAME_TITLE_WAITING;
+        return StateEnum::GAME_CHANNEL_WAITING;
     }
 }

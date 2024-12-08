@@ -1,37 +1,25 @@
 <?php
 
-namespace App\Senders\Poll;
+namespace App\Senders\Game;
 
 use App\Dto\ButtonDto;
 use App\Enums\CallbackEnum;
 use App\Enums\StateEnum;
 use App\Senders\AbstractSender;
 
-class ChannelPollsChoiceSender extends AbstractSender
+class GamePollsChoiceSender extends AbstractSender
 {
+    private const StateEnum STATE = StateEnum::GAME_POLLS_CHOICE;
     private const string POLL_PREFIX = 'poll_';
 
     public function send(): void
     {
         $this->addToTrash();
 
-        $text = StateEnum::CHANNEL_POLLS_CHOICE->title();
+        $text = self::STATE->title();
         $buttons = $this->getButtons();
 
-        $preparedPoll = $this->user->preparedPolls()->first();
-        if (!$preparedPoll) {
-            throw new \Exception('Prepared poll not found');
-        }
-
-        if (str_starts_with($this->getInputText(), self::POLL_PREFIX)) {
-            $message = $this->messageBuilder->createMessage($text, $buttons);
-            $this->senderService->editMessage($message, $preparedPoll->tg_message_id);
-        } else {
-            $response = $this->sendMessage($text, $buttons);
-            $data = json_decode($response, true);
-
-            $preparedPoll->update(['tg_message_id' => $data['result']['message_id']] ?? null);
-        }
+        $this->process($text, $buttons);
     }
 
     /**
@@ -70,8 +58,32 @@ class ChannelPollsChoiceSender extends AbstractSender
                 text: $symbol . $poll['question']);
         }
 
-        $buttons[] = new ButtonDto(CallbackEnum::ACCEPT_POLLS->value, CallbackEnum::ACCEPT_POLLS->buttonText());
+        $buttons[] = new ButtonDto(CallbackEnum::GAME_POLLS_SAVE->value, CallbackEnum::GAME_POLLS_SAVE->buttonText());
 
         return $buttons;
+    }
+
+    private function process(string $text, array $buttons): void
+    {
+        if (!$preparedPoll = $this->user->preparedPolls()->first()) {
+            throw new \Exception('Prepared poll not found');
+        }
+
+        // Edit message
+        if (str_starts_with($this->getInputText(), self::POLL_PREFIX)) {
+            $this->editMessage(
+                messageId: $preparedPoll->tg_message_id,
+                text: $text,
+                buttons: $buttons
+            );
+            return;
+        }
+
+        // Send message
+        $response = $this->sendMessage($text, $buttons);
+        $data = json_decode($response, true);
+
+        // TODO: Check if this need?..
+        $preparedPoll->update(['tg_message_id' => $data['result']['message_id']] ?? null);
     }
 }

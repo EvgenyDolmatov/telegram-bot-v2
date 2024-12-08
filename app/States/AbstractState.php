@@ -5,6 +5,8 @@ namespace App\States;
 use App\Enums\CommandEnum;
 use App\Enums\CallbackEnum;
 use App\Enums\StateEnum;
+use App\Models\Game;
+use App\Models\PreparedPoll;
 use App\Models\User;
 use App\Repositories\RequestRepository;
 use App\Services\TelegramService;
@@ -83,10 +85,32 @@ abstract class AbstractState implements UserState
         return $values;
     }
 
+    protected function getLastPreparedPoll(): ?PreparedPoll
+    {
+        return $this->user->preparedPolls->last();
+    }
+
     protected function deletePreparedPoll(): void
     {
-        if ($preparedPoll = $this->user->preparedPolls()->first()) {
+        if ($preparedPoll = $this->getLastPreparedPoll()) {
             $preparedPoll->delete();
+        }
+    }
+
+    protected function createGame(): void
+    {
+        if ($preparedPoll = $this->getLastPreparedPoll()) {
+            Game::create([
+                'user_id' => $this->user->id,
+                'poll_ids' => $preparedPoll->checked_poll_ids ?? null
+            ]);
+        }
+    }
+
+    protected function updateGame(string $field, string $value): void
+    {
+        if ($game = $this->user->games->last()) {
+            $game->update([$field => $value]);
         }
     }
 

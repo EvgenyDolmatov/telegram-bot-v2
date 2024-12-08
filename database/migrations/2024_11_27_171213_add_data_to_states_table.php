@@ -44,10 +44,13 @@ return new class extends Migration
             }
         }
 
-        /** Channel */
-        State::create(['code' => StateEnum::CHANNEL_POLLS_CHOICE->value]);
-        State::create(['code' => StateEnum::CHANNEL_NAME_WAITING->value]);
-        State::create(['code' => StateEnum::CHANNEL_POLLS_SENT_SUCCESS->value]);
+        /** Game */
+        State::create(['code' => StateEnum::GAME_POLLS_CHOICE->value]);
+        State::create(['code' => StateEnum::GAME_TITLE_WAITING->value]);
+        State::create(['code' => StateEnum::GAME_DESCRIPTION_WAITING->value]);
+        State::create(['code' => StateEnum::GAME_TIME_LIMIT_WAITING->value]);
+        State::create(['code' => StateEnum::GAME_CHANNEL_WAITING->value]);
+        State::create(['code' => StateEnum::GAME_CREATED_SUCCESS_SHOW->value]);
 
         /** Admin */
         State::create(['code' => StateEnum::ADMIN->value]);

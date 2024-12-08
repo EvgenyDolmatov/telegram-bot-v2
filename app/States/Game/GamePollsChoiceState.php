@@ -8,9 +8,10 @@ use App\States\AbstractState;
 use App\States\UserContext;
 use App\States\UserState;
 
-class GameTitleWaitingState extends AbstractState implements UserState
+class GamePollsChoiceState extends AbstractState implements UserState
 {
-    private const StateEnum STATE = StateEnum::GAME_TITLE_WAITING;
+    private const StateEnum STATE = StateEnum::GAME_POLLS_CHOICE;
+    private const string POLL_PREFIX = 'poll_';
 
     public function handleInput(string $input, UserContext $context): void
     {
@@ -20,8 +21,8 @@ class GameTitleWaitingState extends AbstractState implements UserState
         // Update user step
         $this->updateState($state, $context);
 
-        // Update game
-        $this->updateGame('title', $input);
+        // Create game
+        $this->createGame();
 
         // Send message to chat
         $this->sendMessage($state);
@@ -33,6 +34,10 @@ class GameTitleWaitingState extends AbstractState implements UserState
             return $baseState->backState();
         }
 
-        return StateEnum::GAME_DESCRIPTION_WAITING;
+        if (str_starts_with($input, self::POLL_PREFIX)) {
+            return self::STATE;
+        }
+
+        return StateEnum::GAME_TITLE_WAITING;
     }
 }

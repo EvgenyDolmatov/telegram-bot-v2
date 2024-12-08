@@ -98,6 +98,19 @@ abstract class AbstractSender implements SenderInterface
     }
 
     /**
+     * @param int $messageId
+     * @param string $text
+     * @param ButtonDto[]|null $buttons
+     * @return void
+     */
+    protected function editMessage(int $messageId, string $text, ?array $buttons = null): void
+    {
+        $message = $this->messageBuilder->createMessage($text, $buttons);
+
+        $this->senderService->editMessage($message, $messageId);
+    }
+
+    /**
      * @param string $text
      * @param ButtonDto[]|null $buttons
      * @param string $imageUrl

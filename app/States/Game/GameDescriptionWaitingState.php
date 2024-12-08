@@ -8,9 +8,9 @@ use App\States\AbstractState;
 use App\States\UserContext;
 use App\States\UserState;
 
-class GameTitleWaitingState extends AbstractState implements UserState
+class GameDescriptionWaitingState extends AbstractState implements UserState
 {
-    private const StateEnum STATE = StateEnum::GAME_TITLE_WAITING;
+    private const StateEnum STATE = StateEnum::GAME_DESCRIPTION_WAITING;
 
     public function handleInput(string $input, UserContext $context): void
     {
@@ -21,7 +21,7 @@ class GameTitleWaitingState extends AbstractState implements UserState
         $this->updateState($state, $context);
 
         // Update game
-        $this->updateGame('title', $input);
+        $this->updateGame('description', $input);
 
         // Send message to chat
         $this->sendMessage($state);
@@ -33,6 +33,6 @@ class GameTitleWaitingState extends AbstractState implements UserState
             return $baseState->backState();
         }
 
-        return StateEnum::GAME_DESCRIPTION_WAITING;
+        return StateEnum::GAME_TIME_LIMIT_WAITING;
     }
 }

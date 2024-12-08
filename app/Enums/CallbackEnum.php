@@ -19,8 +19,14 @@ enum CallbackEnum: string
     case LEVEL_HARD = 'level_hard';
     case LEVEL_ANY = 'level_any';
     case REPEAT_FLOW = 'repeat_flow';
-    case SEND_TO_CHANNEL = 'send_to_channel';
-    case ACCEPT_POLLS = 'accept_polls_and_send_to_channel';
+
+    /** Game */
+    case GAME_CREATE = 'game_create';
+    case GAME_POLLS_SAVE = 'game_polls_save';
+    case GAME_TITLE_SAVE = 'game_title_save';
+    case GAME_DESCRIPTION_SAVE = 'game_description_save';
+    case GAME_TIME_LIMIT_SAVE = 'game_time_limit_save';
+    case GAME_CHANNEL_SAVE = 'game_channel_save';
 
     /** Account */
     case ACCOUNT_REFERRAL_LINK = 'account_referral_link';
@@ -54,8 +60,14 @@ enum CallbackEnum: string
             self::LEVEL_EASY,
             self::LEVEL_ANY => StateEnum::POLL_SECTOR_CHOICE,
             self::REPEAT_FLOW => StateEnum::POLL_AI_RESPONDED_CHOICE,
-            self::SEND_TO_CHANNEL => StateEnum::CHANNEL_POLLS_CHOICE,
-            self::ACCEPT_POLLS => StateEnum::CHANNEL_NAME_WAITING,
+            /** Game */
+            self::GAME_CREATE => StateEnum::GAME_POLLS_CHOICE,
+            self::GAME_POLLS_SAVE => StateEnum::GAME_TITLE_WAITING,
+            self::GAME_TITLE_SAVE => StateEnum::GAME_DESCRIPTION_WAITING,
+            self::GAME_DESCRIPTION_SAVE => StateEnum::GAME_TIME_LIMIT_WAITING,
+            self::GAME_TIME_LIMIT_SAVE => StateEnum::GAME_CHANNEL_WAITING,
+            self::GAME_CHANNEL_SAVE => StateEnum::GAME_CREATED_SUCCESS_SHOW,
+
             self::ACCOUNT_REFERRAL_LINK => StateEnum::ACCOUNT_REFERRAL_LINK_SHOW,
             self::ACCOUNT_REFERRED_USERS => StateEnum::ACCOUNT_REFERRED_USERS_SHOW,
             self::ADMIN_NEWSLETTER_CREATE,
@@ -88,8 +100,12 @@ enum CallbackEnum: string
             self::LEVEL_EASY => "Низкая сложность",
             self::LEVEL_ANY => "Любая сложность",
             self::REPEAT_FLOW => "Создать еще 5 вопросов",
-            self::SEND_TO_CHANNEL => "Отправить в сообщество/канал",
-            self::ACCEPT_POLLS => "Отправить выбранные вопросы",
+            self::GAME_CREATE => "Создать игру для канала",
+            self::GAME_POLLS_SAVE => "Сохранить выбранные вопросы",
+            self::GAME_TITLE_SAVE => "Сохранить название",
+            self::GAME_DESCRIPTION_SAVE => "Сохранить описание",
+            self::GAME_TIME_LIMIT_SAVE => "Сохранить ограничение по времени",
+            self::GAME_CHANNEL_SAVE => "Отправить в канал",
             self::ACCOUNT_REFERRAL_LINK => "Моя реферальная ссылка",
             self::ACCOUNT_REFERRED_USERS => "Приглашенные пользователи",
             self::ADMIN_NEWSLETTER_CREATE => 'Создать рассылку',
