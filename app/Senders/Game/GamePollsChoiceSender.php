@@ -45,6 +45,7 @@ class GamePollsChoiceSender extends AbstractSender
                 $checkedPollIds = array_diff($checkedPollIds, [$pollId]);
             }
 
+            // TODO: Continue here...
             $preparedPoll->update(['checked_poll_ids' => implode(',', $checkedPollIds)]);
         }
 
