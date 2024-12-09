@@ -274,7 +274,7 @@ enum StateEnum: string
             self::GAME_DESCRIPTION_WAITING => "Введите описание вашей игры:",
             self::GAME_TIME_LIMIT_WAITING => "Какой лимит времени в секундах Вы даете на ответ? Напишите только цифру.",
             self::GAME_CHANNEL_WAITING => "Напишите название канала или ссылку на канал:",
-            self::GAME_CREATED_SUCCESS_SHOW => "Игра успешно создана! Выбранные тесты успешно отправлены в канал.",
+            self::GAME_CREATED_SUCCESS_SHOW => "Игра успешно создана! Теперь Вы можете отправить ее в канал.",
 
 //            self::CHANNEL_POLLS_CHOICE => "Выберите, какие вопросы нужно отправить?",
 //            self::CHANNEL_NAME_WAITING => "Напишите название канала или ссылку на канал:",
@@ -350,6 +350,7 @@ enum StateEnum: string
             ],
 
             self::GAME_CREATED_SUCCESS_SHOW => [
+                new ButtonDto(CallbackEnum::GAME_SEND_TO_CHANNEL->value, CallbackEnum::GAME_SEND_TO_CHANNEL->buttonText()),
                 new ButtonDto(CommandEnum::START->getCommand(), "↩️ Вернуться в начало")
             ],
 

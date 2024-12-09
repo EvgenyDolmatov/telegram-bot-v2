@@ -97,33 +97,6 @@ abstract class AbstractState implements UserState
         }
     }
 
-    protected function createGame(): void
-    {
-        if ($preparedPoll = $this->getLastPreparedPoll()) {
-            if ($lastGame = $this->getCurrentGame()) {
-                $lastGame->update(['poll_ids' => $preparedPoll->checked_poll_ids ?? null]);
-                return;
-            }
-
-            Game::create([
-                'user_id' => $this->user->id,
-                'poll_ids' => $preparedPoll->checked_poll_ids ?? null
-            ]);
-        }
-    }
-
-    protected function updateGame(string $field, string $value): void
-    {
-        if ($game = $this->user->games->last()) {
-            $game->update([$field => $value]);
-        }
-    }
-
-    private function getCurrentGame(): ?Game
-    {
-        return $this->user->games()->where('is_completed', false)->latest()->first();
-    }
-
     private function clearCommand(string $command): string
     {
         return ltrim($command, '/');

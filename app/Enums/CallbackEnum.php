@@ -27,6 +27,7 @@ enum CallbackEnum: string
     case GAME_DESCRIPTION_SAVE = 'game_description_save';
     case GAME_TIME_LIMIT_SAVE = 'game_time_limit_save';
     case GAME_CHANNEL_SAVE = 'game_channel_save';
+    case GAME_SEND_TO_CHANNEL = 'game_send_to_channel';
 
     /** Account */
     case ACCOUNT_REFERRAL_LINK = 'account_referral_link';
@@ -105,7 +106,8 @@ enum CallbackEnum: string
             self::GAME_TITLE_SAVE => "Сохранить название",
             self::GAME_DESCRIPTION_SAVE => "Сохранить описание",
             self::GAME_TIME_LIMIT_SAVE => "Сохранить ограничение по времени",
-            self::GAME_CHANNEL_SAVE => "Отправить в канал",
+            self::GAME_CHANNEL_SAVE => "Сохранить канал",
+            self::GAME_SEND_TO_CHANNEL => "Отправить в канал",
             self::ACCOUNT_REFERRAL_LINK => "Моя реферальная ссылка",
             self::ACCOUNT_REFERRED_USERS => "Приглашенные пользователи",
             self::ADMIN_NEWSLETTER_CREATE => 'Создать рассылку',
