@@ -36,7 +36,7 @@ class AiRespondedChoiceState extends AbstractState implements UserState
     {
         match ($input) {
             CallbackEnum::REPEAT_FLOW->value => $this->duplicateLastFlow(),
-            default => $this->user->updateFlow(self::STATE, $input, true)
+            default => $this->user->updateFlow(self::STATE, $input, true) // TODO: Remove and check
         };
     }
 

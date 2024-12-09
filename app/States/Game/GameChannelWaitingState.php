@@ -17,13 +17,19 @@ class GameChannelWaitingState extends AbstractState implements UserState
         // Get next state by callback
         $state = $this->getState($input, self::STATE);
 
+        // Send message to chat
+        $this->sendMessage($state);
+
+        // Update flow
+        $this->user->updateFlow(self::STATE, $input);
+
         // Update user step
         $this->updateState($state, $context);
 
-        // TODO: Need to relate channel with game
 
-        // Send message to chat
-        $this->sendMessage($state);
+
+
+        // TODO: Need to relate channel with game
     }
 
     protected function getState(string $input, StateEnum $baseState): StateEnum

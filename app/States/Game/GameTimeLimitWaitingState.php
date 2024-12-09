@@ -17,21 +17,29 @@ class GameTimeLimitWaitingState extends AbstractState implements UserState
         // Get next state by callback
         $state = $this->getState($input, self::STATE);
 
+        // Send message to chat
+        $this->sendMessage($state);
+
+        // Update user step
+        $this->user->updateFlow(self::STATE, $input);
+
         // Update user step
         $this->updateState($state, $context);
 
-        // Update game
-        // TODO: Check if user sent integer value!!!
-        $this->updateGame('time_limit', $input);
 
-        // Send message to chat
-        $this->sendMessage($state);
+        // Update game
+//        $this->updateGame('time_limit', $input);
     }
 
     protected function getState(string $input, StateEnum $baseState): StateEnum
     {
         if ($input === CallbackEnum::BACK->value) {
             return $baseState->backState();
+        }
+
+        // TODO: Sending a message to user about this rule
+        if (!is_numeric($input)) {
+            return self::STATE;
         }
 
         return StateEnum::GAME_CHANNEL_WAITING;

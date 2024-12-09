@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('title')->nullable();
             $table->string('description')->nullable();
             $table->integer('time_limit')->default(0);
-            $table->integer('is_completed')->default(0);
             $table->timestamps();
         });
     }

@@ -163,19 +163,14 @@ class User extends Model
 
     }
 
-    public function updateFlow(StateEnum $state, string $value, bool $isCompleted = false): void
+    public function updateFlow(StateEnum $state, ?string $value = null, bool $isCompleted = false): void
     {
         if ($openedFlow = $this->getOpenedFlow()) {
-            $flowData = json_decode($openedFlow->flow, true);
-
-            // Delete flow key if pressed on back step
-            if ($value === CallbackEnum::BACK->value) {
-                if (array_key_exists($state->value, $flowData)) {
-                    unset($flowData[$state->value]);
-                }
-            } else {
-                $flowData[$state->value] = $value;
-            }
+            $flowData = $this->updateFlowData(
+                data: json_decode($openedFlow->flow, true),
+                state: $state,
+                value: $value
+            );
 
             $openedFlow->update([
                 'flow' => json_encode($flowData),
@@ -197,5 +192,22 @@ class User extends Model
         if ($openedFlow = $this->getOpenedFlow()){
             $openedFlow->delete();
         }
+    }
+
+    private function updateFlowData(array $data, StateEnum $state, ?string $value = null): array
+    {
+        if ($value) {
+            if ($value === CallbackEnum::BACK->value) {
+                if (array_key_exists($state->backState()->value, $data)) {
+                    unset($data[$state->backState()->value]);
+                }
+
+                return $data;
+            }
+
+            $data[$state->value] = $value;
+        }
+
+        return $data;
     }
 }
