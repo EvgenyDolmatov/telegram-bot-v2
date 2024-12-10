@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Builder\Message\Message;
 use App\Builder\Poll\Poll;
 use App\Exceptions\ChatNotFoundException;
+use App\Exceptions\ResponseException;
 use App\Models\TrashMessage;
 use App\Repositories\RequestRepository;
 use Exception;
@@ -30,10 +31,10 @@ readonly class SenderService
      * @param string $imageUrl
      * @param bool $isTrash
      * @param int|null $chatId
-     * @return void
-     * @throws \Exception
+     * @return Response
+     * @throws ResponseException
      */
-    public function sendPhoto(Message $message, string $imageUrl, bool $isTrash = true, int $chatId = null): void
+    public function sendPhoto(Message $message, string $imageUrl, bool $isTrash = true, int $chatId = null): Response
     {
         $url = TelegramService::BASE_URL . $this->telegramService->token . '/sendPhoto';
 
@@ -60,6 +61,8 @@ readonly class SenderService
         );
 
         Log::debug('BOT: ' . $response);
+
+        return $response;
     }
 
     /**
@@ -118,6 +121,26 @@ readonly class SenderService
             'message_id' => $messageId,
             'parse_mode' => 'html',
             'text' => $message->getText()
+        ];
+
+        $body = $this->addButtonsToBody($message->getButtons(), $body);
+        $response = Http::post($url, $body);
+
+        Log::debug('BOT: ' . $response);
+
+        return $response;
+    }
+
+    public function editMessageCaption(Message $message, int $messageId): string
+    {
+        $url = $this->getUrl('editMessageCaption');
+
+        $chat = (new RequestRepository($this->request))->getDto()->getChat();
+        $body = [
+            'chat_id' => $chat->getId(),
+            'message_id' => $messageId,
+            'parse_mode' => 'html',
+            'caption' => $message->getText()
         ];
 
         $body = $this->addButtonsToBody($message->getButtons(), $body);
