@@ -120,9 +120,16 @@ class User extends Model
         return $startState;
     }
 
-    public function hasAnyState(): bool
+    public function getPreparedPoll(): ?PreparedPoll
     {
-        return $this->states()->count();
+        return $this->preparedPolls->last();
+    }
+
+    public function deletePreparedPoll(): void
+    {
+        if ($preparedPoll = $this->getPreparedPoll()) {
+            $preparedPoll->delete();
+        }
     }
 
     /**

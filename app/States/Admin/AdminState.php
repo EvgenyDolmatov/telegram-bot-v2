@@ -11,7 +11,7 @@ class AdminState extends AbstractState
 
     public function handleInput(string $input, $context): void
     {
-        $this->deletePreparedPoll();
+        $this->user->deletePreparedPoll();
 
         // Get next state by callback
         $state = $this->getState($input, self::STATE);
