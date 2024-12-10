@@ -11,12 +11,6 @@ class TypeChoiceSender extends AbstractSender
 
     public function send(): void
     {
-        $this->addToTrash();
-
-        $this->editMessageCaption(
-            messageId: $this->user->tg_message_id,
-            text: self::STATE->title(),
-            buttons: self::STATE->buttons()
-        );
+        $this->sendMessage(self::STATE->title(), self::STATE->buttons());
     }
 }
