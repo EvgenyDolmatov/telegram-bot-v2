@@ -11,10 +11,10 @@ use App\Senders\AbstractSender;
 
 class SubjectChoiceSender extends AbstractSender
 {
+    private const StateEnum STATE = StateEnum::POLL_SUBJECT_CHOICE;
+
     public function send(): void
     {
-        $this->addToTrash();
-
         $subjects = $this->getSubjects();
 
         // TODO: Check !!!
@@ -23,14 +23,11 @@ class SubjectChoiceSender extends AbstractSender
             return;
         }
 
-        $buttons = array_map(
-            fn($subject) => new ButtonDto($subject['code'], $subject['title']),
-            $subjects->toArray()
+        $this->editMessageCaption(
+            messageId: $this->user->tg_message_id,
+            text: self::STATE->title(),
+            buttons: $this->getButtons($subjects)
         );
-
-        $buttons[] = new ButtonDto(CallbackEnum::BACK->value, CallbackEnum::BACK->buttonText());
-
-        $this->sendMessage(StateEnum::POLL_SUBJECT_CHOICE->title(), $buttons);
     }
 
     private function getSubjects()
@@ -66,5 +63,13 @@ class SubjectChoiceSender extends AbstractSender
         return $parentSubject && $parentSubject->has_child
             ? Subject::where('parent_id', $parentSubject->id)->get()
             : null;
+    }
+
+    private function getButtons($subjects): array
+    {
+        $buttons = array_map(fn($subject) => new ButtonDto($subject['code'], $subject['title']), $subjects->toArray());
+        $buttons[] = new ButtonDto(CallbackEnum::BACK->value, CallbackEnum::BACK->buttonText());
+
+        return $buttons;
     }
 }
