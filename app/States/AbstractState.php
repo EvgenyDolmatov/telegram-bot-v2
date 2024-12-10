@@ -5,8 +5,6 @@ namespace App\States;
 use App\Enums\CommandEnum;
 use App\Enums\CallbackEnum;
 use App\Enums\StateEnum;
-use App\Models\Game;
-use App\Models\PreparedPoll;
 use App\Models\User;
 use App\Repositories\RequestRepository;
 use App\Services\TelegramService;
@@ -25,7 +23,7 @@ abstract class AbstractState implements UserState
 
     public function handleCommand(string $command, UserContext $context): void
     {
-        $command = $this->clearCommand($command);
+        $command = ltrim($command, '/');
         $state = CommandEnum::from($command)->toState();
 
         $this->user->resetFlow();
@@ -83,22 +81,5 @@ abstract class AbstractState implements UserState
         }
 
         return $values;
-    }
-
-    protected function getLastPreparedPoll(): ?PreparedPoll
-    {
-        return $this->user->preparedPolls->last();
-    }
-
-    protected function deletePreparedPoll(): void
-    {
-        if ($preparedPoll = $this->getLastPreparedPoll()) {
-            $preparedPoll->delete();
-        }
-    }
-
-    private function clearCommand(string $command): string
-    {
-        return ltrim($command, '/');
     }
 }

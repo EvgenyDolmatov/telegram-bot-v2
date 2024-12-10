@@ -67,7 +67,7 @@ class GameChannelWaitingState extends AbstractState implements UserState
         $flow->update(['is_completed' => true]);
 
         // Delete prepared poll
-        if ($preparedPoll = $this->getLastPreparedPoll()) {
+        if ($preparedPoll = $this->user->getPreparedPoll()) {
             $preparedPoll->delete();
         }
     }

@@ -20,7 +20,7 @@ class GamePollsChoiceState extends AbstractState implements UserState
 
         // Update flow
         // TODO: Check if polls is empty
-        if ($preparedPoll = $this->getLastPreparedPoll()) {
+        if ($preparedPoll = $this->user->getPreparedPoll()) {
             $this->user->updateFlow(self::STATE, $preparedPoll->checked_poll_ids);
         }
 
