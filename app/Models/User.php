@@ -163,7 +163,7 @@ class User extends Model
 
     }
 
-    public function updateFlow(StateEnum $state, ?string $value = null, bool $isCompleted = false): void
+    public function updateFlow(StateEnum $state, ?string $value = null, bool $isCompleted = false): UserFlow
     {
         if ($openedFlow = $this->getOpenedFlow()) {
             $flowData = $this->updateFlowData(
@@ -177,10 +177,10 @@ class User extends Model
                 'is_completed' => $isCompleted
             ]);
 
-            return;
+            return $openedFlow;
         }
 
-        UserFlow::create([
+        return UserFlow::create([
             'user_id' => $this->id,
             'flow' => json_encode([$state->value => $value]),
             'is_completed' => $isCompleted,

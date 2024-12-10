@@ -2,9 +2,7 @@
 
 namespace App\States\Game;
 
-use App\Enums\CallbackEnum;
 use App\Enums\StateEnum;
-use App\Models\Game;
 use App\States\AbstractState;
 use App\States\UserContext;
 use App\States\UserState;
@@ -18,10 +16,10 @@ class GameCreatedSuccessState extends AbstractState implements UserState
         // Get next state by callback
         $state = $this->getState($input, self::STATE);
 
-        // Send message to chat
-        $this->sendMessage($state);
-
         // Update user step
         $this->updateState($state, $context);
+
+        // Send message to chat
+        $this->sendMessage($state);
     }
 }

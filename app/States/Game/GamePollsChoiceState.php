@@ -18,10 +18,8 @@ class GamePollsChoiceState extends AbstractState implements UserState
         // Get next state by callback
         $state = $this->getState($input, self::STATE);
 
-        // Send message to chat
-        $this->sendMessage($state);
-
         // Update flow
+        // TODO: Check if polls is empty
         if ($preparedPoll = $this->getLastPreparedPoll()) {
             $this->user->updateFlow(self::STATE, $preparedPoll->checked_poll_ids);
         }
@@ -29,8 +27,8 @@ class GamePollsChoiceState extends AbstractState implements UserState
         // Update user step
         $this->updateState($state, $context);
 
-        // Create game
-//        $this->createGame();
+        // Send message to chat
+        $this->sendMessage($state);
     }
 
     protected function getState(string $input, StateEnum $baseState): StateEnum

@@ -9,5 +9,5 @@ class Game extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'poll_ids', 'title', 'description', 'time_limit', 'is_completed'];
+    protected $fillable = ['user_id', 'poll_ids', 'title', 'description', 'time_limit', 'channel', 'is_completed'];
 }

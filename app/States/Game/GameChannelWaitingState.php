@@ -5,6 +5,7 @@ namespace App\States\Game;
 use App\Enums\CallbackEnum;
 use App\Enums\StateEnum;
 use App\Models\Game;
+use App\Models\UserFlow;
 use App\States\AbstractState;
 use App\States\UserContext;
 use App\States\UserState;
@@ -18,17 +19,17 @@ class GameChannelWaitingState extends AbstractState implements UserState
         // Get next state by callback
         $state = $this->getState($input, self::STATE);
 
-        // Send message to chat
-        $this->sendMessage($state);
-
         // Update flow
-        $this->user->updateFlow(self::STATE, $this->getChannelName($input));
+        $userFlow = $this->user->updateFlow(self::STATE, $this->getChannelName($input));
 
         // Create game and close flow
-        $this->createGame();
+        $this->createGame($userFlow);
 
         // Update user step
         $this->updateState($state, $context);
+
+        // Send message to chat
+        $this->sendMessage($state);
     }
 
     protected function getState(string $input, StateEnum $baseState): StateEnum
@@ -49,29 +50,25 @@ class GameChannelWaitingState extends AbstractState implements UserState
         return '@' . ltrim($input, '@');
     }
 
-    private function createGame(): void
+    private function createGame(UserFlow $flow): void
     {
-        $userFlow = $this->user->flows->where('is_completed', false)->last();
+        $data = json_decode($flow->flow, true);
 
-        if ($userFlow) {
-            $flowData = json_decode($userFlow->flow, true);
+        Game::create([
+            'user_id' => $this->user->id,
+            'poll_ids' => $data[StateEnum::GAME_POLLS_CHOICE->value] ?? null,
+            'title' => $data[StateEnum::GAME_TITLE_WAITING->value] ?? null,
+            'description' => $data[StateEnum::GAME_DESCRIPTION_WAITING->value] ?? null,
+            'time_limit' => $data[StateEnum::GAME_TIME_LIMIT_WAITING->value] ?? null,
+            'channel' => $data[StateEnum::GAME_CHANNEL_WAITING->value] ?? null,
+        ]);
 
-            Game::create([
-                'user_id' => $this->user->id,
-                'poll_ids' => $flowData[StateEnum::GAME_POLLS_CHOICE->value] ?? null,
-                'title' => $flowData[StateEnum::GAME_TITLE_WAITING->value] ?? null,
-                'description' => $flowData[StateEnum::GAME_TITLE_WAITING->value] ?? null,
-                'time_limit' => $flowData[StateEnum::GAME_TIME_LIMIT_WAITING->value] ?? null,
-                'channel' => $flowData[StateEnum::GAME_CHANNEL_WAITING->value] ?? null,
-            ]);
+        // Close flow
+        $flow->update(['is_completed' => true]);
 
-            // Close flow
-            $userFlow->update(['is_completed' => true]);
-
-            // Delete prepared poll
-            if ($preparedPoll = $this->getLastPreparedPoll()) {
-                $preparedPoll->delete();
-            }
+        // Delete prepared poll
+        if ($preparedPoll = $this->getLastPreparedPoll()) {
+            $preparedPoll->delete();
         }
     }
 }

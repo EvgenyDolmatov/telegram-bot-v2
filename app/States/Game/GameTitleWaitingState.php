@@ -17,17 +17,14 @@ class GameTitleWaitingState extends AbstractState implements UserState
         // Get next state by callback
         $state = $this->getState($input, self::STATE);
 
-        // Send message to chat
-        $this->sendMessage($state);
-
         // Update flow
         $this->user->updateFlow(self::STATE, $input);
 
         // Update user step
         $this->updateState($state, $context);
 
-        // Update game
-//        $this->updateGame('title', $input);
+        // Send message to chat
+        $this->sendMessage($state);
     }
 
     protected function getState(string $input, StateEnum $baseState): StateEnum
