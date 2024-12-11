@@ -6,12 +6,13 @@ use App\Dto\Message\ChatDto;
 use App\Dto\Message\FromDto;
 use App\Dto\Message\PhotoDto;
 use App\Dto\MessageDto;
-use Illuminate\Support\Facades\Log;
 
 class MessageRepository extends AbstractRepository
 {
     /**
      * @throws \Exception
+     *
+     * TODO: Переработать репозиторий получения данных, если response получаем из канала. Создать стратегию
      */
     public function getDto(): ?MessageDto
     {
