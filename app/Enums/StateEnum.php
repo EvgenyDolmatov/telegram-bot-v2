@@ -26,6 +26,7 @@ use App\Senders\Game\GameChannelWaitingSender;
 use App\Senders\Game\GameCreatedSuccessShowSender;
 use App\Senders\Game\GameDescriptionWaitingSender;
 use App\Senders\Game\GamePollsChoiceSender;
+use App\Senders\Game\GameSentToChannelSuccessSender;
 use App\Senders\Game\GameTimeLimitWaitingSender;
 use App\Senders\Game\GameTitleWaitingSender;
 use App\Senders\Poll\AiRespondedChoiceSender;
@@ -58,6 +59,7 @@ use App\States\Game\GameChannelWaitingState;
 use App\States\Game\GameCreatedSuccessState;
 use App\States\Game\GameDescriptionWaitingState;
 use App\States\Game\GamePollsChoiceState;
+use App\States\Game\GameSentToChannelSuccessState;
 use App\States\Game\GameTimeLimitWaitingState;
 use App\States\Game\GameTitleWaitingState;
 use App\States\Help\HelpState;
@@ -93,6 +95,7 @@ enum StateEnum: string
     case GAME_TIME_LIMIT_WAITING = 'game_time_limit_waiting';
     case GAME_CHANNEL_WAITING = 'game_channel_waiting';
     case GAME_CREATED_SUCCESS_SHOW = 'game_created_success_show';
+    case GAME_SENT_TO_CHANNEL_SUCCESS = 'game_sent_to_channel_success';
 
     /**
      * Channel
@@ -144,6 +147,7 @@ enum StateEnum: string
             self::GAME_TIME_LIMIT_WAITING => new GameTimeLimitWaitingState($request, $telegramService),
             self::GAME_CHANNEL_WAITING => new GameChannelWaitingState($request, $telegramService),
             self::GAME_CREATED_SUCCESS_SHOW => new GameCreatedSuccessState($request, $telegramService),
+            self::GAME_SENT_TO_CHANNEL_SUCCESS => new GameSentToChannelSuccessState($request, $telegramService),
 
 //            self::CHANNEL_POLLS_CHOICE => new ChannelPollsChoiceState($request, $telegramService),
             /** Channel states */
@@ -183,7 +187,8 @@ enum StateEnum: string
             self::POLL_TYPE_CHOICE,
             self::POLL_AI_RESPONDED_CHOICE,
             self::GAME_POLLS_CHOICE,
-            self::GAME_CREATED_SUCCESS_SHOW => self::START,
+            self::GAME_CREATED_SUCCESS_SHOW,
+            self::GAME_SENT_TO_CHANNEL_SUCCESS => self::START,
 //            self::CHANNEL_POLLS_CHOICE,
 //            self::CHANNEL_POLLS_SENT_SUCCESS => self::START,
             self::POLL_ANONYMITY_CHOICE => self::POLL_TYPE_CHOICE,
@@ -235,6 +240,7 @@ enum StateEnum: string
             self::GAME_TIME_LIMIT_WAITING => new GameTimeLimitWaitingSender($request, $telegramService, $user),
             self::GAME_CHANNEL_WAITING => new GameChannelWaitingSender($request, $telegramService, $user),
             self::GAME_CREATED_SUCCESS_SHOW => new GameCreatedSuccessShowSender($request, $telegramService, $user),
+            self::GAME_SENT_TO_CHANNEL_SUCCESS => new GameSentToChannelSuccessSender($request, $telegramService, $user),
 
 //            self::CHANNEL_NAME_WAITING => new ChannelNameWaitingSender($request, $telegramService, $user),
 //            self::CHANNEL_POLLS_SENT_SUCCESS => new ChannelPollsSentSuccessSender($request, $telegramService, $user),
@@ -275,6 +281,7 @@ enum StateEnum: string
             self::GAME_TIME_LIMIT_WAITING => "Какой лимит времени в секундах Вы даете на ответ? Напишите только цифру.",
             self::GAME_CHANNEL_WAITING => "Напишите название канала или ссылку на канал:",
             self::GAME_CREATED_SUCCESS_SHOW => "Игра успешно создана! Теперь Вы можете отправить ее в канал.",
+            self::GAME_SENT_TO_CHANNEL_SUCCESS => "Игра успешно отправлена в канал! Она начнется через 30 секунд.",
 
 //            self::CHANNEL_POLLS_CHOICE => "Выберите, какие вопросы нужно отправить?",
 //            self::CHANNEL_NAME_WAITING => "Напишите название канала или ссылку на канал:",
@@ -351,6 +358,9 @@ enum StateEnum: string
 
             self::GAME_CREATED_SUCCESS_SHOW => [
                 new ButtonDto(CallbackEnum::GAME_SEND_TO_CHANNEL->value, CallbackEnum::GAME_SEND_TO_CHANNEL->buttonText()),
+                new ButtonDto(CommandEnum::START->getCommand(), "↩️ Вернуться в начало")
+            ],
+            self::GAME_SENT_TO_CHANNEL_SUCCESS => [
                 new ButtonDto(CommandEnum::START->getCommand(), "↩️ Вернуться в начало")
             ],
 

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Builder\Message\Message;
 use App\Builder\Poll\Poll;
 use App\Exceptions\ChatNotFoundException;
+use App\Exceptions\ResponseException;
 use App\Models\TrashMessage;
 use App\Repositories\RequestRepository;
 use Exception;
@@ -30,11 +31,15 @@ readonly class SenderService
      * @param string $imageUrl
      * @param bool $isTrash
      * @param int|null $chatId
-     * @return void
-     * @throws \Exception
+     * @return Response
+     * @throws ResponseException
      */
-    public function sendPhoto(Message $message, string $imageUrl, bool $isTrash = true, int $chatId = null): void
-    {
+    public function sendPhoto(
+        Message $message,
+        string $imageUrl,
+        bool $isTrash = true,
+        int $chatId = null
+    ): Response {
         $url = TelegramService::BASE_URL . $this->telegramService->token . '/sendPhoto';
 
         if (!$chatId) {
@@ -60,6 +65,7 @@ readonly class SenderService
         );
 
         Log::debug('BOT: ' . $response);
+        return $response;
     }
 
     /**
@@ -71,8 +77,11 @@ readonly class SenderService
      * @return string
      * @throws \Exception
      */
-    public function sendMessage(Message $message, bool $isTrash = true, ?int $chatId = null): string
-    {
+    public function sendMessage(
+        Message $message,
+        bool $isTrash = true,
+        ?int $chatId = null
+    ): Response {
         $url = TelegramService::BASE_URL . $this->telegramService->token . '/sendMessage';
 
         if (!$chatId) {
@@ -104,7 +113,7 @@ readonly class SenderService
     /**
      * Update message by message id
      */
-    public function editMessage(Message $message, int $messageId, bool $isTrash = true, int $chatId = null): string
+    public function editMessage(Message $message, int $messageId, bool $isTrash = true, int $chatId = null): Response
     {
         $url = $this->getUrl('editMessageText');
 

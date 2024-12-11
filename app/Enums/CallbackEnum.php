@@ -68,6 +68,7 @@ enum CallbackEnum: string
             self::GAME_DESCRIPTION_SAVE => StateEnum::GAME_TIME_LIMIT_WAITING,
             self::GAME_TIME_LIMIT_SAVE => StateEnum::GAME_CHANNEL_WAITING,
             self::GAME_CHANNEL_SAVE => StateEnum::GAME_CREATED_SUCCESS_SHOW,
+            self::GAME_SEND_TO_CHANNEL => StateEnum::GAME_SENT_TO_CHANNEL_SUCCESS,
 
             self::ACCOUNT_REFERRAL_LINK => StateEnum::ACCOUNT_REFERRAL_LINK_SHOW,
             self::ACCOUNT_REFERRED_USERS => StateEnum::ACCOUNT_REFERRED_USERS_SHOW,
