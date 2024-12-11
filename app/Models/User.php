@@ -16,7 +16,6 @@ class User extends Model
     protected $fillable = [
         'tg_user_id',
         'tg_chat_id',
-        'tg_message_id',
         'username',
         'first_name',
         'last_name',

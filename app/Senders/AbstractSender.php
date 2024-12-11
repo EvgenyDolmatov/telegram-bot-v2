@@ -14,7 +14,6 @@ use App\Models\User;
 use App\Repositories\RequestRepository;
 use App\Services\SenderService;
 use App\Services\TelegramService;
-use Illuminate\Http\Client\Response;
 use Illuminate\Http\Request;
 
 abstract class AbstractSender implements SenderInterface
@@ -112,12 +111,11 @@ abstract class AbstractSender implements SenderInterface
     }
 
     /**
-     * @param string $imageUrl
      * @param string $text
      * @param ButtonDto[]|null $buttons
+     * @param string $imageUrl
      * @param bool $isTrash
      * @param int|null $chatId
-     * @return Response
      * @throws \Exception
      */
     protected function sendPhoto(
@@ -126,16 +124,9 @@ abstract class AbstractSender implements SenderInterface
         ?array $buttons = null,
         bool   $isTrash = true,
         ?int   $chatId = null
-    ): Response {
+    ): void {
         $message = $this->messageBuilder->createMessage($text, $buttons);
 
-        return $this->senderService->sendPhoto($message, $imageUrl, $isTrash, $chatId);
-    }
-
-    protected function editMessageCaption(int $messageId, string $text, ?array $buttons = null): void
-    {
-        $message = $this->messageBuilder->createMessage($text, $buttons);
-
-        $this->senderService->editMessageCaption($message, $messageId);
+        $this->senderService->sendPhoto($message, $imageUrl, $isTrash, $chatId);
     }
 }
