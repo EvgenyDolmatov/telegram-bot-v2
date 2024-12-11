@@ -7,14 +7,13 @@ use App\Senders\AbstractSender;
 
 class SupportSender extends AbstractSender
 {
-    private const StateEnum STATE = StateEnum::POLL_SUPPORT;
-
     public function send(): void
     {
-        $this->editMessageCaption(
-            messageId: $this->user->tg_message_id,
-            text: self::STATE->title(),
-            buttons: self::STATE->buttons()
+        $this->addToTrash();
+
+        $this->sendMessage(
+            text: StateEnum::POLL_SUPPORT->title(),
+            buttons: StateEnum::POLL_SUPPORT->buttons()
         );
     }
 }

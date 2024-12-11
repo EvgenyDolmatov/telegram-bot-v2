@@ -8,7 +8,6 @@ use App\Builder\PollSender;
 use App\Dto\ButtonDto;
 use App\Dto\MessageDto;
 use App\Enums\CommandEnum;
-use App\Exceptions\ResponseException;
 use App\Models\AiRequest;
 use App\Models\TrashMessage;
 use App\Models\User;
@@ -114,23 +113,23 @@ abstract class AbstractSender implements SenderInterface
 
     /**
      * @param string $imageUrl
-     * @param string|null $text
+     * @param string $text
      * @param ButtonDto[]|null $buttons
      * @param bool $isTrash
      * @param int|null $chatId
      * @return Response
-     * @throws ResponseException
+     * @throws \Exception
      */
     protected function sendPhoto(
         string $imageUrl,
-        ?string $text = null,
+        string $text,
         ?array $buttons = null,
         bool   $isTrash = true,
         ?int   $chatId = null
     ): Response {
         $message = $this->messageBuilder->createMessage($text, $buttons);
 
-        return $this->senderService->sendPhoto($imageUrl, $message, $isTrash, $chatId);
+        return $this->senderService->sendPhoto($message, $imageUrl, $isTrash, $chatId);
     }
 
     protected function editMessageCaption(int $messageId, string $text, ?array $buttons = null): void
