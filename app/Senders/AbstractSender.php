@@ -8,12 +8,14 @@ use App\Builder\PollSender;
 use App\Dto\ButtonDto;
 use App\Dto\MessageDto;
 use App\Enums\CommandEnum;
+use App\Exceptions\ResponseException;
 use App\Models\AiRequest;
 use App\Models\TrashMessage;
 use App\Models\User;
 use App\Repositories\RequestRepository;
 use App\Services\SenderService;
 use App\Services\TelegramService;
+use Illuminate\Http\Client\Response;
 use Illuminate\Http\Request;
 
 abstract class AbstractSender implements SenderInterface
@@ -83,7 +85,7 @@ abstract class AbstractSender implements SenderInterface
      * @param ButtonDto[]|null $buttons
      * @param bool $isTrash
      * @param int|null $chatId
-     * @return string
+     * @return Response
      * @throws \Exception
      */
     protected function sendMessage(
@@ -91,9 +93,8 @@ abstract class AbstractSender implements SenderInterface
         ?array $buttons = null,
         bool   $isTrash = true,
         ?int   $chatId = null
-    ): string {
+    ): Response {
         $message = $this->messageBuilder->createMessage($text, $buttons);
-
         return $this->senderService->sendMessage($message, $isTrash, $chatId);
     }
 
@@ -103,20 +104,20 @@ abstract class AbstractSender implements SenderInterface
      * @param ButtonDto[]|null $buttons
      * @return void
      */
-    protected function editMessage(int $messageId, string $text, ?array $buttons = null): void
+    protected function editMessage(int $messageId, string $text, ?array $buttons = null): Response
     {
         $message = $this->messageBuilder->createMessage($text, $buttons);
-
-        $this->senderService->editMessage($message, $messageId);
+        return $this->senderService->editMessage($message, $messageId);
     }
 
     /**
+     * @param string $imageUrl
      * @param string $text
      * @param ButtonDto[]|null $buttons
-     * @param string $imageUrl
      * @param bool $isTrash
      * @param int|null $chatId
-     * @throws \Exception
+     * @return Response
+     * @throws ResponseException
      */
     protected function sendPhoto(
         string $imageUrl,
@@ -124,9 +125,8 @@ abstract class AbstractSender implements SenderInterface
         ?array $buttons = null,
         bool   $isTrash = true,
         ?int   $chatId = null
-    ): void {
+    ): Response {
         $message = $this->messageBuilder->createMessage($text, $buttons);
-
-        $this->senderService->sendPhoto($message, $imageUrl, $isTrash, $chatId);
+        return $this->senderService->sendPhoto($message, $imageUrl, $isTrash, $chatId);
     }
 }
