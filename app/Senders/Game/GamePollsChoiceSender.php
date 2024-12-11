@@ -72,11 +72,7 @@ class GamePollsChoiceSender extends AbstractSender
 
         // Edit message
         if (str_starts_with($this->getInputText(), self::POLL_PREFIX)) {
-            $this->editMessage(
-                messageId: $preparedPoll->tg_message_id,
-                text: $text,
-                buttons: $buttons
-            );
+            $this->editMessage($preparedPoll->tg_message_id, $text, $buttons);
             return;
         }
 

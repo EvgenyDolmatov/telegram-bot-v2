@@ -100,14 +100,15 @@ abstract class AbstractSender implements SenderInterface
 
     /**
      * @param int $messageId
+     * @param int|null $chatId
      * @param string $text
      * @param ButtonDto[]|null $buttons
-     * @return void
+     * @return Response
      */
-    protected function editMessage(int $messageId, string $text, ?array $buttons = null): Response
+    protected function editMessage(int $messageId, string $text, ?array $buttons = null, ?int $chatId = null): Response
     {
         $message = $this->messageBuilder->createMessage($text, $buttons);
-        return $this->senderService->editMessage($message, $messageId);
+        return $this->senderService->editMessage($message, $messageId, $chatId);
     }
 
     /**

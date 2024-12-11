@@ -113,7 +113,7 @@ readonly class SenderService
     /**
      * Update message by message id
      */
-    public function editMessage(Message $message, int $messageId, bool $isTrash = true, int $chatId = null): Response
+    public function editMessage(Message $message, int $messageId, ?int $chatId = null): Response
     {
         $url = $this->getUrl('editMessageText');
 
