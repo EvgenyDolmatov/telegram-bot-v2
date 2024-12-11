@@ -4,12 +4,9 @@ namespace App\Services;
 
 use App\Builder\Message\Message;
 use App\Builder\Poll\Poll;
-use App\Dto\MessageDto;
 use App\Exceptions\ChatNotFoundException;
 use App\Exceptions\ResponseException;
 use App\Models\TrashMessage;
-use App\Models\User;
-use App\Repositories\MessageRepository;
 use App\Repositories\RequestRepository;
 use Exception;
 use Illuminate\Http\Client\Response;
@@ -21,59 +18,47 @@ use Throwable;
 
 readonly class SenderService
 {
-    private RequestRepository $requestRepository;
-
     public function __construct(
         private Request         $request,
         private TelegramService $telegramService
     ) {
-        $this->requestRepository = (new RequestRepository($this->request));
     }
 
     /**
      * Send photo
      *
+     * @param Message $message
      * @param string $imageUrl
-     * @param Message|null $message
      * @param bool $isTrash
      * @param int|null $chatId
      * @return Response
      * @throws ResponseException
      */
-    public function sendPhoto(
-        string $imageUrl,
-        ?Message $message = null,
-        bool $isTrash = true,
-        int $chatId = null
-    ): Response {
+    public function sendPhoto(Message $message, string $imageUrl, bool $isTrash = true, int $chatId = null): Response
+    {
         $url = TelegramService::BASE_URL . $this->telegramService->token . '/sendPhoto';
 
         if (!$chatId) {
-            $chat = $this->requestRepository->getDto()->getChat();
+            $chat = (new RequestRepository($this->request))->getDto()->getChat();
             $chatId = $chat->getId();
         }
+
+        $buttons = $message->getButtons();
 
         $body = [
             'chat_id' => $chatId,
             'parse_mode' => 'html',
-            'photo' => $imageUrl
+            'photo' => $imageUrl,
+            'caption' => $message->getText()
         ];
 
-        if ($message) {
-            $body['caption'] = $message->getText();
-
-            $buttons = $message->getButtons();
-            $body = $this->addButtonsToBody($buttons, $body);
-        }
+        $body = $this->addButtonsToBody($buttons, $body);
 
         $response = Http::post($url, $body);
         $this->updateChatMessages(
             request: $this->request,
             isTrash: $isTrash
         );
-
-
-        $this->updateUserMessageId($response);
 
         Log::debug('BOT: ' . $response);
 
@@ -113,8 +98,6 @@ readonly class SenderService
             request: $this->request,
             isTrash: $isTrash
         );
-
-        $this->updateUserMessageId($response);
 
         Log::debug('BOT: ' . $response);
 
@@ -332,16 +315,5 @@ readonly class SenderService
     private function getUrl(string $path): string
     {
         return TelegramService::BASE_URL . $this->telegramService->token . '/' . ltrim($path, '/');
-    }
-
-    private function getMessageDto(Response $response): MessageDto
-    {
-        return (new MessageRepository($response))->getDto();
-    }
-
-    private function updateUserMessageId(Response $response): void
-    {
-        $user = User::getOrCreate($this->requestRepository);
-        $user->update(['tg_message_id' => $this->getMessageDto($response)->getId()]);
     }
 }

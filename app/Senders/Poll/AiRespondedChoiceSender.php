@@ -20,15 +20,12 @@ use PHPUnit\Logging\Exception;
 
 class AiRespondedChoiceSender extends AbstractSender
 {
-    private const StateEnum STATE = StateEnum::POLL_AI_RESPONDED_CHOICE;
-
     public function send(): void
     {
+        $this->addToTrash();
+
         // Send message about waiting...
-        $this->editMessageCaption(
-            messageId: $this->user->tg_message_id,
-            text: 'Подождите. Ваш запрос обрабатывается...'
-        );
+        $this->sendMessage('Подождите. Ваш запрос обрабатывается...');
 
         // Get response dto from open ai
         if (!$aiCompletionDto = $this->getAiCompletionDto()) {
@@ -46,10 +43,10 @@ class AiRespondedChoiceSender extends AbstractSender
         }
 
         // Send message after AI response
-        $this->sendPhoto(
-            imageUrl: asset('assets/img/start.png'),
-            text: self::STATE->title(),
-            buttons: self::STATE->buttons()
+        $this->sendMessage(
+            text: StateEnum::POLL_AI_RESPONDED_CHOICE->title(),
+            buttons: StateEnum::POLL_AI_RESPONDED_CHOICE->buttons(),
+            isTrash: false
         );
     }
 

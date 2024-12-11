@@ -14,16 +14,23 @@ class StartSender extends AbstractSender
     {
         $this->addToTrash();
 
-        $this->sendPhoto(
-            imageUrl: asset('assets/img/start.png'),
-        );
+        if (!$this->user->tg_message_id) {
+            $response = $this->sendPhoto(
+                imageUrl: asset('assets/img/start.png'),
+                text: self::STATE->title(),
+                buttons: self::STATE->buttons()
+            );
 
-        $response = $this->sendMessage(
+            $messageDto = (new MessageRepository($response))->getDto();
+            $this->user->update(['tg_message_id' => $messageDto->getId()]);
+
+            return;
+        }
+
+        $this->editMessageCaption(
+            messageId: $this->user->tg_message_id,
             text: self::STATE->title(),
             buttons: self::STATE->buttons()
         );
-
-        $messageDto = (new MessageRepository($response))->getDto();
-        $this->user->update(['tg_message_id' => $messageDto->getId()]);
     }
 }
