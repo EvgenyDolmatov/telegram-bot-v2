@@ -18,10 +18,6 @@ class MessageRepository extends AbstractRepository
     {
         $data = json_decode($this->response, true)['result'];
 
-        if (isset($data['sender_chat'])) {
-            return null;
-        }
-
         if (isset($data['photo'])) {
             return (new MessageDto())
                 ->setId($data['message_id'])
@@ -34,7 +30,7 @@ class MessageRepository extends AbstractRepository
 
         return (new MessageDto())
             ->setId($data['message_id'])
-            ->setFrom($this->getFromDto($data['from']))
+            ->setFrom($this->getFromDto($data['from'] ?? null))
             ->setChat($this->getChatDto($data['chat']))
             ->setDate($data['date'])
             ->setText($data['text'] ?? null);
@@ -50,15 +46,17 @@ class MessageRepository extends AbstractRepository
             ->setType($data['type']);
     }
 
-    private function getFromDto(array $data): FromDto
+    private function getFromDto(?array $data = null): ?FromDto
     {
-        return (new FromDto())
-            ->setId($data['id'])
-            ->setIsBot($data['is_bot'])
-            ->setUsername($data['username'] ?? null)
-            ->setFirstName($data['first_name'] ?? null)
-            ->setLastName($data['last_name'] ?? null)
-            ->setLanguageCode($data['language_code'] ?? null);
+        return $data
+            ? (new FromDto())
+                ->setId($data['id'])
+                ->setIsBot($data['is_bot'])
+                ->setUsername($data['username'] ?? null)
+                ->setFirstName($data['first_name'] ?? null)
+                ->setLastName($data['last_name'] ?? null)
+                ->setLanguageCode($data['language_code'] ?? null)
+            : null;
     }
 
     private function getPhotoDto(array $image): PhotoDto

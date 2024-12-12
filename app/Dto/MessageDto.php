@@ -9,7 +9,7 @@ class MessageDto
 {
     private int $id;
     private int $date;
-    private FromDto $from;
+    private ?FromDto $from;
     private ChatDto $chat;
     private array $photo;
     private ?string $text;
@@ -38,12 +38,12 @@ class MessageDto
         return $this;
     }
 
-    public function getFrom(): FromDto
+    public function getFrom(): ?FromDto
     {
         return $this->from;
     }
 
-    public function setFrom(FromDto $from): self
+    public function setFrom(?FromDto $from): self
     {
         $this->from = $from;
 

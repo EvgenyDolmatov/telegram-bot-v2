@@ -2,12 +2,13 @@
 
 namespace App\Senders\Game;
 
+use App\Builder\Poll\PollBuilder;
 use App\Dto\ChannelDto;
 use App\Enums\StateEnum;
 use App\Exceptions\ChatNotFoundException;
 use App\Models\Game;
+use App\Models\Poll;
 use App\Repositories\ChannelRepository;
-use App\Repositories\MessageRepository;
 use App\Senders\AbstractSender;
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -23,30 +24,55 @@ class GameSentToChannelSuccessSender extends AbstractSender
 
         $this->sendMessage(self::STATE->title(), self::STATE->buttons());
 
-        // Логика игры в канале
+        // Send message for prepare
+        $this->sendBeforeGameMessage();
+
+        // In 10 seconds send first poll
+        $this->sendPoll();
+    }
+
+    private function sendBeforeGameMessage(): void
+    {
         $chatId = $this->getChannelDto()->getId();
         $game = $this->getGame();
-
-        $timeLeft = 30;
 
         $text = "Начало новой игры...\n\n";
         $text .= "Название: {$game->title}\n";
         $text .= "Описание: {$game->description}\n";
         $text .= "Время на ответ: {$game->time_limit} секунд\n\n";
-        $text .= "До начала игры осталось: {$timeLeft}";
+        $text .= "До начала игры осталось: 1 минута.";
 
-        $response = $this->sendMessage($text, null, true, $chatId);
-        $messageDto = (new MessageRepository($response))->getDto();
+        $this->sendMessage($text, null, true, $chatId);
+    }
 
-        Log::debug('RESPONSE: ' . $response);
-        Log::debug('MessageID: ' . $messageDto->getId());
-        Log::debug('MessageID: ' . $messageDto->getText());
+    private function sendPoll(): void
+    {
+        $optionLetters = ['a','b','c','d'];
 
+        $chatId = $this->getChannelDto()->getId();
+        $game = $this->getGame();
+        $pollIds = explode(',', $game->poll_ids);
 
-        while ($timeLeft > 0) {
-            sleep(1);
-            $timeLeft--;
-            $this->editMessage($messageDto->getId(), $text, null, $chatId);
+        $poll = Poll::where('tg_message_id', $pollIds[0])->first();
+
+        if ($poll) {
+            $options = array_map(fn ($option) => $option['text'], $poll->options->toArray());
+
+            $correctOptionId = $poll->correct_option_id
+                ? $optionLetters[$poll->correct_option_id]
+                : null;
+
+            $pollBuilder = $this->pollBuilder
+                ->setBuilder(new PollBuilder())
+                ->createPoll(
+                    question: $poll->question,
+                    options: $options,
+                    isAnonymous: true,
+                    isQuiz: !$poll->allows_multiple_answers,
+                    correctOptionId: $correctOptionId,
+                );
+
+            $this->senderService->sendPoll($pollBuilder, $chatId);
         }
     }
 
