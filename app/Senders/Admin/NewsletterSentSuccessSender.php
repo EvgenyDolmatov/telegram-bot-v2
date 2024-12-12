@@ -12,7 +12,7 @@ class NewsletterSentSuccessSender extends AbstractSender
     {
         $this->addToTrash();
 
-        if (!$this->user->is_admin || !$newsletter = $this->user->newsletters->last()) {
+        if (!$this->user->isAdmin() || !$newsletter = $this->user->newsletters->last()) {
             $this->someProblemMessage();
             return;
         }

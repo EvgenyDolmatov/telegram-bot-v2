@@ -13,7 +13,7 @@ class NewsletterConfirmationSender extends AbstractSender
     {
         $this->addToTrash();
 
-        if (!$this->user->is_admin) {
+        if (!$this->user->isAdmin()) {
             $this->someProblemMessage();
             return;
         }

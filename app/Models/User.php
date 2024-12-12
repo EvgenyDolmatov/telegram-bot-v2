@@ -7,6 +7,7 @@ use App\Enums\CommandEnum;
 use App\Enums\StateEnum;
 use App\Repositories\RequestRepository;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
@@ -57,11 +58,23 @@ class User extends Model
         return $this->hasMany(Game::class, 'user_id');
     }
 
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class);
+    }
+
     public static function getByRequestRepository(RequestRepository $repository): ?User
     {
         $telegramUserId = $repository->getDto()->getFrom()->getId();
 
         return User::where('tg_user_id', $telegramUserId)->first();
+    }
+
+    public function isAdmin(): bool
+    {
+        $adminRole = Role::where('code', 'admin')->first();
+
+        return $this->role_id === $adminRole->id;
     }
 
     /**
