@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Dto\Telegram\RequestStrategy;
 use App\Handlers\MessageStrategy;
 use App\Models\TrashMessage;
 use App\Repositories\RequestRepository;
@@ -20,19 +21,31 @@ class MainController extends Controller
         $telegram->resetQueue();
 
         Log::debug(json_encode($request->all()));
+        $requestDto = (new RequestStrategy())->defineMessageRepository($request)->getDto();
 
-        if ($request->hasAny(['message', 'callback_query'])) {
-            $requestDto = (new RequestRepository($request))->getDto();
+        // Prepare message to delete on next step
+        TrashMessage::add(
+            chatId: $requestDto->getChat()->getId(),
+            messageId: $requestDto->getId(),
+            isTrash: true
+        );
 
-            Log::debug('USER: ' . $requestDto->getId() . ' : ' . $requestDto->getText());
-            TrashMessage::add(
-                chatId: $requestDto->getChat()->getId(),
-                messageId: $requestDto->getId(),
-                isTrash: true
-            );
+        $strategy = new MessageStrategy($telegram, $request);
+        $strategy->defineHandler()->process();
 
-            $strategy = new MessageStrategy($telegram, $request);
-            $strategy->defineHandler()->process();
-        }
+
+//        if ($request->hasAny(['message', 'callback_query'])) {
+//            $requestDto = (new RequestRepository($request))->getDto();
+
+//            Log::debug('USER: ' . $requestDto->getId() . ' : ' . $requestDto->getText());
+//            TrashMessage::add(
+//                chatId: $requestDto->getChat()->getId(),
+//                messageId: $requestDto->getId(),
+//                isTrash: true
+//            );
+
+//            $strategy = new MessageStrategy($telegram, $request);
+//            $strategy->defineHandler()->process();
+//        }
     }
 }

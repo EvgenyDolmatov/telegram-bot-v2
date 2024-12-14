@@ -6,6 +6,7 @@ use App\Handlers\Message\AbstractHandler;
 use App\Handlers\Message\CommandHandler;
 use App\Handlers\Message\StateHandler;
 use App\Repositories\RequestRepository;
+use App\Repositories\Telegram\AbstractRepository;
 use App\Services\TelegramService;
 use Illuminate\Http\Request;
 
@@ -15,13 +16,13 @@ class MessageStrategy
 
     public function __construct(
         private readonly TelegramService $telegramService,
-        private readonly Request $request
+        private readonly AbstractRepository $repository
     ) {
     }
 
     public function defineHandler(): self
     {
-        $message = $this->getMessage();
+        $message = $this->getInput();
 
         if (str_starts_with($message, '/')) {
             $handler = new CommandHandler($this->telegramService, $this->request);
@@ -34,7 +35,7 @@ class MessageStrategy
 
     public function process(): void
     {
-        $this->handler->handle($this->getMessage());
+        $this->handler->handle($this->getInput());
     }
 
     private function setHandler(AbstractHandler $handler): self
@@ -44,8 +45,10 @@ class MessageStrategy
         return $this;
     }
 
-    private function getMessage(): string
+    private function getInput(): string
     {
-        return (new RequestRepository($this->request))->getDto()->getText();
+        $dto = $this->repository->getDto();
+
+        return method_exists($dto, 'getText') ? $dto->getText() : $dto->getData();
     }
 }
