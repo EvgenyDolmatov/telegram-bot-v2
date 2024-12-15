@@ -10,7 +10,6 @@ use App\Models\TrashMessage;
 use App\Repositories\RequestRepository;
 use Exception;
 use Illuminate\Http\Client\Response;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -19,8 +18,8 @@ use Throwable;
 readonly class SenderService
 {
     public function __construct(
-        private Request         $request,
-        private TelegramService $telegramService
+        private RequestRepository $repository,
+        private TelegramService   $telegramService
     ) {
     }
 
@@ -43,7 +42,7 @@ readonly class SenderService
         $url = TelegramService::BASE_URL . $this->telegramService->token . '/sendPhoto';
 
         if (!$chatId) {
-            $chat = (new RequestRepository($this->request))->getDto()->getChat();
+            $chat = $this->repository->getDto()->getChat();
             $chatId = $chat->getId();
         }
 
@@ -59,10 +58,7 @@ readonly class SenderService
         $body = $this->addButtonsToBody($buttons, $body);
 
         $response = Http::post($url, $body);
-        $this->updateChatMessages(
-            request: $this->request,
-            isTrash: $isTrash
-        );
+        $this->updateChatMessages($isTrash);
 
         Log::debug('BOT: ' . $response);
         return $response;
@@ -74,8 +70,8 @@ readonly class SenderService
      * @param Message $message
      * @param bool $isTrash
      * @param int|null $chatId
-     * @return string
-     * @throws \Exception
+     * @return Response
+     * @throws ResponseException
      */
     public function sendMessage(
         Message $message,
@@ -85,7 +81,7 @@ readonly class SenderService
         $url = TelegramService::BASE_URL . $this->telegramService->token . '/sendMessage';
 
         if (!$chatId) {
-            $chat = (new RequestRepository($this->request))->getDto()->getChat();
+            $chat = $this->repository->getDto()->getChat();
             $chatId = $chat->getId();
         }
 
@@ -100,10 +96,7 @@ readonly class SenderService
         $body = $this->addButtonsToBody($buttons, $body);
 
         $response = Http::post($url, $body);
-        $this->updateChatMessages(
-            request: $this->request,
-            isTrash: $isTrash
-        );
+        $this->updateChatMessages($isTrash);
 
         Log::debug('BOT: ' . $response);
 
@@ -118,7 +111,7 @@ readonly class SenderService
         $url = $this->getUrl('editMessageText');
 
         if (!$chatId) {
-            $chat = (new RequestRepository($this->request))->getDto()->getChat();
+            $chat = $this->repository->getDto()->getChat();
             $chatId = $chat->getId();
         }
 
@@ -172,7 +165,7 @@ readonly class SenderService
     public function sendPoll(Poll $poll, ?int $chatId = null, bool $isTrash = true): Response
     {
         $url = TelegramService::BASE_URL . $this->telegramService->token . '/sendPoll';
-        $chat = (new RequestRepository($this->request))->getDto()->getChat();
+        $chat = $this->repository->getDto()->getChat();
 
         $body = [
             "chat_id" => $chatId ?? $chat->getId(),
@@ -187,10 +180,7 @@ readonly class SenderService
         }
 
         $response = Http::post($url, $body);
-        $this->updateChatMessages(
-            request: $this->request,
-            isTrash: $isTrash
-        );
+        $this->updateChatMessages($isTrash);
 
         Log::debug('BOT: ' . $response);
 
@@ -200,15 +190,14 @@ readonly class SenderService
     /**
      * Remove old messages and prepare messages for removing for next step
      *
-     * @param Request $request
      * @param bool $isTrash
      * @return void
-     * @throws \Exception
+     * @throws ResponseException
      */
-    public function updateChatMessages(Request $request, bool $isTrash = true): void
+    public function updateChatMessages(bool $isTrash = true): void
     {
         $url = TelegramService::BASE_URL . $this->telegramService->token . '/deleteMessages';
-        $requestDto = (new RequestRepository($this->request))->getDto();
+        $requestDto = $this->repository->getDto();
         $chatId = $requestDto->getChat()->getId();
         $trashMessages = TrashMessage::where('chat_id', $chatId)->where('is_trash', true)->get();
 
@@ -242,7 +231,7 @@ readonly class SenderService
     public function isMembership(): bool
     {
         $url = TelegramService::BASE_URL . $this->telegramService->token . '/getChatMember';
-        $user = (new RequestRepository($this->request))->getDto()->getFrom();
+        $user = $this->repository->getDto()->getFrom();
 
         $body = [
             "chat_id" => config('services.telegram.chatId'),

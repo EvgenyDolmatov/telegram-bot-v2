@@ -16,24 +16,21 @@ use App\Repositories\RequestRepository;
 use App\Services\SenderService;
 use App\Services\TelegramService;
 use Illuminate\Http\Client\Response;
-use Illuminate\Http\Request;
 
 abstract class AbstractSender implements SenderInterface
 {
     protected SenderService $senderService;
     protected MessageSender $messageBuilder;
     protected PollSender $pollBuilder;
-    protected RequestRepository $requestRepository;
 
     public function __construct(
-        protected readonly Request         $request,
-        protected readonly TelegramService $telegramService,
-        protected readonly User            $user
+        protected readonly RequestRepository $repository,
+        protected readonly TelegramService   $telegramService,
+        protected readonly User              $user
     ) {
-        $this->senderService = new SenderService($request, $telegramService);
+        $this->senderService = new SenderService($repository, $telegramService);
         $this->messageBuilder = (new MessageSender())->setBuilder(new MessageBuilder());
         $this->pollBuilder = new PollSender();
-        $this->requestRepository = (new RequestRepository($request));
     }
 
     abstract public function send(): void;
@@ -72,7 +69,7 @@ abstract class AbstractSender implements SenderInterface
 
     protected function getMessageDto(): MessageDto
     {
-        return $this->requestRepository->getDto();
+        return $this->repository->getDto();
     }
 
     protected function getInputText(): string

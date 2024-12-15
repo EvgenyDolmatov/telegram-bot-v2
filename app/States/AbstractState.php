@@ -8,17 +8,17 @@ use App\Enums\StateEnum;
 use App\Models\User;
 use App\Repositories\RequestRepository;
 use App\Services\TelegramService;
-use Illuminate\Http\Request;
 
 abstract class AbstractState implements UserState
 {
     protected User $user;
 
     public function __construct(
-        protected readonly Request $request,
+//        protected readonly Request $request,
+        protected readonly RequestRepository $repository,
         protected readonly TelegramService $telegramService
     ) {
-        $this->user = User::getOrCreate(new RequestRepository($this->request));
+        $this->user = User::getOrCreate($repository);
     }
 
     public function handleCommand(string $command, UserContext $context): void
@@ -56,13 +56,13 @@ abstract class AbstractState implements UserState
 
     protected function updateState(StateEnum $state, UserContext $context): void
     {
-        $context->setState($state->userState($this->request, $this->telegramService));
+        $context->setState($state->userState($this->repository, $this->telegramService));
         $this->user->updateStateByCode($state->value);
     }
 
     protected function sendMessage(StateEnum $state): void
     {
-        $sender = $state->sender($this->request, $this->telegramService, $this->user);
+        $sender = $state->sender($this->repository, $this->telegramService, $this->user);
         $sender->send();
     }
 

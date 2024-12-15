@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\CallbackEnum;
 use App\Enums\CommandEnum;
 use App\Enums\StateEnum;
+use App\Exceptions\ResponseException;
 use App\Repositories\RequestRepository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -95,6 +96,9 @@ class User extends Model
         ]);
     }
 
+    /**
+     * @throws ResponseException
+     */
     public static function getOrCreate(RequestRepository $repository): User
     {
         if ($user = self::getByRequestRepository($repository)) {

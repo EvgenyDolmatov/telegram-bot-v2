@@ -4,6 +4,7 @@ namespace App\Enums;
 
 use App\Dto\ButtonDto;
 use App\Models\User;
+use App\Repositories\RequestRepository;
 use App\Senders\Account\ReferralLinkShowSender;
 use App\Senders\Account\ReferredUsersShowSender;
 use App\Senders\Admin\NewsletterConfirmationSender;
@@ -127,52 +128,52 @@ enum StateEnum: string
     /** Help */
     case HELP = 'help';
 
-    public function userState(Request $request, TelegramService $telegramService): UserState
+    public function userState(RequestRepository $repository, TelegramService $telegramService): UserState
     {
         return match ($this) {
             /** Poll states */
-            self::START => new StartState($request, $telegramService),
-            self::POLL_SUPPORT => new SupportState($request, $telegramService),
-            self::POLL_TYPE_CHOICE => new TypeChoiceState($request, $telegramService),
-            self::POLL_ANONYMITY_CHOICE => new AnonymityChoiceState($request, $telegramService),
-            self::POLL_DIFFICULTY_CHOICE => new DifficultyChoiceState($request, $telegramService),
-            self::POLL_SECTOR_CHOICE => new SectorChoiceState($request, $telegramService),
-            self::POLL_SUBJECT_CHOICE => new SubjectChoiceState($request, $telegramService),
-            self::POLL_THEME_WAITING => new ThemeWaitingState($request, $telegramService),
-            self::POLL_AI_RESPONDED_CHOICE => new AiRespondedChoiceState($request, $telegramService),
+            self::START => new StartState($repository, $telegramService),
+            self::POLL_SUPPORT => new SupportState($repository, $telegramService),
+            self::POLL_TYPE_CHOICE => new TypeChoiceState($repository, $telegramService),
+            self::POLL_ANONYMITY_CHOICE => new AnonymityChoiceState($repository, $telegramService),
+            self::POLL_DIFFICULTY_CHOICE => new DifficultyChoiceState($repository, $telegramService),
+            self::POLL_SECTOR_CHOICE => new SectorChoiceState($repository, $telegramService),
+            self::POLL_SUBJECT_CHOICE => new SubjectChoiceState($repository, $telegramService),
+            self::POLL_THEME_WAITING => new ThemeWaitingState($repository, $telegramService),
+            self::POLL_AI_RESPONDED_CHOICE => new AiRespondedChoiceState($repository, $telegramService),
             /** Game states */
-            self::GAME_POLLS_CHOICE => new GamePollsChoiceState($request, $telegramService),
-            self::GAME_TITLE_WAITING => new GameTitleWaitingState($request, $telegramService),
-            self::GAME_DESCRIPTION_WAITING => new GameDescriptionWaitingState($request, $telegramService),
-            self::GAME_TIME_LIMIT_WAITING => new GameTimeLimitWaitingState($request, $telegramService),
-            self::GAME_CHANNEL_WAITING => new GameChannelWaitingState($request, $telegramService),
-            self::GAME_CREATED_SUCCESS_SHOW => new GameCreatedSuccessState($request, $telegramService),
-            self::GAME_SENT_TO_CHANNEL_SUCCESS => new GameSentToChannelSuccessState($request, $telegramService),
+            self::GAME_POLLS_CHOICE => new GamePollsChoiceState($repository, $telegramService),
+            self::GAME_TITLE_WAITING => new GameTitleWaitingState($repository, $telegramService),
+            self::GAME_DESCRIPTION_WAITING => new GameDescriptionWaitingState($repository, $telegramService),
+            self::GAME_TIME_LIMIT_WAITING => new GameTimeLimitWaitingState($repository, $telegramService),
+            self::GAME_CHANNEL_WAITING => new GameChannelWaitingState($repository, $telegramService),
+            self::GAME_CREATED_SUCCESS_SHOW => new GameCreatedSuccessState($repository, $telegramService),
+            self::GAME_SENT_TO_CHANNEL_SUCCESS => new GameSentToChannelSuccessState($repository, $telegramService),
 
-//            self::CHANNEL_POLLS_CHOICE => new ChannelPollsChoiceState($request, $telegramService),
+//            self::CHANNEL_POLLS_CHOICE => new ChannelPollsChoiceState($repository, $telegramService),
             /** Channel states */
-//            self::CHANNEL_NAME_WAITING => new GameTitleWaitingState($request, $telegramService),
-//            self::CHANNEL_POLLS_SENT_SUCCESS => new ChannelPollsSentSuccessState($request, $telegramService),
+//            self::CHANNEL_NAME_WAITING => new GameTitleWaitingState($repository, $telegramService),
+//            self::CHANNEL_POLLS_SENT_SUCCESS => new ChannelPollsSentSuccessState($repository, $telegramService),
             /** Account states */
-            self::ACCOUNT => new AccountState($request, $telegramService),
-            self::ACCOUNT_REFERRAL_LINK_SHOW => new ReferralLinkShowState($request, $telegramService),
-            self::ACCOUNT_REFERRED_USERS_SHOW => new ReferredUsersShowState($request, $telegramService),
+            self::ACCOUNT => new AccountState($repository, $telegramService),
+            self::ACCOUNT_REFERRAL_LINK_SHOW => new ReferralLinkShowState($repository, $telegramService),
+            self::ACCOUNT_REFERRED_USERS_SHOW => new ReferredUsersShowState($repository, $telegramService),
             /** Admin states */
-            self::ADMIN => new AdminState($request, $telegramService),
-            self::ADMIN_NEWSLETTER_WAITING => new NewsletterWaitingState($request, $telegramService),
-            self::ADMIN_NEWSLETTER_CONFIRMATION => new NewsletterConfirmationState($request, $telegramService),
-            self::ADMIN_NEWSLETTER_SENT_SUCCESS => new NewsletterSentSuccessState($request, $telegramService),
-            self::ADMIN_STATISTIC_MENU_CHOICE => new StatisticMenuChoiceState($request, $telegramService),
-            self::ADMIN_STATISTIC_POLLS_MENU_CHOICE => new StatisticPollsMenuChoiceState($request, $telegramService),
-            self::ADMIN_STATISTIC_POLLS_PER_YEAR_SHOW => new StatisticPollsPerYearShowState($request, $telegramService),
-            self::ADMIN_STATISTIC_POLLS_PER_QUARTER_SHOW => new StatisticPollsPerQuarterShowState($request, $telegramService),
-            self::ADMIN_STATISTIC_POLLS_PER_MONTH_SHOW => new StatisticPollsPerMonthShowState($request, $telegramService),
-            self::ADMIN_STATISTIC_POLLS_PER_WEEK_SHOW => new StatisticPollsPerWeekShowState($request, $telegramService),
-            self::ADMIN_STATISTIC_POLLS_PER_DAY_SHOW => new StatisticPollsPerDayShowState($request, $telegramService),
-            self::ADMIN_STATISTIC_USERS_MENU_CHOICE => new StatisticUsersMenuChoiceState($request, $telegramService),
-            self::ADMIN_STATISTIC_USERS_PER_DAY_SHOW => new StatisticUsersPerDayShowState($request, $telegramService),
+            self::ADMIN => new AdminState($repository, $telegramService),
+            self::ADMIN_NEWSLETTER_WAITING => new NewsletterWaitingState($repository, $telegramService),
+            self::ADMIN_NEWSLETTER_CONFIRMATION => new NewsletterConfirmationState($repository, $telegramService),
+            self::ADMIN_NEWSLETTER_SENT_SUCCESS => new NewsletterSentSuccessState($repository, $telegramService),
+            self::ADMIN_STATISTIC_MENU_CHOICE => new StatisticMenuChoiceState($repository, $telegramService),
+            self::ADMIN_STATISTIC_POLLS_MENU_CHOICE => new StatisticPollsMenuChoiceState($repository, $telegramService),
+            self::ADMIN_STATISTIC_POLLS_PER_YEAR_SHOW => new StatisticPollsPerYearShowState($repository, $telegramService),
+            self::ADMIN_STATISTIC_POLLS_PER_QUARTER_SHOW => new StatisticPollsPerQuarterShowState($repository, $telegramService),
+            self::ADMIN_STATISTIC_POLLS_PER_MONTH_SHOW => new StatisticPollsPerMonthShowState($repository, $telegramService),
+            self::ADMIN_STATISTIC_POLLS_PER_WEEK_SHOW => new StatisticPollsPerWeekShowState($repository, $telegramService),
+            self::ADMIN_STATISTIC_POLLS_PER_DAY_SHOW => new StatisticPollsPerDayShowState($repository, $telegramService),
+            self::ADMIN_STATISTIC_USERS_MENU_CHOICE => new StatisticUsersMenuChoiceState($repository, $telegramService),
+            self::ADMIN_STATISTIC_USERS_PER_DAY_SHOW => new StatisticUsersPerDayShowState($repository, $telegramService),
             /** Help states */
-            self::HELP => new HelpState($request, $telegramService),
+            self::HELP => new HelpState($repository, $telegramService),
         };
     }
 
@@ -218,47 +219,47 @@ enum StateEnum: string
         };
     }
 
-    public function sender(Request $request, TelegramService $telegramService, User $user): SenderInterface
+    public function sender(RequestRepository $repository, TelegramService $telegramService, User $user): SenderInterface
     {
         return match ($this) {
-            self::ACCOUNT => new AccountSender($request, $telegramService, $user),
-            self::HELP => new HelpSender($request, $telegramService, $user),
-            self::START => new StartSender($request, $telegramService, $user),
-            self::POLL_SUPPORT => new SupportSender($request, $telegramService, $user),
-            self::POLL_TYPE_CHOICE => new TypeChoiceSender($request, $telegramService, $user),
-            self::POLL_ANONYMITY_CHOICE => new AnonymityChoiceSender($request, $telegramService, $user),
-            self::POLL_DIFFICULTY_CHOICE => new DifficultyChoiceSender($request, $telegramService, $user),
-            self::POLL_SECTOR_CHOICE => new SectorChoiceSender($request, $telegramService, $user),
-            self::POLL_SUBJECT_CHOICE => new SubjectChoiceSender($request, $telegramService, $user),
-            self::POLL_THEME_WAITING => new ThemeWaitingSender($request, $telegramService, $user),
-            self::POLL_AI_RESPONDED_CHOICE => new AiRespondedChoiceSender($request, $telegramService, $user),
-//            self::CHANNEL_POLLS_CHOICE => new ChannelPollsChoiceSender($request, $telegramService, $user),
+            self::ACCOUNT => new AccountSender($repository, $telegramService, $user),
+            self::HELP => new HelpSender($repository, $telegramService, $user),
+            self::START => new StartSender($repository, $telegramService, $user),
+            self::POLL_SUPPORT => new SupportSender($repository, $telegramService, $user),
+            self::POLL_TYPE_CHOICE => new TypeChoiceSender($repository, $telegramService, $user),
+            self::POLL_ANONYMITY_CHOICE => new AnonymityChoiceSender($repository, $telegramService, $user),
+            self::POLL_DIFFICULTY_CHOICE => new DifficultyChoiceSender($repository, $telegramService, $user),
+            self::POLL_SECTOR_CHOICE => new SectorChoiceSender($repository, $telegramService, $user),
+            self::POLL_SUBJECT_CHOICE => new SubjectChoiceSender($repository, $telegramService, $user),
+            self::POLL_THEME_WAITING => new ThemeWaitingSender($repository, $telegramService, $user),
+            self::POLL_AI_RESPONDED_CHOICE => new AiRespondedChoiceSender($repository, $telegramService, $user),
+//            self::CHANNEL_POLLS_CHOICE => new ChannelPollsChoiceSender($repository, $telegramService, $user),
 
-            self::GAME_POLLS_CHOICE => new GamePollsChoiceSender($request, $telegramService, $user),
-            self::GAME_TITLE_WAITING => new GameTitleWaitingSender($request, $telegramService, $user),
-            self::GAME_DESCRIPTION_WAITING => new GameDescriptionWaitingSender($request, $telegramService, $user),
-            self::GAME_TIME_LIMIT_WAITING => new GameTimeLimitWaitingSender($request, $telegramService, $user),
-            self::GAME_CHANNEL_WAITING => new GameChannelWaitingSender($request, $telegramService, $user),
-            self::GAME_CREATED_SUCCESS_SHOW => new GameCreatedSuccessShowSender($request, $telegramService, $user),
-            self::GAME_SENT_TO_CHANNEL_SUCCESS => new GameSentToChannelSuccessSender($request, $telegramService, $user),
+            self::GAME_POLLS_CHOICE => new GamePollsChoiceSender($repository, $telegramService, $user),
+            self::GAME_TITLE_WAITING => new GameTitleWaitingSender($repository, $telegramService, $user),
+            self::GAME_DESCRIPTION_WAITING => new GameDescriptionWaitingSender($repository, $telegramService, $user),
+            self::GAME_TIME_LIMIT_WAITING => new GameTimeLimitWaitingSender($repository, $telegramService, $user),
+            self::GAME_CHANNEL_WAITING => new GameChannelWaitingSender($repository, $telegramService, $user),
+            self::GAME_CREATED_SUCCESS_SHOW => new GameCreatedSuccessShowSender($repository, $telegramService, $user),
+            self::GAME_SENT_TO_CHANNEL_SUCCESS => new GameSentToChannelSuccessSender($repository, $telegramService, $user),
 
-//            self::CHANNEL_NAME_WAITING => new ChannelNameWaitingSender($request, $telegramService, $user),
-//            self::CHANNEL_POLLS_SENT_SUCCESS => new ChannelPollsSentSuccessSender($request, $telegramService, $user),
-            self::ACCOUNT_REFERRAL_LINK_SHOW => new ReferralLinkShowSender($request, $telegramService, $user),
-            self::ACCOUNT_REFERRED_USERS_SHOW => new ReferredUsersShowSender($request, $telegramService, $user),
-            self::ADMIN => new AdminSender($request, $telegramService, $user),
-            self::ADMIN_NEWSLETTER_WAITING => new NewsletterWaitingSender($request, $telegramService, $user),
-            self::ADMIN_NEWSLETTER_CONFIRMATION => new NewsletterConfirmationSender($request, $telegramService, $user),
-            self::ADMIN_NEWSLETTER_SENT_SUCCESS => new NewsletterSentSuccessSender($request, $telegramService, $user),
-            self::ADMIN_STATISTIC_MENU_CHOICE => new StatisticMenuChoiceSender($request, $telegramService, $user),
-            self::ADMIN_STATISTIC_POLLS_MENU_CHOICE => new StatisticPollsMenuChoiceSender($request, $telegramService, $user),
-            self::ADMIN_STATISTIC_POLLS_PER_YEAR_SHOW => new StatisticPollsPerYearShowSender($request, $telegramService, $user),
-            self::ADMIN_STATISTIC_POLLS_PER_QUARTER_SHOW => new StatisticPollsPerQuarterShowSender($request, $telegramService, $user),
-            self::ADMIN_STATISTIC_POLLS_PER_MONTH_SHOW => new StatisticPollsPerMonthShowSender($request, $telegramService, $user),
-            self::ADMIN_STATISTIC_POLLS_PER_WEEK_SHOW => new StatisticPollsPerWeekShowSender($request, $telegramService, $user),
-            self::ADMIN_STATISTIC_POLLS_PER_DAY_SHOW => new StatisticPollsPerDayShowSender($request, $telegramService, $user),
-            self::ADMIN_STATISTIC_USERS_MENU_CHOICE => new StatisticUsersMenuChoiceSender($request, $telegramService, $user),
-            self::ADMIN_STATISTIC_USERS_PER_DAY_SHOW => new StatisticUsersPerDayShowSender($request, $telegramService, $user),
+//            self::CHANNEL_NAME_WAITING => new ChannelNameWaitingSender($repository, $telegramService, $user),
+//            self::CHANNEL_POLLS_SENT_SUCCESS => new ChannelPollsSentSuccessSender($repository, $telegramService, $user),
+            self::ACCOUNT_REFERRAL_LINK_SHOW => new ReferralLinkShowSender($repository, $telegramService, $user),
+            self::ACCOUNT_REFERRED_USERS_SHOW => new ReferredUsersShowSender($repository, $telegramService, $user),
+            self::ADMIN => new AdminSender($repository, $telegramService, $user),
+            self::ADMIN_NEWSLETTER_WAITING => new NewsletterWaitingSender($repository, $telegramService, $user),
+            self::ADMIN_NEWSLETTER_CONFIRMATION => new NewsletterConfirmationSender($repository, $telegramService, $user),
+            self::ADMIN_NEWSLETTER_SENT_SUCCESS => new NewsletterSentSuccessSender($repository, $telegramService, $user),
+            self::ADMIN_STATISTIC_MENU_CHOICE => new StatisticMenuChoiceSender($repository, $telegramService, $user),
+            self::ADMIN_STATISTIC_POLLS_MENU_CHOICE => new StatisticPollsMenuChoiceSender($repository, $telegramService, $user),
+            self::ADMIN_STATISTIC_POLLS_PER_YEAR_SHOW => new StatisticPollsPerYearShowSender($repository, $telegramService, $user),
+            self::ADMIN_STATISTIC_POLLS_PER_QUARTER_SHOW => new StatisticPollsPerQuarterShowSender($repository, $telegramService, $user),
+            self::ADMIN_STATISTIC_POLLS_PER_MONTH_SHOW => new StatisticPollsPerMonthShowSender($repository, $telegramService, $user),
+            self::ADMIN_STATISTIC_POLLS_PER_WEEK_SHOW => new StatisticPollsPerWeekShowSender($repository, $telegramService, $user),
+            self::ADMIN_STATISTIC_POLLS_PER_DAY_SHOW => new StatisticPollsPerDayShowSender($repository, $telegramService, $user),
+            self::ADMIN_STATISTIC_USERS_MENU_CHOICE => new StatisticUsersMenuChoiceSender($repository, $telegramService, $user),
+            self::ADMIN_STATISTIC_USERS_PER_DAY_SHOW => new StatisticUsersPerDayShowSender($repository, $telegramService, $user),
         };
     }
 

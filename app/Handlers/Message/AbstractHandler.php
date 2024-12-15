@@ -13,10 +13,9 @@ abstract class AbstractHandler
 
     public function __construct(
         protected readonly TelegramService $telegramService,
-        protected readonly Request $request
+        protected readonly RequestRepository $repository
     ) {
-        $requestRepository = new RequestRepository($request);
-        $this->user = User::getOrCreate($requestRepository);
+        $this->user = User::getOrCreate($repository);
     }
 
     abstract public function handle(string $message): void;
