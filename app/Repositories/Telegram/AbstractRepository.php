@@ -5,8 +5,12 @@ namespace App\Repositories\Telegram;
 use App\Dto\ButtonDto;
 use App\Dto\Telegram\Message\ChatDto;
 use App\Dto\Telegram\Message\FromDto;
-use App\Dto\Telegram\MessageDto;
+use App\Dto\Telegram\MessagePhotoDto;
+use App\Dto\Telegram\MessageTextDto;
 use App\Exceptions\ResponseException;
+use App\Repositories\Telegram\Message\PhotoRepository;
+use App\Repositories\Telegram\Message\TextRepository;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -21,35 +25,25 @@ abstract readonly class AbstractRepository
     abstract public function getDto(): mixed;
 
     /**
-     * @param array{
-     *     message_id: int,
-     *     from: array,
-     *     chat: array,
-     *     date: int,
-     *     text: string,
-     *     reply_markup: ?array
-     * } $data
-     * @return MessageDto
-     * @throws ResponseException
+     * @throws Exception
      */
-    protected function getMessageDto(array $data): MessageDto
+    protected function getMessageDto(array $data = null): MessageTextDto|MessagePhotoDto
     {
-        try {
-            $dto = (new MessageDto())
-                ->setId($data['message_id'])
-                ->setFrom($this->getFromDto($data['from']))
-                ->setChat($this->getChatDto($data['chat']))
-                ->setDate($data['date'])
-                ->setText($data['text']);
+        $data = $data ?: $this->request->all()['message'];
 
-            if (array_key_exists('reply_markup', $data)) {
-                $dto->setButtons($this->getButtons($data['reply_markup']['inline_keyboard']));
-            }
-        } catch (Throwable $e) {
-            throw new ResponseException($e->getMessage());
+        if (array_key_exists('text', $data)) {
+            $repository = (new TextRepository($this->request));
         }
 
-        return $dto;
+        if (array_key_exists('photo', $data)) {
+            $repository = (new PhotoRepository($this->request));
+        }
+
+        if (!isset($repository)) {
+            throw new Exception('Message payload must have  text or photo key.');
+        }
+
+        return $repository->getDto();
     }
 
     /**
@@ -92,7 +86,7 @@ abstract readonly class AbstractRepository
      * @return ChatDto
      * @throws ResponseException
      */
-    private function getChatDto(array $data): ChatDto
+    protected function getChatDto(array $data): ChatDto
     {
         try {
             $dto = (new ChatDto())
@@ -118,7 +112,7 @@ abstract readonly class AbstractRepository
      * @return ButtonDto[]
      * @throws ResponseException
      */
-    private function getButtons(array $data): array
+    protected function getButtons(array $data): array
     {
         try {
             $buttons = [];

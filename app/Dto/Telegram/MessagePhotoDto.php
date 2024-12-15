@@ -5,14 +5,30 @@ namespace App\Dto\Telegram;
 use App\Dto\ButtonDto;
 use App\Dto\Telegram\Message\ChatDto;
 use App\Dto\Telegram\Message\FromDto;
+use App\Dto\Telegram\Message\PhotoDto;
 
-class MessageDto
+class MessagePhotoDto
 {
     private int $id;
+
     private FromDto $from;
+
+    /**
+     * @var ChatDto
+     */
     private ChatDto $chat;
+
+    /**
+     * @var int
+     */
     private int $date;
-    private string $text;
+
+    /**
+     * @var PhotoDto[]
+     */
+    private array $photo;
+
+    private ?string $caption;
 
     /**
      * @var ButtonDto[]|null
@@ -67,14 +83,32 @@ class MessageDto
         return $this;
     }
 
-    public function getText(): string
+    /**
+     * @return PhotoDto[]
+     */
+    public function getPhoto(): array
     {
-        return $this->text;
+        return $this->photo;
     }
 
-    public function setText(string $text): self
+    /**
+     * @param PhotoDto[] $photo
+     */
+    public function setPhoto(array $photo): self
     {
-        $this->text = $text;
+        $this->photo = $photo;
+
+        return $this;
+    }
+
+    public function getCaption(): ?string
+    {
+        return $this->caption;
+    }
+
+    public function setCaption(?string $caption = null): self
+    {
+        $this->caption = $caption;
 
         return $this;
     }

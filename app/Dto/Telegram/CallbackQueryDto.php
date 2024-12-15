@@ -9,7 +9,7 @@ class CallbackQueryDto
 {
     private int $id;
     private FromDto $from;
-    private MessageDto $message;
+    private MessageTextDto $message;
     private string $chatInstance;
     private string $data;
 
@@ -37,12 +37,12 @@ class CallbackQueryDto
         return $this;
     }
 
-    public function getMessage(): MessageDto
+    public function getMessage(): MessageTextDto
     {
         return $this->message;
     }
 
-    public function setMessage(MessageDto $message): self
+    public function setMessage(MessageTextDto $message): self
     {
         $this->message = $message;
 

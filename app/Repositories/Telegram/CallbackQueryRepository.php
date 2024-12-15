@@ -4,6 +4,7 @@ namespace App\Repositories\Telegram;
 
 use App\Dto\Telegram\CallbackQueryDto;
 use App\Exceptions\ResponseException;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 final readonly class CallbackQueryRepository extends AbstractRepository
@@ -15,6 +16,8 @@ final readonly class CallbackQueryRepository extends AbstractRepository
     {
         try {
             $payload = $this->request->all();
+
+            Log::debug('CallbackQueryRepository: ' . json_encode($payload));
 
             /**
              * @var array{
