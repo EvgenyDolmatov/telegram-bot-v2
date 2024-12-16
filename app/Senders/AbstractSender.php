@@ -6,13 +6,15 @@ use App\Builder\Message\MessageBuilder;
 use App\Builder\MessageSender;
 use App\Builder\PollSender;
 use App\Dto\ButtonDto;
-use App\Dto\MessageDto;
+use App\Dto\Telegram\MessagePhotoDto;
+use App\Dto\Telegram\MessageTextDto;
 use App\Enums\CommandEnum;
 use App\Exceptions\ResponseException;
 use App\Models\AiRequest;
 use App\Models\TrashMessage;
 use App\Models\User;
 use App\Repositories\RequestRepository;
+use App\Repositories\Telegram\AbstractRepository;
 use App\Services\SenderService;
 use App\Services\TelegramService;
 use Illuminate\Http\Client\Response;
@@ -24,7 +26,7 @@ abstract class AbstractSender implements SenderInterface
     protected PollSender $pollBuilder;
 
     public function __construct(
-        protected readonly RequestRepository $repository,
+        protected readonly AbstractRepository $repository,
         protected readonly TelegramService   $telegramService,
         protected readonly User              $user
     ) {
@@ -67,7 +69,7 @@ abstract class AbstractSender implements SenderInterface
         return true;
     }
 
-    protected function getMessageDto(): MessageDto
+    protected function getMessageDto(): MessageTextDto|MessagePhotoDto
     {
         return $this->repository->getDto();
     }

@@ -5,10 +5,8 @@ namespace App\Handlers;
 use App\Handlers\Message\AbstractHandler;
 use App\Handlers\Message\CommandHandler;
 use App\Handlers\Message\StateHandler;
-use App\Repositories\RequestRepository;
 use App\Repositories\Telegram\AbstractRepository;
 use App\Services\TelegramService;
-use Illuminate\Http\Request;
 
 class MessageStrategy
 {
@@ -25,9 +23,9 @@ class MessageStrategy
         $message = $this->getInput();
 
         if (str_starts_with($message, '/')) {
-            $handler = new CommandHandler($this->telegramService, $this->request);
+            $handler = new CommandHandler($this->telegramService, $this->repository);
         } else {
-            $handler = new StateHandler($this->telegramService, $this->request);
+            $handler = new StateHandler($this->telegramService, $this->repository);
         }
 
         return $this->setHandler($handler);

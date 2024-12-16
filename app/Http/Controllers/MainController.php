@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Dto\Telegram\RequestStrategy;
 use App\Handlers\MessageStrategy;
 use App\Models\TrashMessage;
-use App\Repositories\RequestRepository;
 use App\Services\TelegramService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -21,7 +20,9 @@ class MainController extends Controller
         $telegram->resetQueue();
 
         Log::debug(json_encode($request->all()));
-        $requestDto = (new RequestStrategy())->defineMessageRepository($request)->getDto();
+
+        $repository = (new RequestStrategy())->defineMessageRepository($request);
+        $requestDto = $repository->getDto();
 
         // Prepare message to delete on next step
         TrashMessage::add(
@@ -30,7 +31,7 @@ class MainController extends Controller
             isTrash: true
         );
 
-        $strategy = new MessageStrategy($telegram, $request);
+        $strategy = new MessageStrategy($telegram, $repository);
         $strategy->defineHandler()->process();
 
 

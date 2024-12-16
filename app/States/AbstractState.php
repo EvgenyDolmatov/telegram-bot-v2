@@ -6,7 +6,7 @@ use App\Enums\CommandEnum;
 use App\Enums\CallbackEnum;
 use App\Enums\StateEnum;
 use App\Models\User;
-use App\Repositories\RequestRepository;
+use App\Repositories\Telegram\AbstractRepository;
 use App\Services\TelegramService;
 
 abstract class AbstractState implements UserState
@@ -14,8 +14,7 @@ abstract class AbstractState implements UserState
     protected User $user;
 
     public function __construct(
-//        protected readonly Request $request,
-        protected readonly RequestRepository $repository,
+        protected readonly AbstractRepository $repository,
         protected readonly TelegramService $telegramService
     ) {
         $this->user = User::getOrCreate($repository);

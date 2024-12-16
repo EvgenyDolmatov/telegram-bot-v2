@@ -6,7 +6,7 @@ use App\Enums\CallbackEnum;
 use App\Enums\CommandEnum;
 use App\Enums\StateEnum;
 use App\Exceptions\ResponseException;
-use App\Repositories\RequestRepository;
+use App\Repositories\Telegram\AbstractRepository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -64,7 +64,7 @@ class User extends Model
         return $this->belongsTo(Role::class);
     }
 
-    public static function getByRequestRepository(RequestRepository $repository): ?User
+    public static function getByRequestRepository(AbstractRepository $repository): ?User
     {
         $telegramUserId = $repository->getDto()->getFrom()->getId();
 
@@ -81,7 +81,7 @@ class User extends Model
     /**
      * @throws \Exception
      */
-    public static function createFromRequestRepository(RequestRepository $repository): User
+    public static function createFromRequestRepository(AbstractRepository $repository): User
     {
         $messageDto = $repository->getDto();
         $from = $repository->getDto()->getFrom();
@@ -99,7 +99,7 @@ class User extends Model
     /**
      * @throws ResponseException
      */
-    public static function getOrCreate(RequestRepository $repository): User
+    public static function getOrCreate(AbstractRepository $repository): User
     {
         if ($user = self::getByRequestRepository($repository)) {
             return $user;

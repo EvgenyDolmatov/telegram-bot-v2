@@ -43,7 +43,7 @@ abstract readonly class AbstractRepository
             throw new Exception('Message payload must have  text or photo key.');
         }
 
-        return $repository->getDto();
+        return $repository->getDto($data);
     }
 
     /**

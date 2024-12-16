@@ -14,7 +14,7 @@ class RequestStrategy
     /**
      * @throws \Exception
      */
-    public function defineMessageRepository(Request $request): self
+    public function defineMessageRepository(Request $request): AbstractRepository
     {
         if ($request->has('callback_query')) {
             $repository = (new CallbackQueryRepository($request));
@@ -31,11 +31,11 @@ class RequestStrategy
         return $this->setRepository($repository);
     }
 
-    public function setRepository(AbstractRepository $repository): self
+    public function setRepository(AbstractRepository $repository): AbstractRepository
     {
         $this->repository = $repository;
 
-        return $this;
+        return $this->repository;
     }
 
     public function getDto(): mixed

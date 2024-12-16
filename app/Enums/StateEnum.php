@@ -4,7 +4,7 @@ namespace App\Enums;
 
 use App\Dto\ButtonDto;
 use App\Models\User;
-use App\Repositories\RequestRepository;
+use App\Repositories\Telegram\AbstractRepository;
 use App\Senders\Account\ReferralLinkShowSender;
 use App\Senders\Account\ReferredUsersShowSender;
 use App\Senders\Admin\NewsletterConfirmationSender;
@@ -74,7 +74,6 @@ use App\States\Poll\ThemeWaitingState;
 use App\States\Poll\TypeChoiceState;
 use App\States\StartState;
 use App\States\UserState;
-use Illuminate\Http\Request;
 
 enum StateEnum: string
 {
@@ -128,7 +127,7 @@ enum StateEnum: string
     /** Help */
     case HELP = 'help';
 
-    public function userState(RequestRepository $repository, TelegramService $telegramService): UserState
+    public function userState(AbstractRepository $repository, TelegramService $telegramService): UserState
     {
         return match ($this) {
             /** Poll states */
@@ -219,7 +218,7 @@ enum StateEnum: string
         };
     }
 
-    public function sender(RequestRepository $repository, TelegramService $telegramService, User $user): SenderInterface
+    public function sender(AbstractRepository $repository, TelegramService $telegramService, User $user): SenderInterface
     {
         return match ($this) {
             self::ACCOUNT => new AccountSender($repository, $telegramService, $user),
