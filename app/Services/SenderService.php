@@ -7,7 +7,7 @@ use App\Builder\Poll\Poll;
 use App\Exceptions\ChatNotFoundException;
 use App\Exceptions\ResponseException;
 use App\Models\TrashMessage;
-use App\Repositories\Telegram\AbstractRepository;
+use App\Repositories\Telegram\RepositoryInterface;
 use Exception;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
@@ -18,7 +18,7 @@ use Throwable;
 readonly class SenderService
 {
     public function __construct(
-        private AbstractRepository $repository,
+        private RepositoryInterface $repository,
         private TelegramService   $telegramService
     ) {
     }

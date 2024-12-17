@@ -3,7 +3,7 @@
 namespace App\Handlers\Message;
 
 use App\Models\User;
-use App\Repositories\Telegram\AbstractRepository;
+use App\Repositories\Telegram\RepositoryInterface;
 use App\Services\TelegramService;
 
 abstract class AbstractHandler
@@ -12,7 +12,7 @@ abstract class AbstractHandler
 
     public function __construct(
         protected readonly TelegramService $telegramService,
-        protected readonly AbstractRepository $repository
+        protected readonly RepositoryInterface $repository
     ) {
         $this->user = User::getOrCreate($repository);
     }

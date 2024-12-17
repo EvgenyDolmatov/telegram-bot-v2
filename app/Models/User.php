@@ -6,7 +6,7 @@ use App\Enums\CallbackEnum;
 use App\Enums\CommandEnum;
 use App\Enums\StateEnum;
 use App\Exceptions\ResponseException;
-use App\Repositories\Telegram\AbstractRepository;
+use App\Repositories\Telegram\RepositoryInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -64,9 +64,9 @@ class User extends Model
         return $this->belongsTo(Role::class);
     }
 
-    public static function getByRequestRepository(AbstractRepository $repository): ?User
+    public static function getByRequestRepository(RepositoryInterface $repository): ?User
     {
-        $telegramUserId = $repository->getDto()->getFrom()->getId();
+        $telegramUserId = $repository->createDto()->getFrom()->getId();
 
         return User::where('tg_user_id', $telegramUserId)->first();
     }
@@ -81,10 +81,10 @@ class User extends Model
     /**
      * @throws \Exception
      */
-    public static function createFromRequestRepository(AbstractRepository $repository): User
+    public static function createFromRequestRepository(RepositoryInterface $repository): User
     {
-        $messageDto = $repository->getDto();
-        $from = $repository->getDto()->getFrom();
+        $messageDto = $repository->createDto();
+        $from = $messageDto->getFrom();
 
         return self::create([
             'tg_user_id' => $from->getId(),
@@ -99,7 +99,7 @@ class User extends Model
     /**
      * @throws ResponseException
      */
-    public static function getOrCreate(AbstractRepository $repository): User
+    public static function getOrCreate(RepositoryInterface $repository): User
     {
         if ($user = self::getByRequestRepository($repository)) {
             return $user;
@@ -108,7 +108,7 @@ class User extends Model
         $user = self::createFromRequestRepository($repository);
 
         // Check if the user has referral link
-        $user->addReferredUser($repository->getDto()->getText());
+        $user->addReferredUser($repository->createDto()->getText());
 
         return $user;
     }

@@ -2,8 +2,6 @@
 
 namespace App\States;
 
-use Illuminate\Support\Facades\Log;
-
 class UserContext
 {
     private UserState $state;

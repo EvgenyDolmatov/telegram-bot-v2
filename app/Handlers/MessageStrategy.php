@@ -5,7 +5,7 @@ namespace App\Handlers;
 use App\Handlers\Message\AbstractHandler;
 use App\Handlers\Message\CommandHandler;
 use App\Handlers\Message\StateHandler;
-use App\Repositories\Telegram\AbstractRepository;
+use App\Repositories\Telegram\RepositoryInterface;
 use App\Services\TelegramService;
 
 class MessageStrategy
@@ -14,7 +14,7 @@ class MessageStrategy
 
     public function __construct(
         private readonly TelegramService $telegramService,
-        private readonly AbstractRepository $repository
+        private readonly RepositoryInterface $repository
     ) {
     }
 

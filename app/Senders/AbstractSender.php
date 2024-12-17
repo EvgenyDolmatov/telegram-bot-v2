@@ -13,8 +13,7 @@ use App\Exceptions\ResponseException;
 use App\Models\AiRequest;
 use App\Models\TrashMessage;
 use App\Models\User;
-use App\Repositories\RequestRepository;
-use App\Repositories\Telegram\AbstractRepository;
+use App\Repositories\Telegram\RepositoryInterface;
 use App\Services\SenderService;
 use App\Services\TelegramService;
 use Illuminate\Http\Client\Response;
@@ -26,7 +25,7 @@ abstract class AbstractSender implements SenderInterface
     protected PollSender $pollBuilder;
 
     public function __construct(
-        protected readonly AbstractRepository $repository,
+        protected readonly RepositoryInterface $repository,
         protected readonly TelegramService   $telegramService,
         protected readonly User              $user
     ) {
