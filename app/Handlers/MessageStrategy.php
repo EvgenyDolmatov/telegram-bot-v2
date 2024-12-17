@@ -45,7 +45,7 @@ class MessageStrategy
 
     private function getInput(): string
     {
-        $dto = $this->repository->getDto();
+        $dto = $this->repository->createDto();
 
         return method_exists($dto, 'getText') ? $dto->getText() : $dto->getData();
     }

@@ -42,7 +42,7 @@ readonly class SenderService
         $url = TelegramService::BASE_URL . $this->telegramService->token . '/sendPhoto';
 
         if (!$chatId) {
-            $chat = $this->repository->getDto()->getChat();
+            $chat = $this->repository->createDto()->getChat();
             $chatId = $chat->getId();
         }
 

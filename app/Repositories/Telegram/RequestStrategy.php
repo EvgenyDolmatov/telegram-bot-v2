@@ -3,7 +3,6 @@
 namespace App\Repositories\Telegram;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 readonly class RequestStrategy
 {
@@ -14,11 +13,9 @@ readonly class RequestStrategy
     ) {
     }
 
-    public function setRepository(RepositoryInterface $repository): RepositoryInterface
+    public function setRepository(RepositoryInterface $repository): void
     {
         $this->repository = $repository;
-
-        return $repository;
     }
 
     /**
@@ -26,22 +23,19 @@ readonly class RequestStrategy
      */
     public function defineRepository(): RepositoryInterface
     {
-
-
         if ($this->request->has('callback_query')) {
-            $repository = new CallbackRepository();
+            $repository = new CallbackRepository($this->request);
         }
 
         if ($this->request->has('message')) {
             $messageData = $this->request->get('message');
 
             if (array_key_exists('text', $messageData)) {
-                Log::debug('RequestStrategy.php: text: ' . json_encode($this->request->all()));
-                $repository = new MessageTextRepository();
+                $repository = new MessageTextRepository($this->request);
             }
 
             if (array_key_exists('photo', $messageData)) {
-                $repository = new MessagePhotoRepository();
+                $repository = new MessagePhotoRepository($this->request);
             }
         }
 
@@ -49,11 +43,8 @@ readonly class RequestStrategy
             throw new \Exception('Request data is unavailable.');
         }
 
-        return $this->setRepository($repository);
-    }
+        $this->setRepository($repository);
 
-    public function createDto()
-    {
-        return $this->repository->createDto();
+        return $this->repository;
     }
 }
