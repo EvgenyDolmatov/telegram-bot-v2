@@ -1,20 +1,20 @@
 <?php
 
-namespace App\Repositories\Telegram;
+namespace App\Repositories\Telegram\Message;
 
 use App\Dto\Telegram\Message\ChatDto;
 use App\Dto\Telegram\Message\FromDto;
 use App\Dto\Telegram\Message\PhotoDto;
 use App\Dto\Telegram\MessagePhotoDto;
 use App\Models\TrashMessage;
+use App\Repositories\Telegram\MessageRepository;
+use App\Repositories\Telegram\RepositoryInterface;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
-class MessagePhotoRepository implements RepositoryInterface
+readonly class MessagePhotoRepository extends MessageRepository
 {
-    public function __construct(private Request $request) {}
-
     /**
      * @throws Exception
      */
@@ -37,41 +37,6 @@ class MessagePhotoRepository implements RepositoryInterface
         }
 
         return $dto;
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function addToTrash(bool $isTrash = true): void
-    {
-        $messageDto = $this->createDto();
-
-        TrashMessage::add(
-            chatId: $messageDto->getChat()->getId(),
-            messageId: $messageDto->getId(),
-            isTrash: $isTrash
-        );
-    }
-
-    private function getFromDto(array $data): FromDto
-    {
-        return (new FromDto())
-            ->setId($data['id'])
-            ->setIsBot($data['is_bot'])
-            ->setUsername($data['username'] ?? null)
-            ->setFirstName($data['first_name'] ?? null)
-            ->setLastName($data['last_name'] ?? null)
-            ->setLanguageCode($data['language_code'] ?? null);
-    }
-
-    private function getChatDto(array $data): ChatDto
-    {
-        return (new ChatDto())
-            ->setId($data['id'])
-            ->setUsername($data['username'] ?? null)
-            ->setFirstName($data['first_name'] ?? null)
-            ->setLastName($data['last_name'] ?? null)
-            ->setType($data['type']);
     }
 
     private function getPhotoItems(array $data): array

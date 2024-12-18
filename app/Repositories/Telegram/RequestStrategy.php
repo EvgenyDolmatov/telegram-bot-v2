@@ -2,6 +2,8 @@
 
 namespace App\Repositories\Telegram;
 
+use App\Repositories\Telegram\Message\MessagePhotoRepository;
+use App\Repositories\Telegram\Message\MessageTextRepository;
 use Illuminate\Http\Request;
 
 readonly class RequestStrategy

@@ -21,7 +21,7 @@ readonly class SenderService
 {
     public function __construct(
         private RepositoryInterface $repository,
-        private TelegramService   $telegramService
+        private TelegramService     $telegramService
     ) {
     }
 
@@ -42,12 +42,7 @@ readonly class SenderService
         int $chatId = null
     ): Response {
         $url = TelegramService::BASE_URL . $this->telegramService->token . '/sendPhoto';
-
-        if (!$chatId) {
-            $chat = $this->getMessageDto()->getChat();
-            $chatId = $chat->getId();
-        }
-
+        $chatId = $this->getChatId($chatId);
         $buttons = $message->getButtons();
 
         $body = [
@@ -81,11 +76,7 @@ readonly class SenderService
         ?int $chatId = null
     ): Response {
         $url = TelegramService::BASE_URL . $this->telegramService->token . '/sendMessage';
-
-        if (!$chatId) {
-            $chatId = $this->getMessageDto()->getChat()->getId();
-        }
-
+        $chatId = $this->getChatId($chatId);
         $buttons = $message->getButtons();
 
         $body = [
@@ -166,7 +157,7 @@ readonly class SenderService
     public function sendPoll(Poll $poll, ?int $chatId = null, bool $isTrash = true): Response
     {
         $url = TelegramService::BASE_URL . $this->telegramService->token . '/sendPoll';
-        $chat = $this->getMessageDto()->getChat();
+        $chat = $this->getChatId($chatId);
 
         $body = [
             "chat_id" => $chatId ?? $chat->getId(),
@@ -253,7 +244,7 @@ readonly class SenderService
      */
     public function uploadPhoto(string $fileId): ?string
     {
-        $url = TelegramService::BASE_URL . $this->telegramService->token . '/getFile?file_id=' . $fileId;
+        $url = $this->getUrl("getFile?file_id=$fileId");
         $response = Http::get($url);
         $path = null;
 
@@ -302,5 +293,10 @@ readonly class SenderService
         }
 
         return $dto;
+    }
+
+    private function getChatId(?int $chatId = null): int
+    {
+        return $chatId ?? $this->getMessageDto()->getChat()->getId();
     }
 }

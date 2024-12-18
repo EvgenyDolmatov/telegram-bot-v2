@@ -7,6 +7,8 @@ use App\Dto\Telegram\Message\FromDto;
 use App\Dto\Telegram\MessagePhotoDto;
 use App\Dto\Telegram\MessageTextDto;
 use App\Models\TrashMessage;
+use App\Repositories\Telegram\Message\MessagePhotoRepository;
+use App\Repositories\Telegram\Message\MessageTextRepository;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
