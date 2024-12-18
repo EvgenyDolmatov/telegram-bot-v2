@@ -44,7 +44,7 @@ readonly class SenderService
         $url = TelegramService::BASE_URL . $this->telegramService->token . '/sendPhoto';
 
         if (!$chatId) {
-            $chat = $this->repository->createDto()->getChat();
+            $chat = $this->getMessageDto()->getChat();
             $chatId = $chat->getId();
         }
 
@@ -112,7 +112,7 @@ readonly class SenderService
         $url = $this->getUrl('editMessageText');
 
         if (!$chatId) {
-            $chat = $this->repository->getDto()->getChat();
+            $chat = $this->getMessageDto()->getChat();
             $chatId = $chat->getId();
         }
 
@@ -166,7 +166,7 @@ readonly class SenderService
     public function sendPoll(Poll $poll, ?int $chatId = null, bool $isTrash = true): Response
     {
         $url = TelegramService::BASE_URL . $this->telegramService->token . '/sendPoll';
-        $chat = $this->repository->getDto()->getChat();
+        $chat = $this->getMessageDto()->getChat();
 
         $body = [
             "chat_id" => $chatId ?? $chat->getId(),
@@ -232,7 +232,7 @@ readonly class SenderService
     public function isMembership(): bool
     {
         $url = TelegramService::BASE_URL . $this->telegramService->token . '/getChatMember';
-        $user = $this->repository->getDto()->getFrom();
+        $user = $this->getMessageDto()->getFrom();
 
         $body = [
             "chat_id" => config('services.telegram.chatId'),

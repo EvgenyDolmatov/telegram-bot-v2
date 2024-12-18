@@ -72,16 +72,24 @@ abstract class AbstractSender implements SenderInterface
     {
         $dto = $this->repository->createDto();
 
-        if (method_exists($dto, 'getMessage')) {
-            return $dto->getMessage();
-        }
-
-        return $this->repository->createDto();
+        return method_exists($dto, 'getMessage')
+            ? $dto->getMessage()
+            : $this->repository->createDto();
     }
 
     protected function getInputText(): string
     {
-        return $this->getMessageDto()->getText();
+        $dto = $this->repository->createDto();
+
+        if (method_exists($dto, 'getPhoto')) {
+            return $dto->getCaption() ?? "";
+        }
+
+        if (method_exists($dto, 'getData')) {
+            return $dto->getData();
+        }
+
+        return $dto->getText();
     }
 
     /**
