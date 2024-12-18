@@ -5,6 +5,7 @@ namespace App\Repositories\Telegram;
 use App\Dto\Telegram\Message\ChatDto;
 use App\Dto\Telegram\Message\FromDto;
 use App\Dto\Telegram\MessageTextDto;
+use App\Models\TrashMessage;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -35,6 +36,20 @@ readonly class MessageTextRepository implements RepositoryInterface
         }
 
         return $dto;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function addToTrash(bool $isTrash = true): void
+    {
+        $messageDto = $this->createDto();
+
+        TrashMessage::add(
+            chatId: $messageDto->getChat()->getId(),
+            messageId: $messageDto->getId(),
+            isTrash: $isTrash
+        );
     }
 
     private function getFromDto(array $data): FromDto

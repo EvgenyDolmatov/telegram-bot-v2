@@ -70,6 +70,12 @@ abstract class AbstractSender implements SenderInterface
 
     protected function getMessageDto(): MessageTextDto|MessagePhotoDto
     {
+        $dto = $this->repository->createDto();
+
+        if (method_exists($dto, 'getMessage')) {
+            return $dto->getMessage();
+        }
+
         return $this->repository->createDto();
     }
 

@@ -7,18 +7,18 @@ use App\Dto\Telegram\Message\FromDto;
 
 class CallbackQueryDto
 {
-    private int $id;
+    private string $id;
     private FromDto $from;
-    private MessageTextDto $message;
+    private MessageTextDto|MessagePhotoDto $message;
     private string $chatInstance;
     private string $data;
 
-    public function getId(): int
+    public function getId(): string
     {
         return $this->id;
     }
 
-    public function setId(int $id): self
+    public function setId(string $id): self
     {
         $this->id = $id;
 
@@ -37,12 +37,12 @@ class CallbackQueryDto
         return $this;
     }
 
-    public function getMessage(): MessageTextDto
+    public function getMessage(): MessageTextDto|MessagePhotoDto
     {
         return $this->message;
     }
 
-    public function setMessage(MessageTextDto $message): self
+    public function setMessage(MessageTextDto|MessagePhotoDto $message): self
     {
         $this->message = $message;
 

@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Builder\Message\Message;
 use App\Builder\Poll\Poll;
+use App\Dto\Telegram\MessagePhotoDto;
+use App\Dto\Telegram\MessageTextDto;
 use App\Exceptions\ChatNotFoundException;
 use App\Exceptions\ResponseException;
 use App\Models\TrashMessage;
@@ -81,8 +83,7 @@ readonly class SenderService
         $url = TelegramService::BASE_URL . $this->telegramService->token . '/sendMessage';
 
         if (!$chatId) {
-            $chat = $this->repository->getDto()->getChat();
-            $chatId = $chat->getId();
+            $chatId = $this->getMessageDto()->getChat()->getId();
         }
 
         $buttons = $message->getButtons();
@@ -197,8 +198,8 @@ readonly class SenderService
     public function updateChatMessages(bool $isTrash = true): void
     {
         $url = TelegramService::BASE_URL . $this->telegramService->token . '/deleteMessages';
-        $requestDto = $this->repository->getDto();
-        $chatId = $requestDto->getChat()->getId();
+        $messageDto = $this->getMessageDto();
+        $chatId = $messageDto->getChat()->getId();
         $trashMessages = TrashMessage::where('chat_id', $chatId)->where('is_trash', true)->get();
 
         if ($trashMessages->count()) {
@@ -219,7 +220,7 @@ readonly class SenderService
         }
 
         // Prepare trash messages for next step
-        TrashMessage::add($chatId, $requestDto->getId(), $isTrash);
+        TrashMessage::add($chatId, $messageDto->getId(), $isTrash);
     }
 
     /**
@@ -290,5 +291,16 @@ readonly class SenderService
     private function getUrl(string $path): string
     {
         return TelegramService::BASE_URL . $this->telegramService->token . '/' . ltrim($path, '/');
+    }
+
+    private function getMessageDto(): MessageTextDto|MessagePhotoDto
+    {
+        $dto = $this->repository->createDto();
+
+        if (method_exists($dto, 'getMessage')) {
+            return $dto->getMessage();
+        }
+
+        return $dto;
     }
 }

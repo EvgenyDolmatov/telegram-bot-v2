@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Handlers\MessageStrategy;
-use App\Models\TrashMessage;
 use App\Repositories\Telegram\RequestStrategy;
 use App\Services\TelegramService;
 use Illuminate\Http\Request;
@@ -25,28 +24,9 @@ class MainController extends Controller
         $requestDto = $repository->createDto();
 
         // Prepare message to delete on next step
-        TrashMessage::add(
-            chatId: $requestDto->getChat()->getId(),
-            messageId: $requestDto->getId(),
-            isTrash: true
-        );
+        $repository->addToTrash();
 
         $strategy = new MessageStrategy($telegram, $repository);
         $strategy->defineHandler()->process();
-
-
-//        if ($request->hasAny(['message', 'callback_query'])) {
-//            $requestDto = (new RequestRepository($request))->getDto();
-
-//            Log::debug('USER: ' . $requestDto->getId() . ' : ' . $requestDto->getText());
-//            TrashMessage::add(
-//                chatId: $requestDto->getChat()->getId(),
-//                messageId: $requestDto->getId(),
-//                isTrash: true
-//            );
-
-//            $strategy = new MessageStrategy($telegram, $request);
-//            $strategy->defineHandler()->process();
-//        }
     }
 }
