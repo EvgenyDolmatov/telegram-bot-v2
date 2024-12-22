@@ -1,21 +1,18 @@
 <?php
 
-namespace App\Repositories\Telegram;
+namespace App\Repositories\Tg\Request;
 
 use App\Dto\Telegram\Message\ChatDto;
 use App\Dto\Telegram\Message\FromDto;
 use App\Models\TrashMessage;
 use Exception;
-use Illuminate\Http\Request;
 
-abstract readonly class MessageRepository implements RepositoryInterface
+abstract class AbstractRepository implements RepositoryInterface
 {
     public function __construct(
-        protected Request $request
+        protected readonly array $payload
     ) {
     }
-
-    abstract public function createDto(?array $data = null): mixed;
 
     protected function getFromDto(array $data): FromDto
     {
@@ -43,7 +40,8 @@ abstract readonly class MessageRepository implements RepositoryInterface
      */
     public function addToTrash(bool $isTrash = true): void
     {
-        $messageDto = $this->createDto();
+        $dto = $this->createDto();
+        $messageDto = method_exists($dto, 'getMessage') ? $dto->getMessage() : $dto;
 
         TrashMessage::add(
             chatId: $messageDto->getChat()->getId(),

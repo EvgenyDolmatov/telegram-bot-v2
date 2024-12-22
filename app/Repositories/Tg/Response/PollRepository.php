@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Repositories\Tg\Response;
 
-use App\Dto\Poll\OptionDto;
-use App\Dto\PollDto;
+use App\Dto\Telegram\Message\Poll\OptionDto;
+use App\Dto\Telegram\Message\PollDto;
 
 class PollRepository extends AbstractRepository
 {
     /**
      * @throws \Exception
      */
-    public function getDto(): PollDto
+    public function createDto(): PollDto
     {
         try {
-            $data = json_decode($this->response, true)['result']['poll'];
+            $data = $this->payload;
 
             $dto = (new PollDto())
                 ->setId($data['id'])

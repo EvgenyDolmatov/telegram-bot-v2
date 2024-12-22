@@ -11,7 +11,8 @@ use App\Models\PollOption;
 use App\Models\PreparedPoll;
 use App\Models\UserFlow;
 use App\Repositories\OpenAiRepository;
-use App\Repositories\PollRepository;
+use App\Repositories\Tg\Message\MessagePollRepository;
+use App\Repositories\Tg\Response\PollRepository;
 use App\Senders\AbstractSender;
 use App\Services\OpenAiService;
 use Illuminate\Http\Client\Response;
@@ -88,14 +89,22 @@ class AiRespondedChoiceSender extends AbstractSender
             throw new Exception('An error occurred while submitting the poll');
         }
 
+        Log::debug('TTTT: ' . $response);
+
+        $pollData = json_decode($response, true);
+        $messagePollDto = (new MessagePollRepository($pollData))->createDto();
+
+        Log::debug('RTYYY: ' . $messagePollDto->getDate());
+
         try {
-            $messageId = $response['result']['message_id'] ?? null;
-            $pollDto = (new PollRepository($response))->getDto();
+            $pollData = json_decode($response, true)['result'];
+            $messagePollDto = (new MessagePollRepository($pollData))->createDto();
+            $pollDto = $messagePollDto->getPoll();
 
             // Save poll to database
             $poll = Poll::create([
                 'user_id' => $this->user->id,
-                'tg_message_id' => $messageId,
+                'tg_message_id' => $messagePollDto->getId(),
                 'question' => $pollDto->getQuestion(),
                 'is_anonymous' => $pollDto->getIsAnonymous(),
                 'allows_multiple_answers' => $pollDto->getIsAllowsMultipleAnswers(),

@@ -3,7 +3,7 @@
 namespace App\Handlers\Message;
 
 use App\Models\User;
-use App\Repositories\Telegram\RepositoryInterface;
+use App\Repositories\Tg\Request\RepositoryInterface;
 use App\Services\TelegramService;
 
 abstract class AbstractHandler

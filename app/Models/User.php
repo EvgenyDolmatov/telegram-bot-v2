@@ -6,7 +6,7 @@ use App\Enums\CallbackEnum;
 use App\Enums\CommandEnum;
 use App\Enums\StateEnum;
 use App\Exceptions\ResponseException;
-use App\Repositories\Telegram\RepositoryInterface;
+use App\Repositories\Tg\Request\RepositoryInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;

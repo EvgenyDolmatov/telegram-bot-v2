@@ -1,9 +1,7 @@
 <?php
 
-namespace App\Repositories\Telegram;
+namespace App\Repositories\Tg\Request;
 
-use App\Repositories\Telegram\Message\MessagePhotoRepository;
-use App\Repositories\Telegram\Message\MessageTextRepository;
 use Illuminate\Http\Request;
 
 readonly class RequestStrategy
@@ -26,19 +24,12 @@ readonly class RequestStrategy
     public function defineRepository(): RepositoryInterface
     {
         if ($this->request->has('callback_query')) {
-            $repository = new CallbackRepository($this->request);
+            $repository = new CallbackRepository($this->request->all());
         }
 
         if ($this->request->has('message')) {
             $messageData = $this->request->get('message');
-
-            if (array_key_exists('text', $messageData)) {
-                $repository = new MessageTextRepository($this->request);
-            }
-
-            if (array_key_exists('photo', $messageData)) {
-                $repository = new MessagePhotoRepository($this->request);
-            }
+            $repository = (new MessageRepository($messageData))->defineRepository();
         }
 
         if (!isset($repository)) {

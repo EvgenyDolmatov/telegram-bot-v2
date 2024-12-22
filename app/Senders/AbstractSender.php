@@ -13,7 +13,7 @@ use App\Exceptions\ResponseException;
 use App\Models\AiRequest;
 use App\Models\TrashMessage;
 use App\Models\User;
-use App\Repositories\Telegram\RepositoryInterface;
+use App\Repositories\Tg\Request\RepositoryInterface;
 use App\Services\SenderService;
 use App\Services\TelegramService;
 use Illuminate\Http\Client\Response;

@@ -2,11 +2,11 @@
 
 namespace App\States;
 
-use App\Enums\CommandEnum;
 use App\Enums\CallbackEnum;
+use App\Enums\CommandEnum;
 use App\Enums\StateEnum;
 use App\Models\User;
-use App\Repositories\Telegram\RepositoryInterface;
+use App\Repositories\Tg\Request\RepositoryInterface;
 use App\Services\TelegramService;
 
 abstract class AbstractState implements UserState

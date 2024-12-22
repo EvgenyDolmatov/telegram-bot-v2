@@ -3,12 +3,12 @@
 namespace App\Senders\Game;
 
 use App\Builder\Poll\PollBuilder;
-use App\Dto\ChannelDto;
+use App\Dto\Telegram\ChannelDto;
 use App\Enums\StateEnum;
 use App\Exceptions\ChatNotFoundException;
 use App\Models\Game;
 use App\Models\Poll;
-use App\Repositories\ChannelRepository;
+use App\Repositories\Telegram\ChannelRepository;
 use App\Senders\AbstractSender;
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -89,6 +89,9 @@ class GameSentToChannelSuccessSender extends AbstractSender
 
         try {
             $response = $this->senderService->getChatByChannelName($channelName);
+
+
+
             $channelDto = (new ChannelRepository($response))->getDto();
         } catch (Throwable $e) {
             throw new ChatNotFoundException("Wrong channel name $channelName");

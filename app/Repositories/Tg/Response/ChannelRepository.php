@@ -1,19 +1,18 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Repositories\Tg\Response;
 
-use App\Dto\ChannelDto;
-use Illuminate\Support\Facades\Log;
+use App\Dto\Telegram\ChannelDto;
 
 class ChannelRepository extends AbstractRepository
 {
     /**
      * @throws \Exception
      */
-    public function getDto(): ChannelDto
+    public function createDto(?array $data = null): ChannelDto
     {
         try {
-            $data = json_decode($this->response, true)['result'];
+            $data = $this->payload;
 
             $dto = (new ChannelDto())
                 ->setId($data['id'] ?? null)

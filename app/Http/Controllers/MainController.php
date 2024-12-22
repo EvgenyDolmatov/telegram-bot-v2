@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Handlers\MessageStrategy;
-use App\Repositories\Telegram\RequestStrategy;
+use App\Repositories\Tg\Request\RequestStrategy;
 use App\Services\TelegramService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -21,7 +21,7 @@ class MainController extends Controller
         Log::debug(json_encode($request->all()));
 
         $repository = (new RequestStrategy($request))->defineRepository();
-        $requestDto = $repository->createDto();
+//        $requestDto = $repository->createDto();
 
         // Prepare message to delete on next step
         $repository->addToTrash();

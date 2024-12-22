@@ -9,8 +9,7 @@ use App\Dto\Telegram\MessageTextDto;
 use App\Exceptions\ChatNotFoundException;
 use App\Exceptions\ResponseException;
 use App\Models\TrashMessage;
-use App\Repositories\Telegram\RepositoryInterface;
-use Exception;
+use App\Repositories\Tg\Request\RepositoryInterface;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -156,11 +155,10 @@ readonly class SenderService
      */
     public function sendPoll(Poll $poll, ?int $chatId = null, bool $isTrash = true): Response
     {
-        $url = TelegramService::BASE_URL . $this->telegramService->token . '/sendPoll';
-        $chat = $this->getChatId($chatId);
+        $url = $this->getUrl('sendPoll');
 
         $body = [
-            "chat_id" => $chatId ?? $chat->getId(),
+            "chat_id" => $chatId ?? $this->getChatId($chatId),
             "question" => $poll->getQuestion(),
             "options" => $poll->getOptions(),
             "type" => $poll->getIsQuiz() ? "quiz" : "regular",
@@ -264,7 +262,6 @@ readonly class SenderService
 
     /**
      * @throws ChatNotFoundException
-     * @throws Exception
      */
     public function getChatByChannelName(string $channelName): Response
     {
@@ -275,7 +272,11 @@ readonly class SenderService
                 throw new ChatNotFoundException("Chat $channelName not found");
             }
 
-            throw new Exception("Error of getting chat info by chat name $channelName", $e->getCode(), $e);
+            throw new ChatNotFoundException(
+                message: "Error of getting chat info by chat name $channelName",
+                code: $e->getCode(),
+                previous: $e
+            );
         }
     }
 

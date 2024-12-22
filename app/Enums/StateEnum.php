@@ -4,7 +4,7 @@ namespace App\Enums;
 
 use App\Dto\ButtonDto;
 use App\Models\User;
-use App\Repositories\Telegram\RepositoryInterface;
+use App\Repositories\Tg\Request\RepositoryInterface;
 use App\Senders\Account\ReferralLinkShowSender;
 use App\Senders\Account\ReferredUsersShowSender;
 use App\Senders\Admin\NewsletterConfirmationSender;

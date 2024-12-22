@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Dto\Poll;
+namespace App\Dto\Telegram\Message\Poll;
 
 class OptionDto
 {

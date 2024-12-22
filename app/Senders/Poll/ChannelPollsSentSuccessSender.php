@@ -3,7 +3,7 @@
 namespace App\Senders\Poll;
 
 use App\Builder\Poll\PollBuilder;
-use App\Dto\ChannelDto;
+use App\Dto\Telegram\ChannelDto;
 use App\Enums\StateEnum;
 use App\Exceptions\ChatNotFoundException;
 use App\Models\Poll;
