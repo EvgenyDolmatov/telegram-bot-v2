@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repositories\Tg\Request;
+namespace App\Repositories\Telegram\Request;
 
 interface RepositoryInterface
 {

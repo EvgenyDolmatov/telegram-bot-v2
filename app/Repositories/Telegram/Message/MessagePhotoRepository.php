@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Repositories\Tg\Message;
+namespace App\Repositories\Telegram\Message;
 
 use App\Dto\Telegram\Message\PhotoDto;
 use App\Dto\Telegram\MessagePhotoDto;
-use App\Repositories\Tg\Request\MessageRepository;
+use App\Repositories\Telegram\Request\MessageRepository;
 
 class MessagePhotoRepository extends MessageRepository
 {
     public function createDto(?array $data = null): MessagePhotoDto
     {
-        $data = $data ?: $this->payload;
+        $data = $data ?? $this->payload;
 
         return (new MessagePhotoDto())
             ->setId($data['message_id'])

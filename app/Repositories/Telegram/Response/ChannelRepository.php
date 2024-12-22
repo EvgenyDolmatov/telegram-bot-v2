@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repositories\Tg\Response;
+namespace App\Repositories\Telegram\Response;
 
 use App\Dto\Telegram\ChannelDto;
 

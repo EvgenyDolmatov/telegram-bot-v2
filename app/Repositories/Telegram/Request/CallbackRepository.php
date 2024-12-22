@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repositories\Tg\Request;
+namespace App\Repositories\Telegram\Request;
 
 use App\Dto\Telegram\CallbackQueryDto;
 use App\Dto\Telegram\MessagePhotoDto;
@@ -22,7 +22,7 @@ class CallbackRepository extends AbstractRepository
      */
     public function createDto(): CallbackQueryDto
     {
-        $data = $this->payload['callback_query'];
+        $data = $this->payload;
 
         return (new CallbackQueryDto())
             ->setId($data['id'])

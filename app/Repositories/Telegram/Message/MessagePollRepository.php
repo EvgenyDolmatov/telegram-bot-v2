@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Repositories\Tg\Message;
+namespace App\Repositories\Telegram\Message;
 
 use App\Dto\Telegram\Message\Poll\OptionDto;
 use App\Dto\Telegram\Message\PollDto;
 use App\Dto\Telegram\MessagePollDto;
-use App\Repositories\Tg\Request\MessageRepository;
+use App\Repositories\Telegram\Request\MessageRepository;
 use Exception;
 use Illuminate\Support\Facades\Log;
 
@@ -16,9 +16,9 @@ class MessagePollRepository extends MessageRepository
      */
     public function createDto(?array $data = null): MessagePollDto
     {
-        $data = $data ?: $this->payload;
+        $data = $data ?? $this->payload['result'];
 
-        Log::debug('HHHHH: ' . json_encode($data));
+        Log::debug('create message poll dto', ['data' => $data]);
 
         try {
             $dto = (new MessagePollDto())

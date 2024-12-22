@@ -6,7 +6,7 @@ use App\Enums\CallbackEnum;
 use App\Enums\CommandEnum;
 use App\Enums\StateEnum;
 use App\Models\User;
-use App\Repositories\Tg\Request\RepositoryInterface;
+use App\Repositories\Telegram\Request\RepositoryInterface;
 use App\Services\TelegramService;
 
 abstract class AbstractState implements UserState

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repositories\Tg\Request;
+namespace App\Repositories\Telegram\Request;
 
 use Illuminate\Http\Request;
 
@@ -24,7 +24,8 @@ readonly class RequestStrategy
     public function defineRepository(): RepositoryInterface
     {
         if ($this->request->has('callback_query')) {
-            $repository = new CallbackRepository($this->request->all());
+            $callbackData = $this->request->get('callback_query');
+            $repository = new CallbackRepository($callbackData);
         }
 
         if ($this->request->has('message')) {

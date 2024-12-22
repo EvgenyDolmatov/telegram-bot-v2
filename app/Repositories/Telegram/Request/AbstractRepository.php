@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repositories\Tg\Request;
+namespace App\Repositories\Telegram\Request;
 
 use App\Dto\Telegram\Message\ChatDto;
 use App\Dto\Telegram\Message\FromDto;

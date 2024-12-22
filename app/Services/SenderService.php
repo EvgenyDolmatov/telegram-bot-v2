@@ -9,7 +9,7 @@ use App\Dto\Telegram\MessageTextDto;
 use App\Exceptions\ChatNotFoundException;
 use App\Exceptions\ResponseException;
 use App\Models\TrashMessage;
-use App\Repositories\Tg\Request\RepositoryInterface;
+use App\Repositories\Telegram\Request\RepositoryInterface;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;

@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Repositories\Tg\Response;
+namespace App\Repositories\Telegram\Request;
 
 use App\Dto\Telegram\MessagePhotoDto;
+use App\Dto\Telegram\MessagePollDto;
 use App\Dto\Telegram\MessageTextDto;
-use App\Repositories\Tg\Message\MessagePhotoRepository;
-use App\Repositories\Tg\Message\MessagePollRepository;
-use App\Repositories\Tg\Message\MessageTextRepository;
+use App\Repositories\Telegram\Message\MessagePhotoRepository;
+use App\Repositories\Telegram\Message\MessagePollRepository;
+use App\Repositories\Telegram\Message\MessageTextRepository;
 use Exception;
 
 class MessageRepository extends AbstractRepository
@@ -14,7 +15,7 @@ class MessageRepository extends AbstractRepository
     /**
      * @throws Exception
      */
-    public function createDto(?array $data = null): MessageTextDto|MessagePhotoDto
+    public function createDto(?array $data = null): MessageTextDto|MessagePhotoDto|MessagePollDto
     {
         return $this->defineRepository($data)->createDto();
     }
@@ -25,7 +26,7 @@ class MessageRepository extends AbstractRepository
     public function defineRepository(
         ?array $data = null
     ): MessagePhotoRepository|MessageTextRepository|MessagePollRepository {
-        $payload = $data ?? $this->payload['message'];
+        $payload = $data ?? $this->payload;
 
         if (array_key_exists('text', $payload)) {
             return new MessageTextRepository($payload);
