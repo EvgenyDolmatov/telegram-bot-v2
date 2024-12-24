@@ -4,6 +4,7 @@ namespace App\Senders\Game;
 
 use App\Builder\Poll\PollBuilder;
 use App\Dto\Telegram\ChannelDto;
+use App\Dto\Telegram\GroupDto;
 use App\Enums\StateEnum;
 use App\Exceptions\ChatNotFoundException;
 use App\Models\Game;
@@ -67,7 +68,7 @@ class GameSentToChannelSuccessSender extends AbstractSender
                 ->createPoll(
                     question: $poll->question,
                     options: $options,
-                    isAnonymous: true,
+                    isAnonymous: $poll->is_anonymous,
                     isQuiz: !$poll->allows_multiple_answers,
                     correctOptionId: $correctOptionId,
                 );
@@ -79,7 +80,7 @@ class GameSentToChannelSuccessSender extends AbstractSender
     /**
      * @throws ChatNotFoundException
      */
-    private function getChannelDto(): ChannelDto
+    private function getChannelDto(): ChannelDto|GroupDto
     {
         $channelName = $this->getGame()->channel;
 
