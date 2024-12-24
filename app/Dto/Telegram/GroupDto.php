@@ -2,17 +2,20 @@
 
 namespace App\Dto\Telegram;
 
-class ChannelDto
+use App\Dto\Telegram\Group\PermissionDto;
+use App\Dto\Telegram\Group\PhotoDto;
+
+class GroupDto
 {
     private int $id;
     private string $title;
     private string $username;
     private string $type;
-    private ?array $activeUsernames;
+    private array $activeUsernames;
     private string $inviteLink;
-    private bool $isHasVisibleHistory;
-    private bool $isCanSendPaidMedia;
-    private array $availableReactions;
+    private PermissionDto $permissions;
+    private bool $joinToSendMessages;
+    private ?PhotoDto $photo;
     private int $maxReactionCount;
     private int $accentColorId;
 
@@ -64,12 +67,12 @@ class ChannelDto
         return $this;
     }
 
-    public function getActiveUsernames(): ?array
+    public function getActiveUsernames(): array
     {
         return $this->activeUsernames;
     }
 
-    public function setActiveUsernames(?array $activeUsernames): self
+    public function setActiveUsernames(array $activeUsernames): self
     {
         $this->activeUsernames = $activeUsernames;
 
@@ -88,38 +91,38 @@ class ChannelDto
         return $this;
     }
 
-    public function getIsHasVisibleHistory(): bool
+    public function getPermissions(): PermissionDto
     {
-        return $this->isHasVisibleHistory;
+        return $this->permissions;
     }
 
-    public function setIsHasVisibleHistory(bool $isHasVisibleHistory): self
+    public function setPermissions(PermissionDto $permissions): self
     {
-        $this->isHasVisibleHistory = $isHasVisibleHistory;
+        $this->permissions = $permissions;
 
         return $this;
     }
 
-    public function getIsCanSendPaidMedia(): bool
+    public function getJoinToSendMessages(): bool
     {
-        return $this->isCanSendPaidMedia;
+        return $this->joinToSendMessages;
     }
 
-    public function setIsCanSendPaidMedia(bool $isCanSendPaidMedia): self
+    public function setJoinToSendMessages(bool $joinToSendMessages): self
     {
-        $this->isCanSendPaidMedia = $isCanSendPaidMedia;
+        $this->joinToSendMessages = $joinToSendMessages;
 
         return $this;
     }
 
-    public function getAvailableReactions(): array
+    public function getPhoto(): ?PhotoDto
     {
-        return $this->availableReactions;
+        return $this->photo;
     }
 
-    public function setAvailableReactions(array $availableReactions): self
+    public function setPhoto(?PhotoDto $photo): self
     {
-        $this->availableReactions = $availableReactions;
+        $this->photo = $photo;
 
         return $this;
     }

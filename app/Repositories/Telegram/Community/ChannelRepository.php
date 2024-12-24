@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Repositories\Telegram\Response;
+namespace App\Repositories\Telegram\Community;
 
 use App\Dto\Telegram\ChannelDto;
+use App\Repositories\Telegram\Response\AbstractRepository;
 
 class ChannelRepository extends AbstractRepository
 {

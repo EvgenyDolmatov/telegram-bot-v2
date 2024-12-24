@@ -8,7 +8,7 @@ use App\Enums\StateEnum;
 use App\Exceptions\ChatNotFoundException;
 use App\Models\Game;
 use App\Models\Poll;
-use App\Repositories\Telegram\ChannelRepository;
+use App\Repositories\Telegram\Response\CommunityRepository;
 use App\Senders\AbstractSender;
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -89,12 +89,11 @@ class GameSentToChannelSuccessSender extends AbstractSender
 
         try {
             $response = $this->senderService->getChatByChannelName($channelName);
-
-
-
-            $channelDto = (new ChannelRepository($response))->getDto();
+            $channelDto = (new CommunityRepository(json_decode($response, true)))
+                ->defineRepository()
+                ->createDto();
         } catch (Throwable $e) {
-            throw new ChatNotFoundException("Wrong channel name $channelName");
+            throw new ChatNotFoundException("Wrong channel $channelName");
         }
 
         return $channelDto;

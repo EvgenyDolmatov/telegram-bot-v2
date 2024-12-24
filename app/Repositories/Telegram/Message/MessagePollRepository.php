@@ -18,8 +18,6 @@ class MessagePollRepository extends MessageRepository
     {
         $data = $data ?? $this->payload['result'];
 
-        Log::debug('create message poll dto', ['data' => $data]);
-
         try {
             $dto = (new MessagePollDto())
                 ->setId($data['message_id'])
