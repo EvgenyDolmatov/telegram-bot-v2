@@ -23,7 +23,9 @@ class MainController extends Controller
         $repository = (new RequestStrategy($request))->defineRepository();
 
         // Prepare message to delete on next step
-        $repository->addToTrash();
+        if (method_exists($repository->createDto(), 'getChat')) {
+            $repository->addToTrash();
+        }
 
         $strategy = new MessageStrategy($telegram, $repository);
         $strategy->defineHandler()->process();
