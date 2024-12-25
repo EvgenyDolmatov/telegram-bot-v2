@@ -3,6 +3,7 @@
 namespace App\Senders\Game;
 
 use App\Builder\Poll\PollBuilder;
+use App\Dto\ButtonDto;
 use App\Dto\Telegram\ChannelDto;
 use App\Dto\Telegram\GroupDto;
 use App\Enums\StateEnum;
@@ -29,7 +30,7 @@ class GameSentToChannelSuccessSender extends AbstractSender
         $this->sendBeforeGameMessage();
 
         // In 10 seconds send first poll
-        $this->sendPoll();
+//        $this->sendPoll();
     }
 
     private function sendBeforeGameMessage(): void
@@ -41,9 +42,11 @@ class GameSentToChannelSuccessSender extends AbstractSender
         $text .= "Название: {$game->title}\n";
         $text .= "Описание: {$game->description}\n";
         $text .= "Время на ответ: {$game->time_limit} секунд\n\n";
-        $text .= "До начала игры осталось: 1 минута.";
+        $text .= "Присоединяйся к игре:";
 
-        $this->sendMessage($text, null, true, $chatId);
+        $buttons = [new ButtonDto('join', 'Присоединиться')];
+
+        $this->sendMessage($text, $buttons, true, $chatId);
     }
 
     private function sendPoll(): void

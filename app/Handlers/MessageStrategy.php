@@ -47,6 +47,14 @@ class MessageStrategy
     {
         $dto = $this->repository->createDto();
 
-        return method_exists($dto, 'getText') ? $dto->getText() : $dto->getData();
+        if (method_exists($dto, 'getText')) {
+            return $dto->getText();
+        }
+
+        if (method_exists($dto, 'getData')) {
+            return $dto->getData();
+        }
+
+        return "";
     }
 }
