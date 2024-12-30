@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Dto\Telegram\Group;
+namespace App\Dto\Telegram\Community\Component;
 
 class PermissionDto
 {

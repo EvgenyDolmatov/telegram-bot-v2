@@ -2,9 +2,9 @@
 
 namespace App\Repositories\Telegram\Message;
 
+use App\Dto\Telegram\Message\Component\PollDto;
+use App\Dto\Telegram\Message\MessagePollDto;
 use App\Dto\Telegram\Message\Poll\OptionDto;
-use App\Dto\Telegram\Message\PollDto;
-use App\Dto\Telegram\MessagePollDto;
 use App\Repositories\Telegram\Request\MessageRepository;
 use Exception;
 use Illuminate\Support\Facades\Log;

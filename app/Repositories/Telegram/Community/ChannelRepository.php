@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Telegram\Community;
 
-use App\Dto\Telegram\ChannelDto;
+use App\Dto\Telegram\Community\ChannelDto;
 use App\Repositories\Telegram\Response\AbstractRepository;
 
 class ChannelRepository extends AbstractRepository

@@ -2,12 +2,10 @@
 
 namespace App\Handlers\Message;
 
-use App\Dto\Telegram\MessagePhotoDto;
-use App\Dto\Telegram\MessageTextDto;
+use App\Dto\Telegram\MessageDto;
 use App\Enums\StateEnum;
 use App\Models\Game;
 use App\States\UserContext;
-use Illuminate\Support\Facades\Log;
 
 class CommunityHandler extends AbstractHandler
 {
@@ -21,18 +19,15 @@ class CommunityHandler extends AbstractHandler
         $userContext->handleInput($message);
     }
 
-    private function getGame(MessageTextDto|MessagePhotoDto $dto): Game
+    private function getGame(MessageDto $dto): Game
     {
         $channelName = '@' . $dto->getChat()->getUsername();
         $messageId = $dto->getId();
 
-        Log::debug('channel: ' . $channelName);
-        Log::debug('message id: ' . $messageId);
-
         return Game::where('channel', $channelName)->where('message_id', $messageId)->first();
     }
 
-    private function getMessageDto(): MessageTextDto|MessagePhotoDto
+    private function getMessageDto(): MessageDto
     {
         $dto = $this->repository->createDto();
 

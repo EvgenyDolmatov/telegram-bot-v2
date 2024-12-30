@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-use App\Dto\ButtonDto;
+use App\Dto\Telegram\Message\Component\ButtonDto;
 use App\Models\User;
 use App\Repositories\Telegram\Request\RepositoryInterface;
 use App\Senders\Account\ReferralLinkShowSender;

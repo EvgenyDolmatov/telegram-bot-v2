@@ -2,8 +2,7 @@
 
 namespace App\Repositories\Telegram\Response;
 
-use App\Dto\Telegram\ChannelDto;
-use App\Dto\Telegram\GroupDto;
+use App\Dto\Telegram\CommunityDto;
 use App\Repositories\Telegram\Community\ChannelRepository;
 use App\Repositories\Telegram\Community\GroupRepository;
 use Exception;
@@ -13,7 +12,7 @@ class CommunityRepository extends AbstractRepository
     /**
      * @throws Exception
      */
-    public function createDto(?array $data = null): ChannelDto|GroupDto
+    public function createDto(?array $data = null): CommunityDto
     {
         return $this->defineRepository($data)->createDto();
     }

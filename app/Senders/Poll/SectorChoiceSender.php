@@ -2,7 +2,7 @@
 
 namespace App\Senders\Poll;
 
-use App\Dto\ButtonDto;
+use App\Dto\Telegram\Message\Component\ButtonDto;
 use App\Enums\CallbackEnum;
 use App\Enums\StateEnum;
 use App\Models\Sector;

@@ -2,7 +2,7 @@
 
 namespace App\Builder\Message;
 
-use App\Dto\ButtonDto;
+use App\Dto\Telegram\Message\Component\ButtonDto;
 
 class MessageBuilder implements MessageBuilderInterface
 {

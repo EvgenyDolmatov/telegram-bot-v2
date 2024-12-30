@@ -3,8 +3,7 @@
 namespace App\Repositories\Telegram\Request;
 
 use App\Dto\Telegram\CallbackQueryDto;
-use App\Dto\Telegram\MessagePhotoDto;
-use App\Dto\Telegram\MessageTextDto;
+use App\Dto\Telegram\MessageDto;
 use Exception;
 
 class CallbackRepository extends AbstractRepository
@@ -35,7 +34,7 @@ class CallbackRepository extends AbstractRepository
     /**
      * @throws Exception
      */
-    private function getMessageDto(array $data): MessageTextDto|MessagePhotoDto
+    private function getMessageDto(array $data): MessageDto
     {
         return $this->messageRepository->createDto($data);
     }

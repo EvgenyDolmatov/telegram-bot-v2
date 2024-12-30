@@ -2,8 +2,8 @@
 
 namespace App\Repositories\Telegram\Response;
 
+use App\Dto\Telegram\Message\Component\PollDto;
 use App\Dto\Telegram\Message\Poll\OptionDto;
-use App\Dto\Telegram\Message\PollDto;
 
 class PollRepository extends AbstractRepository
 {

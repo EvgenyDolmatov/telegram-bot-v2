@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Telegram\Message;
 
-use App\Dto\Telegram\MessageTextDto;
+use App\Dto\Telegram\Message\MessageTextDto;
 use App\Repositories\Telegram\Request\MessageRepository;
 
 class MessageTextRepository extends MessageRepository

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Dto\Telegram\Message;
+namespace App\Dto\Telegram\Message\Component;
 
 class PollDto
 {

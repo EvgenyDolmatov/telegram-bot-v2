@@ -3,13 +3,13 @@
 namespace App\Dto\Telegram;
 
 
-use App\Dto\Telegram\Message\FromDto;
+use App\Dto\Telegram\Message\Component\FromDto;
 
 class CallbackQueryDto
 {
     private string $id;
     private FromDto $from;
-    private MessageTextDto|MessagePhotoDto|MessagePollDto $message;
+    private MessageDto $message;
     private string $chatInstance;
     private string $data;
 
@@ -37,12 +37,12 @@ class CallbackQueryDto
         return $this;
     }
 
-    public function getMessage(): MessageTextDto|MessagePhotoDto|MessagePollDto
+    public function getMessage(): MessageDto
     {
         return $this->message;
     }
 
-    public function setMessage(MessageTextDto|MessagePhotoDto|MessagePollDto $message): self
+    public function setMessage(MessageDto $message): self
     {
         $this->message = $message;
 

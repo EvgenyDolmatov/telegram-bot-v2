@@ -2,8 +2,8 @@
 
 namespace App\Repositories\Telegram\Message;
 
-use App\Dto\Telegram\Message\PhotoDto;
-use App\Dto\Telegram\MessagePhotoDto;
+use App\Dto\Telegram\Message\Component\PhotoDto;
+use App\Dto\Telegram\Message\MessagePhotoDto;
 use App\Repositories\Telegram\Request\MessageRepository;
 
 class MessagePhotoRepository extends MessageRepository

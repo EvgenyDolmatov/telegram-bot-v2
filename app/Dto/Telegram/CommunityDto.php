@@ -2,17 +2,14 @@
 
 namespace App\Dto\Telegram;
 
-class ChannelDto
+class CommunityDto
 {
     private int $id;
     private string $title;
     private string $username;
     private string $type;
-    private ?array $activeUsernames;
+    private array $activeUsernames;
     private string $inviteLink;
-    private bool $isHasVisibleHistory;
-    private bool $isCanSendPaidMedia;
-    private array $availableReactions;
     private int $maxReactionCount;
     private int $accentColorId;
 
@@ -64,12 +61,12 @@ class ChannelDto
         return $this;
     }
 
-    public function getActiveUsernames(): ?array
+    public function getActiveUsernames(): array
     {
         return $this->activeUsernames;
     }
 
-    public function setActiveUsernames(?array $activeUsernames): self
+    public function setActiveUsernames(array $activeUsernames): self
     {
         $this->activeUsernames = $activeUsernames;
 
@@ -84,42 +81,6 @@ class ChannelDto
     public function setInviteLink(string $inviteLink): self
     {
         $this->inviteLink = $inviteLink;
-
-        return $this;
-    }
-
-    public function getIsHasVisibleHistory(): bool
-    {
-        return $this->isHasVisibleHistory;
-    }
-
-    public function setIsHasVisibleHistory(bool $isHasVisibleHistory): self
-    {
-        $this->isHasVisibleHistory = $isHasVisibleHistory;
-
-        return $this;
-    }
-
-    public function getIsCanSendPaidMedia(): bool
-    {
-        return $this->isCanSendPaidMedia;
-    }
-
-    public function setIsCanSendPaidMedia(bool $isCanSendPaidMedia): self
-    {
-        $this->isCanSendPaidMedia = $isCanSendPaidMedia;
-
-        return $this;
-    }
-
-    public function getAvailableReactions(): array
-    {
-        return $this->availableReactions;
-    }
-
-    public function setAvailableReactions(array $availableReactions): self
-    {
-        $this->availableReactions = $availableReactions;
 
         return $this;
     }

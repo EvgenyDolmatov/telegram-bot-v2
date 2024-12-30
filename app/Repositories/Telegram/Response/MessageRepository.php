@@ -2,8 +2,7 @@
 
 namespace App\Repositories\Telegram\Response;
 
-use App\Dto\Telegram\MessagePhotoDto;
-use App\Dto\Telegram\MessageTextDto;
+use App\Dto\Telegram\MessageDto;
 use App\Repositories\Telegram\Message\MessagePhotoRepository;
 use App\Repositories\Telegram\Message\MessagePollRepository;
 use App\Repositories\Telegram\Message\MessageTextRepository;
@@ -14,7 +13,7 @@ class MessageRepository extends AbstractRepository
     /**
      * @throws Exception
      */
-    public function createDto(?array $data = null): MessageTextDto|MessagePhotoDto
+    public function createDto(?array $data = null): MessageDto
     {
         return $this->defineRepository($data)->createDto();
     }

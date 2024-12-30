@@ -2,7 +2,7 @@
 
 namespace App\Senders\Game;
 
-use App\Dto\ButtonDto;
+use App\Dto\Telegram\Message\Component\ButtonDto;
 use App\Enums\CallbackEnum;
 use App\Enums\StateEnum;
 use App\Senders\AbstractSender;

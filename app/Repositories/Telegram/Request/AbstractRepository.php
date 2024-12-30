@@ -2,8 +2,8 @@
 
 namespace App\Repositories\Telegram\Request;
 
-use App\Dto\Telegram\Message\ChatDto;
-use App\Dto\Telegram\Message\FromDto;
+use App\Dto\Telegram\Message\Component\ChatDto;
+use App\Dto\Telegram\Message\Component\FromDto;
 use App\Models\TrashMessage;
 use Exception;
 

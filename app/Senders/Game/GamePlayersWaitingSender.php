@@ -3,11 +3,9 @@
 namespace App\Senders\Game;
 
 use App\Builder\Poll\PollBuilder;
-use App\Dto\ButtonDto;
-use App\Dto\Telegram\ChannelDto;
-use App\Dto\Telegram\GroupDto;
-use App\Dto\Telegram\MessagePhotoDto;
-use App\Dto\Telegram\MessageTextDto;
+use App\Dto\Telegram\CommunityDto;
+use App\Dto\Telegram\Message\Component\ButtonDto;
+use App\Dto\Telegram\MessageDto;
 use App\Enums\CallbackEnum;
 use App\Enums\StateEnum;
 use App\Exceptions\ChatNotFoundException;
@@ -29,9 +27,11 @@ class GamePlayersWaitingSender extends AbstractSender
     {
         $this->addToTrash();
 
+        $organizer = $this->user;
+
         if ($this->getInputText() === CallbackEnum::GameJoinUserToQuiz->value) {
-            $chatId = $this->getCommunityDto()->getId();
-            $organizer = $this->getOrganizer($this->getMessageDto());
+            $organizer = $this->getOrganizer();
+            $chatId = $this->getCommunityDto($organizer)->getId();
 
             $game = $this->getGame($organizer);
             $messageId = $game->message_id;
@@ -75,16 +75,11 @@ class GamePlayersWaitingSender extends AbstractSender
             return;
         }
 
-
-
-        // Отправляем сообщение в личку
+        // Send message as private to organizer
         $this->sendMessageToPrivate();
 
-        // Отправляем сообщение в группу
-        $this->sendMessageToCommunity();
-
-        // In 10 seconds send first poll
-//        $this->sendPoll();
+        // Send message to community
+        $this->sendMessageToCommunity($organizer);
     }
 
     private function getUsername(User $user): string
@@ -110,10 +105,10 @@ class GamePlayersWaitingSender extends AbstractSender
     /**
      * @throws ChatNotFoundException
      */
-    private function sendMessageToCommunity(): void
+    private function sendMessageToCommunity(User $organizer): void
     {
-        $chatId = $this->getCommunityDto()->getId();
-        $game = $this->getGame($this->getOrganizer($this->getMessageDto()));
+        $chatId = $this->getCommunityDto($organizer)->getId();
+        $game = $this->getGame($organizer);
 
         $text = "{$game->title}\n";
         $text .= "{$game->description}\n";
@@ -133,43 +128,43 @@ class GamePlayersWaitingSender extends AbstractSender
         $game->update(['message_id' => $response['result']['message_id'] ?? null]);
     }
 
-    private function sendPoll(): void
-    {
-        $optionLetters = ['a','b','c','d'];
-
-        $chatId = $this->getCommunityDto()->getId();
-        $game = $this->getGame();
-        $pollIds = explode(',', $game->poll_ids);
-
-        $poll = Poll::where('tg_message_id', $pollIds[0])->first();
-
-        if ($poll) {
-            $options = array_map(fn ($option) => $option['text'], $poll->options->toArray());
-
-            $correctOptionId = $poll->correct_option_id
-                ? $optionLetters[$poll->correct_option_id]
-                : null;
-
-            $pollBuilder = $this->pollBuilder
-                ->setBuilder(new PollBuilder())
-                ->createPoll(
-                    question: $poll->question,
-                    options: $options,
-                    isAnonymous: $poll->is_anonymous,
-                    isQuiz: !$poll->allows_multiple_answers,
-                    correctOptionId: $correctOptionId,
-                );
-
-            $this->senderService->sendPoll($pollBuilder, $chatId);
-        }
-    }
+//    private function sendPoll(): void
+//    {
+//        $optionLetters = ['a','b','c','d'];
+//
+//        $chatId = $this->getCommunityDto()->getId();
+//        $game = $this->getGame();
+//        $pollIds = explode(',', $game->poll_ids);
+//
+//        $poll = Poll::where('tg_message_id', $pollIds[0])->first();
+//
+//        if ($poll) {
+//            $options = array_map(fn ($option) => $option['text'], $poll->options->toArray());
+//
+//            $correctOptionId = $poll->correct_option_id
+//                ? $optionLetters[$poll->correct_option_id]
+//                : null;
+//
+//            $pollBuilder = $this->pollBuilder
+//                ->setBuilder(new PollBuilder())
+//                ->createPoll(
+//                    question: $poll->question,
+//                    options: $options,
+//                    isAnonymous: $poll->is_anonymous,
+//                    isQuiz: !$poll->allows_multiple_answers,
+//                    correctOptionId: $correctOptionId,
+//                );
+//
+//            $this->senderService->sendPoll($pollBuilder, $chatId);
+//        }
+//    }
 
     /**
      * @throws ChatNotFoundException
      */
-    private function getCommunityDto(): ChannelDto|GroupDto
+    private function getCommunityDto(User $organizer): CommunityDto
     {
-        $channelName = $this->getGame($this->getOrganizer($this->getMessageDto()))->channel;
+        $channelName = $this->getGame($organizer)->channel;
 
         if (!$channelName) {
             throw new ChatNotFoundException("Channel does not exist.");
@@ -188,10 +183,10 @@ class GamePlayersWaitingSender extends AbstractSender
     /**
      * @throws Exception
      */
-    private function getGame(User $user): Game
+    private function getGame(User $organizer): Game
     {
         try {
-            $game = $user->games->last();
+            $game = $organizer->games->last();
         } catch (Exception $e) {
             Log::error('Game does not exists for current user.', ['message' => $e->getMessage()]);
             throw new Exception('Game does not exists for current user.', 400);
@@ -200,10 +195,11 @@ class GamePlayersWaitingSender extends AbstractSender
         return $game;
     }
 
-    private function getOrganizer(MessageTextDto|MessagePhotoDto $dto): User
+    private function getOrganizer(): User
     {
-        $channelName = '@' . $dto->getChat()->getUsername();
-        $messageId = $dto->getId();
+        $messageDto = $this->getMessageDto();
+        $channelName = '@' . $messageDto->getChat()->getUsername();
+        $messageId = $messageDto->getId();
 
         $game = Game::where('channel', $channelName)->where('message_id', $messageId)->first();
 

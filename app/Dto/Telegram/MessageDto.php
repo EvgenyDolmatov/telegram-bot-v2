@@ -2,21 +2,15 @@
 
 namespace App\Dto\Telegram;
 
-use App\Dto\Telegram\Message\ChatDto;
-use App\Dto\Telegram\Message\FromDto;
-use App\Dto\Telegram\Message\PollDto;
+use App\Dto\Telegram\Message\Component\ChatDto;
+use App\Dto\Telegram\Message\Component\FromDto;
 
-class MessagePollDto
+abstract class MessageDto
 {
     private int $id;
-
     private FromDto $from;
-
     private ChatDto $chat;
-
     private int $date;
-
-    private PollDto $poll;
 
     public function getId(): int
     {
@@ -62,18 +56,6 @@ class MessagePollDto
     public function setDate(int $date): self
     {
         $this->date = $date;
-
-        return $this;
-    }
-
-    public function getPoll(): PollDto
-    {
-        return $this->poll;
-    }
-
-    public function setPoll(PollDto $poll): self
-    {
-        $this->poll = $poll;
 
         return $this;
     }

@@ -5,9 +5,8 @@ namespace App\Senders;
 use App\Builder\Message\MessageBuilder;
 use App\Builder\MessageSender;
 use App\Builder\PollSender;
-use App\Dto\ButtonDto;
-use App\Dto\Telegram\MessagePhotoDto;
-use App\Dto\Telegram\MessageTextDto;
+use App\Dto\Telegram\Message\Component\ButtonDto;
+use App\Dto\Telegram\MessageDto;
 use App\Enums\CommandEnum;
 use App\Exceptions\ResponseException;
 use App\Models\AiRequest;
@@ -68,7 +67,7 @@ abstract class AbstractSender implements SenderInterface
         return true;
     }
 
-    protected function getMessageDto(): MessageTextDto|MessagePhotoDto
+    protected function getMessageDto(): MessageDto
     {
         $dto = $this->repository->createDto();
 

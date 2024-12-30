@@ -4,8 +4,7 @@ namespace App\Services;
 
 use App\Builder\Message\Message;
 use App\Builder\Poll\Poll;
-use App\Dto\Telegram\MessagePhotoDto;
-use App\Dto\Telegram\MessageTextDto;
+use App\Dto\Telegram\MessageDto;
 use App\Exceptions\ChatNotFoundException;
 use App\Exceptions\ResponseException;
 use App\Models\TrashMessage;
@@ -285,7 +284,7 @@ readonly class SenderService
         return TelegramService::BASE_URL . $this->telegramService->token . '/' . ltrim($path, '/');
     }
 
-    private function getMessageDto(): MessageTextDto|MessagePhotoDto
+    private function getMessageDto(): MessageDto
     {
         $dto = $this->repository->createDto();
 

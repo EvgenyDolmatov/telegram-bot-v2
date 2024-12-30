@@ -2,9 +2,9 @@
 
 namespace App\Repositories\Telegram\Community;
 
-use App\Dto\Telegram\Group\PermissionDto;
-use App\Dto\Telegram\Group\PhotoDto;
-use App\Dto\Telegram\GroupDto;
+use App\Dto\Telegram\Community\Component\PermissionDto;
+use App\Dto\Telegram\Community\Component\PhotoDto;
+use App\Dto\Telegram\Community\GroupDto;
 use App\Repositories\Telegram\Response\AbstractRepository;
 
 class GroupRepository extends AbstractRepository
