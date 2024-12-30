@@ -81,8 +81,10 @@ class User extends Model
     /**
      * @throws \Exception
      */
-    public static function createFromRequestRepository(RepositoryInterface $repository): User
-    {
+    public static function createFromRequestRepository(
+        RepositoryInterface $repository,
+        ?string $roleCode = 'subscriber'
+    ): User {
         $messageDto = $repository->createDto();
         $from = $messageDto->getFrom();
 
@@ -92,20 +94,21 @@ class User extends Model
             'username' => $from->getUsername(),
             'first_name' => $from->getFirstName(),
             'last_name' => $from->getLastName(),
-            'referrer_link' => Str::random(40)
+            'referrer_link' => Str::random(40),
+            'role_id' => Role::where('code', $roleCode)->first()->id
         ]);
     }
 
     /**
      * @throws ResponseException
      */
-    public static function getOrCreate(RepositoryInterface $repository): User
+    public static function getOrCreate(RepositoryInterface $repository, ?string $roleCode = 'subscriber'): User
     {
         if ($user = self::getByRequestRepository($repository)) {
             return $user;
         }
 
-        $user = self::createFromRequestRepository($repository);
+        $user = self::createFromRequestRepository($repository, $roleCode);
 
         // Check if the user has referral link
         $user->addReferredUser($repository->createDto()->getText());
@@ -221,7 +224,7 @@ class User extends Model
     private function updateFlowData(array $data, StateEnum $state, ?string $value = null): array
     {
         if ($value) {
-            if ($value === CallbackEnum::BACK->value) {
+            if ($value === CallbackEnum::Back->value) {
                 if (array_key_exists($state->backState()->value, $data)) {
                     unset($data[$state->backState()->value]);
                 }

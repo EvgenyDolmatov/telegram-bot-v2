@@ -29,7 +29,7 @@ class GameDescriptionWaitingState extends AbstractState implements UserState
 
     protected function getState(string $input, StateEnum $baseState): StateEnum
     {
-        if ($input === CallbackEnum::BACK->value) {
+        if ($input === CallbackEnum::Back->value) {
             return $baseState->backState();
         }
 

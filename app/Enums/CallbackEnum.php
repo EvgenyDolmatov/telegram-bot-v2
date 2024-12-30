@@ -5,20 +5,20 @@ namespace App\Enums;
 enum CallbackEnum: string
 {
     /** Common */
-    case BACK = 'back';
+    case Back = 'back';
 
     /** Poll */
-    case CREATE_SURVEY = 'create_survey';
-    case SUPPORT = 'support';
-    case TYPE_QUIZ = 'type_quiz';
-    case TYPE_SURVEY = 'type_survey';
-    case IS_ANON = 'is_anon';
-    case IS_NOT_ANON = 'is_not_anon';
-    case LEVEL_EASY = 'level_easy';
-    case LEVEL_MIDDLE = 'level_middle';
-    case LEVEL_HARD = 'level_hard';
-    case LEVEL_ANY = 'level_any';
-    case REPEAT_FLOW = 'repeat_flow';
+    case CreateSurvey = 'create_survey';
+    case Support = 'support';
+    case TypeQuiz = 'type_quiz';
+    case TypeSurvey = 'type_survey';
+    case IsAnon = 'is_anon';
+    case IsNotAnon = 'is_not_anon';
+    case LevelEasy = 'level_easy';
+    case LevelMiddle = 'level_middle';
+    case LevelHard = 'level_hard';
+    case LevelAny = 'level_any';
+    case RepeatFlow = 'repeat_flow';
 
     /** Game */
     case GAME_CREATE = 'game_create';
@@ -27,7 +27,8 @@ enum CallbackEnum: string
     case GAME_DESCRIPTION_SAVE = 'game_description_save';
     case GAME_TIME_LIMIT_SAVE = 'game_time_limit_save';
     case GAME_CHANNEL_SAVE = 'game_channel_save';
-    case GAME_SEND_TO_CHANNEL = 'game_send_to_channel';
+    case GameQuizStart = 'game_quiz_start';
+    case GameJoinUserToQuiz = 'game_join_user_to_quiz'; // Show in communities
 
     /** Account */
     case ACCOUNT_REFERRAL_LINK = 'account_referral_link';
@@ -50,17 +51,17 @@ enum CallbackEnum: string
     public function toState(): StateEnum
     {
         return match ($this) {
-            self::CREATE_SURVEY => StateEnum::POLL_TYPE_CHOICE,
-            self::SUPPORT => StateEnum::POLL_SUPPORT,
-            self::TYPE_QUIZ,
-            self::TYPE_SURVEY => StateEnum::POLL_ANONYMITY_CHOICE,
-            self::IS_ANON,
-            self::IS_NOT_ANON => StateEnum::POLL_DIFFICULTY_CHOICE,
-            self::LEVEL_HARD,
-            self::LEVEL_MIDDLE,
-            self::LEVEL_EASY,
-            self::LEVEL_ANY => StateEnum::POLL_SECTOR_CHOICE,
-            self::REPEAT_FLOW => StateEnum::POLL_AI_RESPONDED_CHOICE,
+            self::CreateSurvey => StateEnum::POLL_TYPE_CHOICE,
+            self::Support => StateEnum::POLL_SUPPORT,
+            self::TypeQuiz,
+            self::TypeSurvey => StateEnum::POLL_ANONYMITY_CHOICE,
+            self::IsAnon,
+            self::IsNotAnon => StateEnum::POLL_DIFFICULTY_CHOICE,
+            self::LevelHard,
+            self::LevelMiddle,
+            self::LevelEasy,
+            self::LevelAny => StateEnum::POLL_SECTOR_CHOICE,
+            self::RepeatFlow => StateEnum::POLL_AI_RESPONDED_CHOICE,
             /** Game */
             self::GAME_CREATE => StateEnum::GAME_POLLS_CHOICE,
             self::GAME_POLLS_SAVE => StateEnum::GAME_TITLE_WAITING,
@@ -68,7 +69,8 @@ enum CallbackEnum: string
             self::GAME_DESCRIPTION_SAVE => StateEnum::GAME_TIME_LIMIT_WAITING,
             self::GAME_TIME_LIMIT_SAVE => StateEnum::GAME_CHANNEL_WAITING,
             self::GAME_CHANNEL_SAVE => StateEnum::GAME_CREATED_SUCCESS_SHOW,
-            self::GAME_SEND_TO_CHANNEL => StateEnum::GAME_SENT_TO_CHANNEL_SUCCESS,
+            self::GameQuizStart => StateEnum::GamePlayersWaiting,
+            self::GameJoinUserToQuiz => StateEnum::GameQuizProcess,
 
             self::ACCOUNT_REFERRAL_LINK => StateEnum::ACCOUNT_REFERRAL_LINK_SHOW,
             self::ACCOUNT_REFERRED_USERS => StateEnum::ACCOUNT_REFERRED_USERS_SHOW,
@@ -90,25 +92,26 @@ enum CallbackEnum: string
     public function buttonText(): string
     {
         return match ($this) {
-            self::BACK => "↩️ Назад",
-            self::CREATE_SURVEY => "Создать тест",
-            self::SUPPORT => "Поддержка",
-            self::TYPE_QUIZ => "Викторина (1 вариант ответа)",
-            self::TYPE_SURVEY => "Опрос (несколько вариантов)",
-            self::IS_ANON => "Да",
-            self::IS_NOT_ANON => "Нет",
-            self::LEVEL_HARD => "Высокая сложность",
-            self::LEVEL_MIDDLE => "Средняя сложность",
-            self::LEVEL_EASY => "Низкая сложность",
-            self::LEVEL_ANY => "Любая сложность",
-            self::REPEAT_FLOW => "🔄 Создать еще 5 вопросов",
+            self::Back => "↩️ Назад",
+            self::CreateSurvey => "Создать тест",
+            self::Support => "Поддержка",
+            self::TypeQuiz => "Викторина (1 вариант ответа)",
+            self::TypeSurvey => "Опрос (несколько вариантов)",
+            self::IsAnon => "Да",
+            self::IsNotAnon => "Нет",
+            self::LevelHard => "Высокая сложность",
+            self::LevelMiddle => "Средняя сложность",
+            self::LevelEasy => "Низкая сложность",
+            self::LevelAny => "Любая сложность",
+            self::RepeatFlow => "🔄 Создать еще 5 вопросов",
             self::GAME_CREATE => "🎲 Создать игру для канала",
             self::GAME_POLLS_SAVE => "Сохранить выбранные вопросы",
             self::GAME_TITLE_SAVE => "Сохранить название",
             self::GAME_DESCRIPTION_SAVE => "Сохранить описание",
             self::GAME_TIME_LIMIT_SAVE => "Сохранить ограничение по времени",
             self::GAME_CHANNEL_SAVE => "Сохранить канал",
-            self::GAME_SEND_TO_CHANNEL => "Отправить в канал",
+            self::GameQuizStart => "Отправить в канал",
+            self::GameJoinUserToQuiz => "Присоединиться к викторине",
             self::ACCOUNT_REFERRAL_LINK => "Моя реферальная ссылка",
             self::ACCOUNT_REFERRED_USERS => "Приглашенные пользователи",
             self::ADMIN_NEWSLETTER_CREATE => 'Создать рассылку',

@@ -2,8 +2,11 @@
 
 namespace App\Handlers;
 
+use App\Dto\Telegram\MessagePhotoDto;
+use App\Dto\Telegram\MessageTextDto;
 use App\Handlers\Message\AbstractHandler;
 use App\Handlers\Message\CommandHandler;
+use App\Handlers\Message\CommunityHandler;
 use App\Handlers\Message\StateHandler;
 use App\Repositories\Telegram\Request\RepositoryInterface;
 use App\Services\TelegramService;
@@ -20,7 +23,13 @@ class MessageStrategy
 
     public function defineHandler(): self
     {
+        $dto = $this->getMessageDto();
         $message = $this->getInput();
+
+        if ($dto->getChat()->getType() === "supergroup") {
+            $handler = new CommunityHandler($this->telegramService, $this->repository);
+            return $this->setHandler($handler);
+        }
 
         if (str_starts_with($message, '/')) {
             $handler = new CommandHandler($this->telegramService, $this->repository);
@@ -56,5 +65,14 @@ class MessageStrategy
         }
 
         return "";
+    }
+
+    private function getMessageDto(): MessageTextDto|MessagePhotoDto
+    {
+        $dto = $this->repository->createDto();
+
+        return method_exists($dto, 'getMessage')
+            ? $dto->getMessage()
+            : $this->repository->createDto();
     }
 }

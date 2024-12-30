@@ -19,7 +19,7 @@ class SectorChoiceSender extends AbstractSender
             Sector::all()->toArray()
         );
 
-        $buttons[] = new ButtonDto(CallbackEnum::BACK->value, CallbackEnum::BACK->buttonText());
+        $buttons[] = new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText());
 
         $this->sendMessage(StateEnum::POLL_SECTOR_CHOICE->title(), $buttons);
     }

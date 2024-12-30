@@ -67,7 +67,7 @@ abstract class AbstractState implements UserState
 
     protected function getState(string $input, StateEnum $baseState): StateEnum
     {
-        return $input === CallbackEnum::BACK->value
+        return $input === CallbackEnum::Back->value
             ? $baseState->backState()
             : CallbackEnum::from($input)->toState();
     }

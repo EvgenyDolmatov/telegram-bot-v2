@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('description')->nullable();
             $table->integer('time_limit')->default(0);
             $table->string('channel')->nullable();
+            $table->integer('message_id')->nullable();
             $table->timestamps();
         });
     }

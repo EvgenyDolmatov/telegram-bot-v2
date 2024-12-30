@@ -73,7 +73,7 @@ class OpenAiService
         ];
 
         $hasCorrectAnswer = '';
-        if ($data[StateEnum::POLL_TYPE_CHOICE->value] === CallbackEnum::TYPE_QUIZ->value) {
+        if ($data[StateEnum::POLL_TYPE_CHOICE->value] === CallbackEnum::TypeQuiz->value) {
             $template['question1']['correct_answer'] = 'c';
             $template['question2']['correct_answer'] = 'a';
 
@@ -81,10 +81,10 @@ class OpenAiService
         }
 
         $difficultyData = [
-            CallbackEnum::LEVEL_EASY->value => 'низкой',
-            CallbackEnum::LEVEL_MIDDLE->value => 'средней',
-            CallbackEnum::LEVEL_HARD->value => 'высокой',
-            CallbackEnum::LEVEL_ANY->value => 'любой',
+            CallbackEnum::LevelEasy->value => 'низкой',
+            CallbackEnum::LevelMiddle->value => 'средней',
+            CallbackEnum::LevelHard->value => 'высокой',
+            CallbackEnum::LevelAny->value => 'любой',
         ];
 
         $sector = Sector::where('code', $data[StateEnum::POLL_SECTOR_CHOICE->value])->first()->title;

@@ -26,8 +26,8 @@ use App\Senders\Commands\StartSender;
 use App\Senders\Game\GameChannelWaitingSender;
 use App\Senders\Game\GameCreatedSuccessShowSender;
 use App\Senders\Game\GameDescriptionWaitingSender;
+use App\Senders\Game\GamePlayersWaitingSender;
 use App\Senders\Game\GamePollsChoiceSender;
-use App\Senders\Game\GameSentToChannelSuccessSender;
 use App\Senders\Game\GameTimeLimitWaitingSender;
 use App\Senders\Game\GameTitleWaitingSender;
 use App\Senders\Poll\AiRespondedChoiceSender;
@@ -59,8 +59,8 @@ use App\States\Admin\StatisticUsersPerDayShowState;
 use App\States\Game\GameChannelWaitingState;
 use App\States\Game\GameCreatedSuccessState;
 use App\States\Game\GameDescriptionWaitingState;
+use App\States\Game\GamePlayersWaitingState;
 use App\States\Game\GamePollsChoiceState;
-use App\States\Game\GameSentToChannelSuccessState;
 use App\States\Game\GameTimeLimitWaitingState;
 use App\States\Game\GameTitleWaitingState;
 use App\States\Help\HelpState;
@@ -95,7 +95,9 @@ enum StateEnum: string
     case GAME_TIME_LIMIT_WAITING = 'game_time_limit_waiting';
     case GAME_CHANNEL_WAITING = 'game_channel_waiting';
     case GAME_CREATED_SUCCESS_SHOW = 'game_created_success_show';
-    case GAME_SENT_TO_CHANNEL_SUCCESS = 'game_sent_to_channel_success';
+//    case GameSentToChannelSuccess = 'game_sent_to_channel_success';
+    case GamePlayersWaiting = 'game_players_waiting';
+    case GameQuizProcess = 'game_quiz_process';
 
     /**
      * Channel
@@ -147,12 +149,9 @@ enum StateEnum: string
             self::GAME_TIME_LIMIT_WAITING => new GameTimeLimitWaitingState($repository, $telegramService),
             self::GAME_CHANNEL_WAITING => new GameChannelWaitingState($repository, $telegramService),
             self::GAME_CREATED_SUCCESS_SHOW => new GameCreatedSuccessState($repository, $telegramService),
-            self::GAME_SENT_TO_CHANNEL_SUCCESS => new GameSentToChannelSuccessState($repository, $telegramService),
 
-//            self::CHANNEL_POLLS_CHOICE => new ChannelPollsChoiceState($repository, $telegramService),
-            /** Channel states */
-//            self::CHANNEL_NAME_WAITING => new GameTitleWaitingState($repository, $telegramService),
-//            self::CHANNEL_POLLS_SENT_SUCCESS => new ChannelPollsSentSuccessState($repository, $telegramService),
+            self::GamePlayersWaiting => new GamePlayersWaitingState($repository, $telegramService),
+
             /** Account states */
             self::ACCOUNT => new AccountState($repository, $telegramService),
             self::ACCOUNT_REFERRAL_LINK_SHOW => new ReferralLinkShowState($repository, $telegramService),
@@ -188,9 +187,7 @@ enum StateEnum: string
             self::POLL_AI_RESPONDED_CHOICE,
             self::GAME_POLLS_CHOICE,
             self::GAME_CREATED_SUCCESS_SHOW,
-            self::GAME_SENT_TO_CHANNEL_SUCCESS => self::START,
-//            self::CHANNEL_POLLS_CHOICE,
-//            self::CHANNEL_POLLS_SENT_SUCCESS => self::START,
+            self::GamePlayersWaiting => self::START,
             self::POLL_ANONYMITY_CHOICE => self::POLL_TYPE_CHOICE,
             self::POLL_DIFFICULTY_CHOICE => self::POLL_ANONYMITY_CHOICE,
             self::POLL_SECTOR_CHOICE => self::POLL_DIFFICULTY_CHOICE,
@@ -200,7 +197,6 @@ enum StateEnum: string
             self::GAME_DESCRIPTION_WAITING => self::GAME_TITLE_WAITING,
             self::GAME_TIME_LIMIT_WAITING => self::GAME_DESCRIPTION_WAITING,
             self::GAME_CHANNEL_WAITING => self::GAME_TIME_LIMIT_WAITING,
-//            self::CHANNEL_NAME_WAITING => self::CHANNEL_POLLS_CHOICE,
             self::ACCOUNT_REFERRAL_LINK_SHOW,
             self::ACCOUNT_REFERRED_USERS_SHOW => self::ACCOUNT,
             self::ADMIN_NEWSLETTER_WAITING,
@@ -232,7 +228,6 @@ enum StateEnum: string
             self::POLL_SUBJECT_CHOICE => new SubjectChoiceSender($repository, $telegramService, $user),
             self::POLL_THEME_WAITING => new ThemeWaitingSender($repository, $telegramService, $user),
             self::POLL_AI_RESPONDED_CHOICE => new AiRespondedChoiceSender($repository, $telegramService, $user),
-//            self::CHANNEL_POLLS_CHOICE => new ChannelPollsChoiceSender($repository, $telegramService, $user),
 
             self::GAME_POLLS_CHOICE => new GamePollsChoiceSender($repository, $telegramService, $user),
             self::GAME_TITLE_WAITING => new GameTitleWaitingSender($repository, $telegramService, $user),
@@ -240,10 +235,8 @@ enum StateEnum: string
             self::GAME_TIME_LIMIT_WAITING => new GameTimeLimitWaitingSender($repository, $telegramService, $user),
             self::GAME_CHANNEL_WAITING => new GameChannelWaitingSender($repository, $telegramService, $user),
             self::GAME_CREATED_SUCCESS_SHOW => new GameCreatedSuccessShowSender($repository, $telegramService, $user),
-            self::GAME_SENT_TO_CHANNEL_SUCCESS => new GameSentToChannelSuccessSender($repository, $telegramService, $user),
+            self::GamePlayersWaiting => new GamePlayersWaitingSender($repository, $telegramService, $user),
 
-//            self::CHANNEL_NAME_WAITING => new ChannelNameWaitingSender($repository, $telegramService, $user),
-//            self::CHANNEL_POLLS_SENT_SUCCESS => new ChannelPollsSentSuccessSender($repository, $telegramService, $user),
             self::ACCOUNT_REFERRAL_LINK_SHOW => new ReferralLinkShowSender($repository, $telegramService, $user),
             self::ACCOUNT_REFERRED_USERS_SHOW => new ReferredUsersShowSender($repository, $telegramService, $user),
             self::ADMIN => new AdminSender($repository, $telegramService, $user),
@@ -281,11 +274,7 @@ enum StateEnum: string
             self::GAME_TIME_LIMIT_WAITING => "Какой лимит времени в секундах Вы даете на ответ? Напишите только цифру.",
             self::GAME_CHANNEL_WAITING => "Напишите название канала или ссылку на канал:",
             self::GAME_CREATED_SUCCESS_SHOW => "Игра успешно создана! Теперь Вы можете отправить ее в канал.",
-            self::GAME_SENT_TO_CHANNEL_SUCCESS => "Игра успешно отправлена в канал! Она начнется через 30 секунд.",
-
-//            self::CHANNEL_POLLS_CHOICE => "Выберите, какие вопросы нужно отправить?",
-//            self::CHANNEL_NAME_WAITING => "Напишите название канала или ссылку на канал:",
-//            self::CHANNEL_POLLS_SENT_SUCCESS => "Выбранные тесты успешно отправлены в канал.",
+            self::GamePlayersWaiting => "Игра успешно отправлена в канал! Она начнется через 30 секунд.",
 
             self::ACCOUNT => "Мой аккаунт:",
             self::ACCOUNT_REFERRED_USERS_SHOW => "Ваши приглашенные пользователи:\n",
@@ -312,13 +301,13 @@ enum StateEnum: string
     {
         return match ($this) {
             self::START => [
-                new ButtonDto(CallbackEnum::CREATE_SURVEY->value, CallbackEnum::CREATE_SURVEY->buttonText()),
-                new ButtonDto(CallbackEnum::SUPPORT->value, CallbackEnum::SUPPORT->buttonText()),
+                new ButtonDto(CallbackEnum::CreateSurvey->value, CallbackEnum::CreateSurvey->buttonText()),
+                new ButtonDto(CallbackEnum::Support->value, CallbackEnum::Support->buttonText()),
             ],
             self::POLL_TYPE_CHOICE => [
-                new ButtonDto(CallbackEnum::TYPE_QUIZ->value, CallbackEnum::TYPE_QUIZ->buttonText()),
-                new ButtonDto(CallbackEnum::TYPE_SURVEY->value, CallbackEnum::TYPE_SURVEY->buttonText()),
-                new ButtonDto(CallbackEnum::BACK->value, CallbackEnum::BACK->buttonText()),
+                new ButtonDto(CallbackEnum::TypeQuiz->value, CallbackEnum::TypeQuiz->buttonText()),
+                new ButtonDto(CallbackEnum::TypeSurvey->value, CallbackEnum::TypeSurvey->buttonText()),
+                new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText()),
             ],
             self::POLL_SUPPORT,
             self::POLL_THEME_WAITING,
@@ -336,31 +325,31 @@ enum StateEnum: string
             self::ACCOUNT_REFERRED_USERS_SHOW,
             self::ADMIN_NEWSLETTER_WAITING,
             self::HELP => [
-                new ButtonDto(CallbackEnum::BACK->value, CallbackEnum::BACK->buttonText())
+                new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText())
             ],
             self::POLL_ANONYMITY_CHOICE => [
-                new ButtonDto(CallbackEnum::IS_ANON->value, CallbackEnum::IS_ANON->buttonText()),
-                new ButtonDto(CallbackEnum::IS_NOT_ANON->value, CallbackEnum::IS_NOT_ANON->buttonText()),
-                new ButtonDto(CallbackEnum::BACK->value, CallbackEnum::BACK->buttonText()),
+                new ButtonDto(CallbackEnum::IsAnon->value, CallbackEnum::IsAnon->buttonText()),
+                new ButtonDto(CallbackEnum::IsNotAnon->value, CallbackEnum::IsNotAnon->buttonText()),
+                new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText()),
             ],
             self::POLL_DIFFICULTY_CHOICE => [
-                new ButtonDto(CallbackEnum::LEVEL_EASY->value, CallbackEnum::LEVEL_EASY->buttonText()),
-                new ButtonDto(CallbackEnum::LEVEL_MIDDLE->value, CallbackEnum::LEVEL_MIDDLE->buttonText()),
-                new ButtonDto(CallbackEnum::LEVEL_HARD->value, CallbackEnum::LEVEL_HARD->buttonText()),
-                new ButtonDto(CallbackEnum::LEVEL_ANY->value, CallbackEnum::LEVEL_ANY->buttonText()),
-                new ButtonDto(CallbackEnum::BACK->value, CallbackEnum::BACK->buttonText()),
+                new ButtonDto(CallbackEnum::LevelEasy->value, CallbackEnum::LevelEasy->buttonText()),
+                new ButtonDto(CallbackEnum::LevelMiddle->value, CallbackEnum::LevelMiddle->buttonText()),
+                new ButtonDto(CallbackEnum::LevelHard->value, CallbackEnum::LevelHard->buttonText()),
+                new ButtonDto(CallbackEnum::LevelAny->value, CallbackEnum::LevelAny->buttonText()),
+                new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText()),
             ],
             self::POLL_AI_RESPONDED_CHOICE => [
-                new ButtonDto(CallbackEnum::REPEAT_FLOW->value, CallbackEnum::REPEAT_FLOW->buttonText()),
+                new ButtonDto(CallbackEnum::RepeatFlow->value, CallbackEnum::RepeatFlow->buttonText()),
                 new ButtonDto(CallbackEnum::GAME_CREATE->value, CallbackEnum::GAME_CREATE->buttonText()),
                 new ButtonDto(CommandEnum::START->getCommand(), '↩️ Выбрать другую тему'),
             ],
 
             self::GAME_CREATED_SUCCESS_SHOW => [
-                new ButtonDto(CallbackEnum::GAME_SEND_TO_CHANNEL->value, CallbackEnum::GAME_SEND_TO_CHANNEL->buttonText()),
+                new ButtonDto(CallbackEnum::GameQuizStart->value, CallbackEnum::GameQuizStart->buttonText()),
                 new ButtonDto(CommandEnum::START->getCommand(), "↩️ Вернуться в начало")
             ],
-            self::GAME_SENT_TO_CHANNEL_SUCCESS => [
+            self::GamePlayersWaiting => [
                 new ButtonDto(CommandEnum::START->getCommand(), "↩️ Вернуться в начало")
             ],
 
@@ -385,7 +374,7 @@ enum StateEnum: string
             self::ADMIN_STATISTIC_MENU_CHOICE => [
                 new ButtonDto(CallbackEnum::ADMIN_STATISTIC_POLLS->value, CallbackEnum::ADMIN_STATISTIC_POLLS->buttonText()),
                 new ButtonDto(CallbackEnum::ADMIN_STATISTIC_USERS->value, CallbackEnum::ADMIN_STATISTIC_USERS->buttonText()),
-                new ButtonDto(CallbackEnum::BACK->value, CallbackEnum::BACK->buttonText())
+                new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText())
             ],
             self::ADMIN_STATISTIC_POLLS_MENU_CHOICE => [
                 new ButtonDto(CallbackEnum::ADMIN_STATISTIC_POLLS_PER_YEAR->value, CallbackEnum::ADMIN_STATISTIC_POLLS_PER_YEAR->buttonText()),
@@ -393,13 +382,12 @@ enum StateEnum: string
                 new ButtonDto(CallbackEnum::ADMIN_STATISTIC_POLLS_PER_MONTH->value, CallbackEnum::ADMIN_STATISTIC_POLLS_PER_MONTH->buttonText()),
                 new ButtonDto(CallbackEnum::ADMIN_STATISTIC_POLLS_PER_WEEK->value, CallbackEnum::ADMIN_STATISTIC_POLLS_PER_WEEK->buttonText()),
                 new ButtonDto(CallbackEnum::ADMIN_STATISTIC_POLLS_PER_DAY->value, CallbackEnum::ADMIN_STATISTIC_POLLS_PER_DAY->buttonText()),
-                new ButtonDto(CallbackEnum::BACK->value, CallbackEnum::BACK->buttonText())
+                new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText())
             ],
             self::ADMIN_STATISTIC_USERS_MENU_CHOICE => [
                 new ButtonDto(CallbackEnum::ADMIN_STATISTIC_USERS_PER_DAY->value, CallbackEnum::ADMIN_STATISTIC_USERS_PER_DAY->buttonText()),
-                new ButtonDto(CallbackEnum::BACK->value, CallbackEnum::BACK->buttonText())
+                new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText())
             ],
-
         };
     }
 }

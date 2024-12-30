@@ -24,7 +24,7 @@ class NewsletterWaitingState extends AbstractState
 
     protected function getState(string $input, StateEnum $baseState): StateEnum
     {
-        if ($input === CallbackEnum::BACK->value) {
+        if ($input === CallbackEnum::Back->value) {
             return $baseState->backState();
         }
 
