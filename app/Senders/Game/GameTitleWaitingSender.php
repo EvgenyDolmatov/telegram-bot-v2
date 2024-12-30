@@ -7,7 +7,7 @@ use App\Senders\AbstractSender;
 
 class GameTitleWaitingSender extends AbstractSender
 {
-    private const StateEnum STATE = StateEnum::GAME_TITLE_WAITING;
+    private const StateEnum STATE = StateEnum::GameTitleWaiting;
 
     public function send(): void
     {

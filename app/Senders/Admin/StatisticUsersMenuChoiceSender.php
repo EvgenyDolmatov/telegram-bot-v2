@@ -8,7 +8,7 @@ use App\Senders\AbstractSender;
 
 class StatisticUsersMenuChoiceSender extends AbstractSender
 {
-    private const StateEnum STATE = StateEnum::ADMIN_STATISTIC_USERS_MENU_CHOICE;
+    private const StateEnum STATE = StateEnum::AdminStatisticUsersMenuChoice;
 
     public function send(): void
     {

@@ -7,7 +7,7 @@ use App\Senders\AbstractSender;
 
 class GameChannelWaitingSender extends AbstractSender
 {
-    private const StateEnum STATE = StateEnum::GAME_CHANNEL_WAITING;
+    private const StateEnum STATE = StateEnum::GameChannelWaiting;
 
     public function send(): void
     {

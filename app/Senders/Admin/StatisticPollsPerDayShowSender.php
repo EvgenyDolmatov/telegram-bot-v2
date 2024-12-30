@@ -9,7 +9,7 @@ use Carbon\Carbon;
 
 class StatisticPollsPerDayShowSender extends AbstractSender
 {
-    private const StateEnum STATE = StateEnum::ADMIN_STATISTIC_POLLS_PER_DAY_SHOW;
+    private const StateEnum STATE = StateEnum::AdminStatisticPollsPerDayShow;
 
     public function send(): void
     {

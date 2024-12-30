@@ -10,7 +10,7 @@ use App\States\UserState;
 
 class GameDescriptionWaitingState extends AbstractState implements UserState
 {
-    private const StateEnum STATE = StateEnum::GAME_DESCRIPTION_WAITING;
+    private const StateEnum STATE = StateEnum::GameDescriptionWaiting;
 
     public function handleInput(string $input, UserContext $context): void
     {
@@ -33,6 +33,6 @@ class GameDescriptionWaitingState extends AbstractState implements UserState
             return $baseState->backState();
         }
 
-        return StateEnum::GAME_TIME_LIMIT_WAITING;
+        return StateEnum::GameTimeLimitWaiting;
     }
 }

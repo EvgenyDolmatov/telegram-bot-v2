@@ -12,7 +12,7 @@ use App\States\UserState;
 
 class GameChannelWaitingState extends AbstractState implements UserState
 {
-    private const StateEnum STATE = StateEnum::GAME_CHANNEL_WAITING;
+    private const StateEnum STATE = StateEnum::GameChannelWaiting;
 
     public function handleInput(string $input, UserContext $context): void
     {
@@ -38,7 +38,7 @@ class GameChannelWaitingState extends AbstractState implements UserState
             return $baseState->backState();
         }
 
-        return StateEnum::GAME_CREATED_SUCCESS_SHOW;
+        return StateEnum::GameCreatedSuccessShow;
     }
 
     private function getChannelName(string $input): string
@@ -56,11 +56,11 @@ class GameChannelWaitingState extends AbstractState implements UserState
 
         Game::create([
             'user_id' => $this->user->id,
-            'poll_ids' => $data[StateEnum::GAME_POLLS_CHOICE->value] ?? null,
-            'title' => $data[StateEnum::GAME_TITLE_WAITING->value] ?? null,
-            'description' => $data[StateEnum::GAME_DESCRIPTION_WAITING->value] ?? null,
-            'time_limit' => $data[StateEnum::GAME_TIME_LIMIT_WAITING->value] ?? null,
-            'channel' => $data[StateEnum::GAME_CHANNEL_WAITING->value] ?? null,
+            'poll_ids' => $data[StateEnum::GamePollsChoice->value] ?? null,
+            'title' => $data[StateEnum::GameTitleWaiting->value] ?? null,
+            'description' => $data[StateEnum::GameDescriptionWaiting->value] ?? null,
+            'time_limit' => $data[StateEnum::GameTimeLimitWaiting->value] ?? null,
+            'channel' => $data[StateEnum::GameChannelWaiting->value] ?? null,
         ]);
 
         // Close flow

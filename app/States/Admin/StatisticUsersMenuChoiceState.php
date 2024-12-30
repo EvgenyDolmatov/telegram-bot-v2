@@ -9,7 +9,7 @@ use App\States\UserState;
 
 class StatisticUsersMenuChoiceState extends AbstractState implements UserState
 {
-    private const StateEnum STATE = StateEnum::ADMIN_STATISTIC_USERS_MENU_CHOICE;
+    private const StateEnum STATE = StateEnum::AdminStatisticUsersMenuChoice;
 
     public function handleInput(string $input, UserContext $context): void
     {

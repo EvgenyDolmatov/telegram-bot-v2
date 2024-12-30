@@ -17,8 +17,8 @@ class NewsletterWaitingSender extends AbstractSender
         }
 
         $this->sendMessage(
-            text: StateEnum::ADMIN_NEWSLETTER_WAITING->title(),
-            buttons: StateEnum::ADMIN_NEWSLETTER_WAITING->buttons()
+            text: StateEnum::AdminNewsletterWaiting->title(),
+            buttons: StateEnum::AdminNewsletterWaiting->buttons()
         );
     }
 }

@@ -78,24 +78,23 @@ use App\States\UserState;
 enum StateEnum: string
 {
     /** Poll */
-    case START = 'start';
-    case POLL_SUPPORT = 'poll_support';
-    case POLL_TYPE_CHOICE = 'poll_type_choice';
-    case POLL_ANONYMITY_CHOICE = 'poll_anonymity_choice';
-    case POLL_DIFFICULTY_CHOICE = 'poll_difficulty_choice';
-    case POLL_SECTOR_CHOICE = 'poll_sector_choice';
-    case POLL_SUBJECT_CHOICE = 'poll_subject_choice';
-    case POLL_THEME_WAITING = 'poll_theme_waiting';
-    case POLL_AI_RESPONDED_CHOICE = 'poll_ai_responded_choice';
+    case Start = 'start';
+    case PollSupport = 'poll_support';
+    case PollTypeChoice = 'poll_type_choice';
+    case PollAnonymityChoice = 'poll_anonymity_choice';
+    case PollDifficultyChoice = 'poll_difficulty_choice';
+    case PollSectorChoice = 'poll_sector_choice';
+    case PollSubjectChoice = 'poll_subject_choice';
+    case PollThemeWaiting = 'poll_theme_waiting';
+    case PollAiRespondedChoice = 'poll_ai_responded_choice';
 
     /** Game */
-    case GAME_POLLS_CHOICE = 'game_polls_choice';
-    case GAME_TITLE_WAITING = 'game_title_waiting';
-    case GAME_DESCRIPTION_WAITING = 'game_description_waiting';
-    case GAME_TIME_LIMIT_WAITING = 'game_time_limit_waiting';
-    case GAME_CHANNEL_WAITING = 'game_channel_waiting';
-    case GAME_CREATED_SUCCESS_SHOW = 'game_created_success_show';
-//    case GameSentToChannelSuccess = 'game_sent_to_channel_success';
+    case GamePollsChoice = 'game_polls_choice';
+    case GameTitleWaiting = 'game_title_waiting';
+    case GameDescriptionWaiting = 'game_description_waiting';
+    case GameTimeLimitWaiting = 'game_time_limit_waiting';
+    case GameChannelWaiting = 'game_channel_waiting';
+    case GameCreatedSuccessShow = 'game_created_success_show';
     case GamePlayersWaiting = 'game_players_waiting';
     case GameQuizProcess = 'game_quiz_process';
 
@@ -104,27 +103,27 @@ enum StateEnum: string
      * @deprecated
      * TODO: Need to create handler for sent success and create table. Create migration for adding states to DB
      */
-    case CHANNEL_POLLS_SENT_SUCCESS = 'channel_polls_sent_success';
+    case ChannelPollsSentSuccess = 'channel_polls_sent_success';
 
     /** Account */
-    case ACCOUNT = 'account';
-    case ACCOUNT_REFERRAL_LINK_SHOW = 'account_referral_link_show';
-    case ACCOUNT_REFERRED_USERS_SHOW = 'account_referred_users_show';
+    case Account = 'account';
+    case AccountReferralLinkShow = 'account_referral_link_show';
+    case AccountReferredUsersShow = 'account_referred_users_show';
 
     /** Admin */
-    case ADMIN = 'admin';
-    case ADMIN_NEWSLETTER_WAITING = 'admin_newsletter_waiting';
-    case ADMIN_NEWSLETTER_CONFIRMATION = 'admin_newsletter_confirmation';
-    case ADMIN_NEWSLETTER_SENT_SUCCESS = 'admin_newsletter_sent_success';
-    case ADMIN_STATISTIC_MENU_CHOICE = 'admin_statistic_menu_choice';
-    case ADMIN_STATISTIC_POLLS_MENU_CHOICE = 'admin_statistic_polls_menu_choice';
-    case ADMIN_STATISTIC_POLLS_PER_YEAR_SHOW = 'admin_statistic_polls_per_year_show';
-    case ADMIN_STATISTIC_POLLS_PER_QUARTER_SHOW = 'admin_statistic_polls_per_quarter_show';
-    case ADMIN_STATISTIC_POLLS_PER_MONTH_SHOW = 'admin_statistic_polls_per_month_show';
-    case ADMIN_STATISTIC_POLLS_PER_WEEK_SHOW = 'admin_statistic_polls_per_week_show';
-    case ADMIN_STATISTIC_POLLS_PER_DAY_SHOW = 'admin_statistic_polls_per_day_show';
-    case ADMIN_STATISTIC_USERS_MENU_CHOICE = 'admin_statistic_users_menu_choice';
-    case ADMIN_STATISTIC_USERS_PER_DAY_SHOW = 'admin_statistic_users_per_day_show';
+    case Admin = 'admin';
+    case AdminNewsletterWaiting = 'admin_newsletter_waiting';
+    case AdminNewsletterConfirmation = 'admin_newsletter_confirmation';
+    case AdminNewsletterSentSuccess = 'admin_newsletter_sent_success';
+    case AdminStatisticMenuChoice = 'admin_statistic_menu_choice';
+    case AdminStatisticPollsMenuChoice = 'admin_statistic_polls_menu_choice';
+    case AdminStatisticPollsPerYearShow = 'admin_statistic_polls_per_year_show';
+    case AdminStatisticPollsPerQuarterShow = 'admin_statistic_polls_per_quarter_show';
+    case AdminStatisticPollsPerMonthShow = 'admin_statistic_polls_per_month_show';
+    case AdminStatisticPollsPerWeekShow = 'admin_statistic_polls_per_week_show';
+    case AdminStatisticPollsPerDayShow = 'admin_statistic_polls_per_day_show';
+    case AdminStatisticUsersMenuChoice = 'admin_statistic_users_menu_choice';
+    case AdminStatisticUsersPerDayShow = 'admin_statistic_users_per_day_show';
 
     /** Help */
     case HELP = 'help';
@@ -133,43 +132,43 @@ enum StateEnum: string
     {
         return match ($this) {
             /** Poll states */
-            self::START => new StartState($repository, $telegramService),
-            self::POLL_SUPPORT => new SupportState($repository, $telegramService),
-            self::POLL_TYPE_CHOICE => new TypeChoiceState($repository, $telegramService),
-            self::POLL_ANONYMITY_CHOICE => new AnonymityChoiceState($repository, $telegramService),
-            self::POLL_DIFFICULTY_CHOICE => new DifficultyChoiceState($repository, $telegramService),
-            self::POLL_SECTOR_CHOICE => new SectorChoiceState($repository, $telegramService),
-            self::POLL_SUBJECT_CHOICE => new SubjectChoiceState($repository, $telegramService),
-            self::POLL_THEME_WAITING => new ThemeWaitingState($repository, $telegramService),
-            self::POLL_AI_RESPONDED_CHOICE => new AiRespondedChoiceState($repository, $telegramService),
+            self::Start => new StartState($repository, $telegramService),
+            self::PollSupport => new SupportState($repository, $telegramService),
+            self::PollTypeChoice => new TypeChoiceState($repository, $telegramService),
+            self::PollAnonymityChoice => new AnonymityChoiceState($repository, $telegramService),
+            self::PollDifficultyChoice => new DifficultyChoiceState($repository, $telegramService),
+            self::PollSectorChoice => new SectorChoiceState($repository, $telegramService),
+            self::PollSubjectChoice => new SubjectChoiceState($repository, $telegramService),
+            self::PollThemeWaiting => new ThemeWaitingState($repository, $telegramService),
+            self::PollAiRespondedChoice => new AiRespondedChoiceState($repository, $telegramService),
             /** Game states */
-            self::GAME_POLLS_CHOICE => new GamePollsChoiceState($repository, $telegramService),
-            self::GAME_TITLE_WAITING => new GameTitleWaitingState($repository, $telegramService),
-            self::GAME_DESCRIPTION_WAITING => new GameDescriptionWaitingState($repository, $telegramService),
-            self::GAME_TIME_LIMIT_WAITING => new GameTimeLimitWaitingState($repository, $telegramService),
-            self::GAME_CHANNEL_WAITING => new GameChannelWaitingState($repository, $telegramService),
-            self::GAME_CREATED_SUCCESS_SHOW => new GameCreatedSuccessState($repository, $telegramService),
+            self::GamePollsChoice => new GamePollsChoiceState($repository, $telegramService),
+            self::GameTitleWaiting => new GameTitleWaitingState($repository, $telegramService),
+            self::GameDescriptionWaiting => new GameDescriptionWaitingState($repository, $telegramService),
+            self::GameTimeLimitWaiting => new GameTimeLimitWaitingState($repository, $telegramService),
+            self::GameChannelWaiting => new GameChannelWaitingState($repository, $telegramService),
+            self::GameCreatedSuccessShow => new GameCreatedSuccessState($repository, $telegramService),
 
             self::GamePlayersWaiting => new GamePlayersWaitingState($repository, $telegramService),
 
             /** Account states */
-            self::ACCOUNT => new AccountState($repository, $telegramService),
-            self::ACCOUNT_REFERRAL_LINK_SHOW => new ReferralLinkShowState($repository, $telegramService),
-            self::ACCOUNT_REFERRED_USERS_SHOW => new ReferredUsersShowState($repository, $telegramService),
+            self::Account => new AccountState($repository, $telegramService),
+            self::AccountReferralLinkShow => new ReferralLinkShowState($repository, $telegramService),
+            self::AccountReferredUsersShow => new ReferredUsersShowState($repository, $telegramService),
             /** Admin states */
-            self::ADMIN => new AdminState($repository, $telegramService),
-            self::ADMIN_NEWSLETTER_WAITING => new NewsletterWaitingState($repository, $telegramService),
-            self::ADMIN_NEWSLETTER_CONFIRMATION => new NewsletterConfirmationState($repository, $telegramService),
-            self::ADMIN_NEWSLETTER_SENT_SUCCESS => new NewsletterSentSuccessState($repository, $telegramService),
-            self::ADMIN_STATISTIC_MENU_CHOICE => new StatisticMenuChoiceState($repository, $telegramService),
-            self::ADMIN_STATISTIC_POLLS_MENU_CHOICE => new StatisticPollsMenuChoiceState($repository, $telegramService),
-            self::ADMIN_STATISTIC_POLLS_PER_YEAR_SHOW => new StatisticPollsPerYearShowState($repository, $telegramService),
-            self::ADMIN_STATISTIC_POLLS_PER_QUARTER_SHOW => new StatisticPollsPerQuarterShowState($repository, $telegramService),
-            self::ADMIN_STATISTIC_POLLS_PER_MONTH_SHOW => new StatisticPollsPerMonthShowState($repository, $telegramService),
-            self::ADMIN_STATISTIC_POLLS_PER_WEEK_SHOW => new StatisticPollsPerWeekShowState($repository, $telegramService),
-            self::ADMIN_STATISTIC_POLLS_PER_DAY_SHOW => new StatisticPollsPerDayShowState($repository, $telegramService),
-            self::ADMIN_STATISTIC_USERS_MENU_CHOICE => new StatisticUsersMenuChoiceState($repository, $telegramService),
-            self::ADMIN_STATISTIC_USERS_PER_DAY_SHOW => new StatisticUsersPerDayShowState($repository, $telegramService),
+            self::Admin => new AdminState($repository, $telegramService),
+            self::AdminNewsletterWaiting => new NewsletterWaitingState($repository, $telegramService),
+            self::AdminNewsletterConfirmation => new NewsletterConfirmationState($repository, $telegramService),
+            self::AdminNewsletterSentSuccess => new NewsletterSentSuccessState($repository, $telegramService),
+            self::AdminStatisticMenuChoice => new StatisticMenuChoiceState($repository, $telegramService),
+            self::AdminStatisticPollsMenuChoice => new StatisticPollsMenuChoiceState($repository, $telegramService),
+            self::AdminStatisticPollsPerYearShow => new StatisticPollsPerYearShowState($repository, $telegramService),
+            self::AdminStatisticPollsPerQuarterShow => new StatisticPollsPerQuarterShowState($repository, $telegramService),
+            self::AdminStatisticPollsPerMonthShow => new StatisticPollsPerMonthShowState($repository, $telegramService),
+            self::AdminStatisticPollsPerWeekShow => new StatisticPollsPerWeekShowState($repository, $telegramService),
+            self::AdminStatisticPollsPerDayShow => new StatisticPollsPerDayShowState($repository, $telegramService),
+            self::AdminStatisticUsersMenuChoice => new StatisticUsersMenuChoiceState($repository, $telegramService),
+            self::AdminStatisticUsersPerDayShow => new StatisticUsersPerDayShowState($repository, $telegramService),
             /** Help states */
             self::HELP => new HelpState($repository, $telegramService),
         };
@@ -178,120 +177,120 @@ enum StateEnum: string
     public function backState(): self
     {
         return match ($this) {
-            self::ACCOUNT,
-            self::ADMIN,
+            self::Account,
+            self::Admin,
             self::HELP,
-            self::START,
-            self::POLL_SUPPORT,
-            self::POLL_TYPE_CHOICE,
-            self::POLL_AI_RESPONDED_CHOICE,
-            self::GAME_POLLS_CHOICE,
-            self::GAME_CREATED_SUCCESS_SHOW,
-            self::GamePlayersWaiting => self::START,
-            self::POLL_ANONYMITY_CHOICE => self::POLL_TYPE_CHOICE,
-            self::POLL_DIFFICULTY_CHOICE => self::POLL_ANONYMITY_CHOICE,
-            self::POLL_SECTOR_CHOICE => self::POLL_DIFFICULTY_CHOICE,
-            self::POLL_SUBJECT_CHOICE => self::POLL_SECTOR_CHOICE,
-            self::POLL_THEME_WAITING => self::POLL_SUBJECT_CHOICE,
-            self::GAME_TITLE_WAITING => self::GAME_POLLS_CHOICE,
-            self::GAME_DESCRIPTION_WAITING => self::GAME_TITLE_WAITING,
-            self::GAME_TIME_LIMIT_WAITING => self::GAME_DESCRIPTION_WAITING,
-            self::GAME_CHANNEL_WAITING => self::GAME_TIME_LIMIT_WAITING,
-            self::ACCOUNT_REFERRAL_LINK_SHOW,
-            self::ACCOUNT_REFERRED_USERS_SHOW => self::ACCOUNT,
-            self::ADMIN_NEWSLETTER_WAITING,
-            self::ADMIN_NEWSLETTER_SENT_SUCCESS,
-            self::ADMIN_STATISTIC_MENU_CHOICE => self::ADMIN,
-            self::ADMIN_NEWSLETTER_CONFIRMATION => self::ADMIN_NEWSLETTER_WAITING,
-            self::ADMIN_STATISTIC_POLLS_MENU_CHOICE,
-            self::ADMIN_STATISTIC_USERS_MENU_CHOICE => self::ADMIN_STATISTIC_MENU_CHOICE,
-            self::ADMIN_STATISTIC_POLLS_PER_YEAR_SHOW,
-            self::ADMIN_STATISTIC_POLLS_PER_QUARTER_SHOW,
-            self::ADMIN_STATISTIC_POLLS_PER_MONTH_SHOW,
-            self::ADMIN_STATISTIC_POLLS_PER_WEEK_SHOW,
-            self::ADMIN_STATISTIC_POLLS_PER_DAY_SHOW => self::ADMIN_STATISTIC_POLLS_MENU_CHOICE,
-            self::ADMIN_STATISTIC_USERS_PER_DAY_SHOW => self::ADMIN_STATISTIC_USERS_MENU_CHOICE,
+            self::Start,
+            self::PollSupport,
+            self::PollTypeChoice,
+            self::PollAiRespondedChoice,
+            self::GamePollsChoice,
+            self::GameCreatedSuccessShow,
+            self::GamePlayersWaiting => self::Start,
+            self::PollAnonymityChoice => self::PollTypeChoice,
+            self::PollDifficultyChoice => self::PollAnonymityChoice,
+            self::PollSectorChoice => self::PollDifficultyChoice,
+            self::PollSubjectChoice => self::PollSectorChoice,
+            self::PollThemeWaiting => self::PollSubjectChoice,
+            self::GameTitleWaiting => self::GamePollsChoice,
+            self::GameDescriptionWaiting => self::GameTitleWaiting,
+            self::GameTimeLimitWaiting => self::GameDescriptionWaiting,
+            self::GameChannelWaiting => self::GameTimeLimitWaiting,
+            self::AccountReferralLinkShow,
+            self::AccountReferredUsersShow => self::Account,
+            self::AdminNewsletterWaiting,
+            self::AdminNewsletterSentSuccess,
+            self::AdminStatisticMenuChoice => self::Admin,
+            self::AdminNewsletterConfirmation => self::AdminNewsletterWaiting,
+            self::AdminStatisticPollsMenuChoice,
+            self::AdminStatisticUsersMenuChoice => self::AdminStatisticMenuChoice,
+            self::AdminStatisticPollsPerYearShow,
+            self::AdminStatisticPollsPerQuarterShow,
+            self::AdminStatisticPollsPerMonthShow,
+            self::AdminStatisticPollsPerWeekShow,
+            self::AdminStatisticPollsPerDayShow => self::AdminStatisticPollsMenuChoice,
+            self::AdminStatisticUsersPerDayShow => self::AdminStatisticUsersMenuChoice,
         };
     }
 
     public function sender(RepositoryInterface $repository, TelegramService $telegramService, User $user): SenderInterface
     {
         return match ($this) {
-            self::ACCOUNT => new AccountSender($repository, $telegramService, $user),
+            self::Account => new AccountSender($repository, $telegramService, $user),
             self::HELP => new HelpSender($repository, $telegramService, $user),
-            self::START => new StartSender($repository, $telegramService, $user),
-            self::POLL_SUPPORT => new SupportSender($repository, $telegramService, $user),
-            self::POLL_TYPE_CHOICE => new TypeChoiceSender($repository, $telegramService, $user),
-            self::POLL_ANONYMITY_CHOICE => new AnonymityChoiceSender($repository, $telegramService, $user),
-            self::POLL_DIFFICULTY_CHOICE => new DifficultyChoiceSender($repository, $telegramService, $user),
-            self::POLL_SECTOR_CHOICE => new SectorChoiceSender($repository, $telegramService, $user),
-            self::POLL_SUBJECT_CHOICE => new SubjectChoiceSender($repository, $telegramService, $user),
-            self::POLL_THEME_WAITING => new ThemeWaitingSender($repository, $telegramService, $user),
-            self::POLL_AI_RESPONDED_CHOICE => new AiRespondedChoiceSender($repository, $telegramService, $user),
+            self::Start => new StartSender($repository, $telegramService, $user),
+            self::PollSupport => new SupportSender($repository, $telegramService, $user),
+            self::PollTypeChoice => new TypeChoiceSender($repository, $telegramService, $user),
+            self::PollAnonymityChoice => new AnonymityChoiceSender($repository, $telegramService, $user),
+            self::PollDifficultyChoice => new DifficultyChoiceSender($repository, $telegramService, $user),
+            self::PollSectorChoice => new SectorChoiceSender($repository, $telegramService, $user),
+            self::PollSubjectChoice => new SubjectChoiceSender($repository, $telegramService, $user),
+            self::PollThemeWaiting => new ThemeWaitingSender($repository, $telegramService, $user),
+            self::PollAiRespondedChoice => new AiRespondedChoiceSender($repository, $telegramService, $user),
 
-            self::GAME_POLLS_CHOICE => new GamePollsChoiceSender($repository, $telegramService, $user),
-            self::GAME_TITLE_WAITING => new GameTitleWaitingSender($repository, $telegramService, $user),
-            self::GAME_DESCRIPTION_WAITING => new GameDescriptionWaitingSender($repository, $telegramService, $user),
-            self::GAME_TIME_LIMIT_WAITING => new GameTimeLimitWaitingSender($repository, $telegramService, $user),
-            self::GAME_CHANNEL_WAITING => new GameChannelWaitingSender($repository, $telegramService, $user),
-            self::GAME_CREATED_SUCCESS_SHOW => new GameCreatedSuccessShowSender($repository, $telegramService, $user),
+            self::GamePollsChoice => new GamePollsChoiceSender($repository, $telegramService, $user),
+            self::GameTitleWaiting => new GameTitleWaitingSender($repository, $telegramService, $user),
+            self::GameDescriptionWaiting => new GameDescriptionWaitingSender($repository, $telegramService, $user),
+            self::GameTimeLimitWaiting => new GameTimeLimitWaitingSender($repository, $telegramService, $user),
+            self::GameChannelWaiting => new GameChannelWaitingSender($repository, $telegramService, $user),
+            self::GameCreatedSuccessShow => new GameCreatedSuccessShowSender($repository, $telegramService, $user),
             self::GamePlayersWaiting => new GamePlayersWaitingSender($repository, $telegramService, $user),
 
-            self::ACCOUNT_REFERRAL_LINK_SHOW => new ReferralLinkShowSender($repository, $telegramService, $user),
-            self::ACCOUNT_REFERRED_USERS_SHOW => new ReferredUsersShowSender($repository, $telegramService, $user),
-            self::ADMIN => new AdminSender($repository, $telegramService, $user),
-            self::ADMIN_NEWSLETTER_WAITING => new NewsletterWaitingSender($repository, $telegramService, $user),
-            self::ADMIN_NEWSLETTER_CONFIRMATION => new NewsletterConfirmationSender($repository, $telegramService, $user),
-            self::ADMIN_NEWSLETTER_SENT_SUCCESS => new NewsletterSentSuccessSender($repository, $telegramService, $user),
-            self::ADMIN_STATISTIC_MENU_CHOICE => new StatisticMenuChoiceSender($repository, $telegramService, $user),
-            self::ADMIN_STATISTIC_POLLS_MENU_CHOICE => new StatisticPollsMenuChoiceSender($repository, $telegramService, $user),
-            self::ADMIN_STATISTIC_POLLS_PER_YEAR_SHOW => new StatisticPollsPerYearShowSender($repository, $telegramService, $user),
-            self::ADMIN_STATISTIC_POLLS_PER_QUARTER_SHOW => new StatisticPollsPerQuarterShowSender($repository, $telegramService, $user),
-            self::ADMIN_STATISTIC_POLLS_PER_MONTH_SHOW => new StatisticPollsPerMonthShowSender($repository, $telegramService, $user),
-            self::ADMIN_STATISTIC_POLLS_PER_WEEK_SHOW => new StatisticPollsPerWeekShowSender($repository, $telegramService, $user),
-            self::ADMIN_STATISTIC_POLLS_PER_DAY_SHOW => new StatisticPollsPerDayShowSender($repository, $telegramService, $user),
-            self::ADMIN_STATISTIC_USERS_MENU_CHOICE => new StatisticUsersMenuChoiceSender($repository, $telegramService, $user),
-            self::ADMIN_STATISTIC_USERS_PER_DAY_SHOW => new StatisticUsersPerDayShowSender($repository, $telegramService, $user),
+            self::AccountReferralLinkShow => new ReferralLinkShowSender($repository, $telegramService, $user),
+            self::AccountReferredUsersShow => new ReferredUsersShowSender($repository, $telegramService, $user),
+            self::Admin => new AdminSender($repository, $telegramService, $user),
+            self::AdminNewsletterWaiting => new NewsletterWaitingSender($repository, $telegramService, $user),
+            self::AdminNewsletterConfirmation => new NewsletterConfirmationSender($repository, $telegramService, $user),
+            self::AdminNewsletterSentSuccess => new NewsletterSentSuccessSender($repository, $telegramService, $user),
+            self::AdminStatisticMenuChoice => new StatisticMenuChoiceSender($repository, $telegramService, $user),
+            self::AdminStatisticPollsMenuChoice => new StatisticPollsMenuChoiceSender($repository, $telegramService, $user),
+            self::AdminStatisticPollsPerYearShow => new StatisticPollsPerYearShowSender($repository, $telegramService, $user),
+            self::AdminStatisticPollsPerQuarterShow => new StatisticPollsPerQuarterShowSender($repository, $telegramService, $user),
+            self::AdminStatisticPollsPerMonthShow => new StatisticPollsPerMonthShowSender($repository, $telegramService, $user),
+            self::AdminStatisticPollsPerWeekShow => new StatisticPollsPerWeekShowSender($repository, $telegramService, $user),
+            self::AdminStatisticPollsPerDayShow => new StatisticPollsPerDayShowSender($repository, $telegramService, $user),
+            self::AdminStatisticUsersMenuChoice => new StatisticUsersMenuChoiceSender($repository, $telegramService, $user),
+            self::AdminStatisticUsersPerDayShow => new StatisticUsersPerDayShowSender($repository, $telegramService, $user),
         };
     }
 
     public function title(): string
     {
         return match ($this) {
-            self::START => "Привет! Выбери вариант:",
-            self::POLL_TYPE_CHOICE => "Выберите тип опроса:",
-            self::POLL_SUPPORT => "Если у вас есть вопросы, напишите мне в личные сообщения: <a href='https://t.me/nkm_studio'>https://t.me/nkm_studio</a>",
-            self::POLL_ANONYMITY_CHOICE => "Опрос будет анонимный?",
-            self::POLL_DIFFICULTY_CHOICE => "Выберите сложность вопросов:",
-            self::POLL_SECTOR_CHOICE => "Выберите направление:",
-            self::POLL_SUBJECT_CHOICE => "Выберите предмет:",
-            self::POLL_THEME_WAITING => "Введите свой вопрос:",
-            self::POLL_AI_RESPONDED_CHOICE => "Выберите, что делать дальше:",
+            self::Start => "Привет! Выбери вариант:",
+            self::PollTypeChoice => "Выберите тип опроса:",
+            self::PollSupport => "Если у вас есть вопросы, напишите мне в личные сообщения: <a href='https://t.me/nkm_studio'>https://t.me/nkm_studio</a>",
+            self::PollAnonymityChoice => "Опрос будет анонимный?",
+            self::PollDifficultyChoice => "Выберите сложность вопросов:",
+            self::PollSectorChoice => "Выберите направление:",
+            self::PollSubjectChoice => "Выберите предмет:",
+            self::PollThemeWaiting => "Введите свой вопрос:",
+            self::PollAiRespondedChoice => "Выберите, что делать дальше:",
 
-            self::GAME_POLLS_CHOICE => "Выберите, какие вопросы нужно отправить?",
-            self::GAME_TITLE_WAITING => "Введите название вашей игры:",
-            self::GAME_DESCRIPTION_WAITING => "Введите описание вашей игры:",
-            self::GAME_TIME_LIMIT_WAITING => "Какой лимит времени в секундах Вы даете на ответ? Напишите только цифру.",
-            self::GAME_CHANNEL_WAITING => "Напишите название канала или ссылку на канал:",
-            self::GAME_CREATED_SUCCESS_SHOW => "Игра успешно создана! Теперь Вы можете отправить ее в канал.",
+            self::GamePollsChoice => "Выберите, какие вопросы нужно отправить?",
+            self::GameTitleWaiting => "Введите название вашей игры:",
+            self::GameDescriptionWaiting => "Введите описание вашей игры:",
+            self::GameTimeLimitWaiting => "Какой лимит времени в секундах Вы даете на ответ? Напишите только цифру.",
+            self::GameChannelWaiting => "Напишите название канала или ссылку на канал:",
+            self::GameCreatedSuccessShow => "Игра успешно создана! Теперь Вы можете отправить ее в канал.",
             self::GamePlayersWaiting => "Игра успешно отправлена в канал! Она начнется через 30 секунд.",
 
-            self::ACCOUNT => "Мой аккаунт:",
-            self::ACCOUNT_REFERRED_USERS_SHOW => "Ваши приглашенные пользователи:\n",
+            self::Account => "Мой аккаунт:",
+            self::AccountReferredUsersShow => "Ваши приглашенные пользователи:\n",
 
-            self::ADMIN => "Меню администратора:",
-            self::ADMIN_NEWSLETTER_WAITING => "Введите сообщение и прикрепите файлы (если необходимо) для рассылки пользователям:\n\n❗️После отправки сообщения отменить или удалить его будет невозможно!!!",
-            self::ADMIN_NEWSLETTER_CONFIRMATION => "❗️Внимательно проверьте Ваше сообщение!!! \n\nПосле подтверждения, это сообщение отправится всем подписчикам бота.",
-            self::ADMIN_NEWSLETTER_SENT_SUCCESS => "✅ Сообщение успешно разослано всем подписчикам бота!",
-            self::ADMIN_STATISTIC_MENU_CHOICE => "Статистика бота:",
-            self::ADMIN_STATISTIC_POLLS_MENU_CHOICE => "Статистика созданных тестов:",
-            self::ADMIN_STATISTIC_POLLS_PER_YEAR_SHOW => "За последний год не было создано ни одного теста.",
-            self::ADMIN_STATISTIC_POLLS_PER_QUARTER_SHOW => "За последний квартал не было создано ни одного теста.",
-            self::ADMIN_STATISTIC_POLLS_PER_MONTH_SHOW => "За последний месяц не было создано ни одного теста.",
-            self::ADMIN_STATISTIC_POLLS_PER_WEEK_SHOW => "За последнюю неделю не было создано ни одного теста.",
-            self::ADMIN_STATISTIC_POLLS_PER_DAY_SHOW => "Сегодня тесты еще не создавались.",
-            self::ADMIN_STATISTIC_USERS_PER_DAY_SHOW => "Новые пользователи сегодня не регистрировались.",
-            self::ADMIN_STATISTIC_USERS_MENU_CHOICE => "Статистика пользователей:",
+            self::Admin => "Меню администратора:",
+            self::AdminNewsletterWaiting => "Введите сообщение и прикрепите файлы (если необходимо) для рассылки пользователям:\n\n❗️После отправки сообщения отменить или удалить его будет невозможно!!!",
+            self::AdminNewsletterConfirmation => "❗️Внимательно проверьте Ваше сообщение!!! \n\nПосле подтверждения, это сообщение отправится всем подписчикам бота.",
+            self::AdminNewsletterSentSuccess => "✅ Сообщение успешно разослано всем подписчикам бота!",
+            self::AdminStatisticMenuChoice => "Статистика бота:",
+            self::AdminStatisticPollsMenuChoice => "Статистика созданных тестов:",
+            self::AdminStatisticPollsPerYearShow => "За последний год не было создано ни одного теста.",
+            self::AdminStatisticPollsPerQuarterShow => "За последний квартал не было создано ни одного теста.",
+            self::AdminStatisticPollsPerMonthShow => "За последний месяц не было создано ни одного теста.",
+            self::AdminStatisticPollsPerWeekShow => "За последнюю неделю не было создано ни одного теста.",
+            self::AdminStatisticPollsPerDayShow => "Сегодня тесты еще не создавались.",
+            self::AdminStatisticUsersPerDayShow => "Новые пользователи сегодня не регистрировались.",
+            self::AdminStatisticUsersMenuChoice => "Статистика пользователей:",
 
             self::HELP => "Инструкция по работе с ботом:\n\nДля того, чтобы Corgish-бот корректно составил тест, ответьте на вопросы бота и пройдите все шаги.\n\n/start - начать сначала\n/help - помощь и техподдержка",
         };
@@ -300,52 +299,52 @@ enum StateEnum: string
     public function buttons(): array
     {
         return match ($this) {
-            self::START => [
+            self::Start => [
                 new ButtonDto(CallbackEnum::CreateSurvey->value, CallbackEnum::CreateSurvey->buttonText()),
                 new ButtonDto(CallbackEnum::Support->value, CallbackEnum::Support->buttonText()),
             ],
-            self::POLL_TYPE_CHOICE => [
+            self::PollTypeChoice => [
                 new ButtonDto(CallbackEnum::TypeQuiz->value, CallbackEnum::TypeQuiz->buttonText()),
                 new ButtonDto(CallbackEnum::TypeSurvey->value, CallbackEnum::TypeSurvey->buttonText()),
                 new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText()),
             ],
-            self::POLL_SUPPORT,
-            self::POLL_THEME_WAITING,
-            self::GAME_TITLE_WAITING,
-            self::GAME_DESCRIPTION_WAITING,
-            self::GAME_TIME_LIMIT_WAITING,
-            self::GAME_CHANNEL_WAITING,
-            self::ADMIN_STATISTIC_POLLS_PER_YEAR_SHOW,
-            self::ADMIN_STATISTIC_POLLS_PER_QUARTER_SHOW,
-            self::ADMIN_STATISTIC_POLLS_PER_MONTH_SHOW,
-            self::ADMIN_STATISTIC_POLLS_PER_WEEK_SHOW,
-            self::ADMIN_STATISTIC_POLLS_PER_DAY_SHOW,
-            self::ADMIN_STATISTIC_USERS_PER_DAY_SHOW,
-            self::ACCOUNT_REFERRAL_LINK_SHOW,
-            self::ACCOUNT_REFERRED_USERS_SHOW,
-            self::ADMIN_NEWSLETTER_WAITING,
+            self::PollSupport,
+            self::PollThemeWaiting,
+            self::GameTitleWaiting,
+            self::GameDescriptionWaiting,
+            self::GameTimeLimitWaiting,
+            self::GameChannelWaiting,
+            self::AdminStatisticPollsPerYearShow,
+            self::AdminStatisticPollsPerQuarterShow,
+            self::AdminStatisticPollsPerMonthShow,
+            self::AdminStatisticPollsPerWeekShow,
+            self::AdminStatisticPollsPerDayShow,
+            self::AdminStatisticUsersPerDayShow,
+            self::AccountReferralLinkShow,
+            self::AccountReferredUsersShow,
+            self::AdminNewsletterWaiting,
             self::HELP => [
                 new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText())
             ],
-            self::POLL_ANONYMITY_CHOICE => [
+            self::PollAnonymityChoice => [
                 new ButtonDto(CallbackEnum::IsAnon->value, CallbackEnum::IsAnon->buttonText()),
                 new ButtonDto(CallbackEnum::IsNotAnon->value, CallbackEnum::IsNotAnon->buttonText()),
                 new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText()),
             ],
-            self::POLL_DIFFICULTY_CHOICE => [
+            self::PollDifficultyChoice => [
                 new ButtonDto(CallbackEnum::LevelEasy->value, CallbackEnum::LevelEasy->buttonText()),
                 new ButtonDto(CallbackEnum::LevelMiddle->value, CallbackEnum::LevelMiddle->buttonText()),
                 new ButtonDto(CallbackEnum::LevelHard->value, CallbackEnum::LevelHard->buttonText()),
                 new ButtonDto(CallbackEnum::LevelAny->value, CallbackEnum::LevelAny->buttonText()),
                 new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText()),
             ],
-            self::POLL_AI_RESPONDED_CHOICE => [
+            self::PollAiRespondedChoice => [
                 new ButtonDto(CallbackEnum::RepeatFlow->value, CallbackEnum::RepeatFlow->buttonText()),
-                new ButtonDto(CallbackEnum::GAME_CREATE->value, CallbackEnum::GAME_CREATE->buttonText()),
+                new ButtonDto(CallbackEnum::GameCreate->value, CallbackEnum::GameCreate->buttonText()),
                 new ButtonDto(CommandEnum::START->getCommand(), '↩️ Выбрать другую тему'),
             ],
 
-            self::GAME_CREATED_SUCCESS_SHOW => [
+            self::GameCreatedSuccessShow => [
                 new ButtonDto(CallbackEnum::GameQuizStart->value, CallbackEnum::GameQuizStart->buttonText()),
                 new ButtonDto(CommandEnum::START->getCommand(), "↩️ Вернуться в начало")
             ],
@@ -353,39 +352,39 @@ enum StateEnum: string
                 new ButtonDto(CommandEnum::START->getCommand(), "↩️ Вернуться в начало")
             ],
 
-            self::ACCOUNT => [
-                new ButtonDto(CallbackEnum::ACCOUNT_REFERRED_USERS->value, CallbackEnum::ACCOUNT_REFERRED_USERS->buttonText()),
-                new ButtonDto(CallbackEnum::ACCOUNT_REFERRAL_LINK->value, CallbackEnum::ACCOUNT_REFERRAL_LINK->buttonText()),
+            self::Account => [
+                new ButtonDto(CallbackEnum::AccountReferredUsers->value, CallbackEnum::AccountReferredUsers->buttonText()),
+                new ButtonDto(CallbackEnum::AccountReferralLink->value, CallbackEnum::AccountReferralLink->buttonText()),
                 new ButtonDto(CommandEnum::START->getCommand(), "↩️ Вернуться в начало")
             ],
 
-            self::ADMIN => [
-                new ButtonDto(CallbackEnum::ADMIN_NEWSLETTER_CREATE->value, CallbackEnum::ADMIN_NEWSLETTER_CREATE->buttonText()),
-                new ButtonDto(CallbackEnum::ADMIN_STATISTIC_MENU->value, CallbackEnum::ADMIN_STATISTIC_MENU->buttonText()),
+            self::Admin => [
+                new ButtonDto(CallbackEnum::AdminNewsletterCreate->value, CallbackEnum::AdminNewsletterCreate->buttonText()),
+                new ButtonDto(CallbackEnum::AdminStatisticMenu->value, CallbackEnum::AdminStatisticMenu->buttonText()),
                 new ButtonDto(CommandEnum::START->getCommand(), '↩️ Вернуться в начало')
             ],
-            self::ADMIN_NEWSLETTER_CONFIRMATION => [
-                new ButtonDto(CallbackEnum::ADMIN_NEWSLETTER_ACCEPT->value, CallbackEnum::ADMIN_NEWSLETTER_ACCEPT->buttonText()),
-                new ButtonDto(CallbackEnum::ADMIN_NEWSLETTER_CHANGE->value, CallbackEnum::ADMIN_NEWSLETTER_CHANGE->buttonText()),
+            self::AdminNewsletterConfirmation => [
+                new ButtonDto(CallbackEnum::AdminNewsletterAccept->value, CallbackEnum::AdminNewsletterAccept->buttonText()),
+                new ButtonDto(CallbackEnum::AdminNewsletterChange->value, CallbackEnum::AdminNewsletterChange->buttonText()),
             ],
-            self::ADMIN_NEWSLETTER_SENT_SUCCESS => [
+            self::AdminNewsletterSentSuccess => [
                 new ButtonDto(CommandEnum::ADMIN->value, '↩️ Вернуться в начало')
             ],
-            self::ADMIN_STATISTIC_MENU_CHOICE => [
-                new ButtonDto(CallbackEnum::ADMIN_STATISTIC_POLLS->value, CallbackEnum::ADMIN_STATISTIC_POLLS->buttonText()),
-                new ButtonDto(CallbackEnum::ADMIN_STATISTIC_USERS->value, CallbackEnum::ADMIN_STATISTIC_USERS->buttonText()),
+            self::AdminStatisticMenuChoice => [
+                new ButtonDto(CallbackEnum::AdminStatisticPolls->value, CallbackEnum::AdminStatisticPolls->buttonText()),
+                new ButtonDto(CallbackEnum::AdminStatisticUsers->value, CallbackEnum::AdminStatisticUsers->buttonText()),
                 new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText())
             ],
-            self::ADMIN_STATISTIC_POLLS_MENU_CHOICE => [
-                new ButtonDto(CallbackEnum::ADMIN_STATISTIC_POLLS_PER_YEAR->value, CallbackEnum::ADMIN_STATISTIC_POLLS_PER_YEAR->buttonText()),
-                new ButtonDto(CallbackEnum::ADMIN_STATISTIC_POLLS_PER_QUARTER->value, CallbackEnum::ADMIN_STATISTIC_POLLS_PER_QUARTER->buttonText()),
-                new ButtonDto(CallbackEnum::ADMIN_STATISTIC_POLLS_PER_MONTH->value, CallbackEnum::ADMIN_STATISTIC_POLLS_PER_MONTH->buttonText()),
-                new ButtonDto(CallbackEnum::ADMIN_STATISTIC_POLLS_PER_WEEK->value, CallbackEnum::ADMIN_STATISTIC_POLLS_PER_WEEK->buttonText()),
-                new ButtonDto(CallbackEnum::ADMIN_STATISTIC_POLLS_PER_DAY->value, CallbackEnum::ADMIN_STATISTIC_POLLS_PER_DAY->buttonText()),
+            self::AdminStatisticPollsMenuChoice => [
+                new ButtonDto(CallbackEnum::AdminStatisticPollsPerYear->value, CallbackEnum::AdminStatisticPollsPerYear->buttonText()),
+                new ButtonDto(CallbackEnum::AdminStatisticPollsPerQuarter->value, CallbackEnum::AdminStatisticPollsPerQuarter->buttonText()),
+                new ButtonDto(CallbackEnum::AdminStatisticPollsPerMonth->value, CallbackEnum::AdminStatisticPollsPerMonth->buttonText()),
+                new ButtonDto(CallbackEnum::AdminStatisticPollsPerWeek->value, CallbackEnum::AdminStatisticPollsPerWeek->buttonText()),
+                new ButtonDto(CallbackEnum::AdminStatisticPollsPerDay->value, CallbackEnum::AdminStatisticPollsPerDay->buttonText()),
                 new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText())
             ],
-            self::ADMIN_STATISTIC_USERS_MENU_CHOICE => [
-                new ButtonDto(CallbackEnum::ADMIN_STATISTIC_USERS_PER_DAY->value, CallbackEnum::ADMIN_STATISTIC_USERS_PER_DAY->buttonText()),
+            self::AdminStatisticUsersMenuChoice => [
+                new ButtonDto(CallbackEnum::AdminStatisticUsersPerDay->value, CallbackEnum::AdminStatisticUsersPerDay->buttonText()),
                 new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText())
             ],
         };

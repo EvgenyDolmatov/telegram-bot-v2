@@ -8,7 +8,7 @@ use App\States\AbstractState;
 
 class NewsletterWaitingState extends AbstractState
 {
-    private const StateEnum STATE = StateEnum::ADMIN_NEWSLETTER_WAITING;
+    private const StateEnum STATE = StateEnum::AdminNewsletterWaiting;
 
     public function handleInput(string $input, $context): void
     {
@@ -28,6 +28,6 @@ class NewsletterWaitingState extends AbstractState
             return $baseState->backState();
         }
 
-        return StateEnum::ADMIN_NEWSLETTER_CONFIRMATION;
+        return StateEnum::AdminNewsletterConfirmation;
     }
 }

@@ -18,61 +18,61 @@ return new class extends Migration
         foreach (State::all() as $state) {
             switch ($state->code) {
                 case 'type_choice':
-                    $state->update(['code' => StateEnum::POLL_TYPE_CHOICE->value]);
+                    $state->update(['code' => StateEnum::PollTypeChoice->value]);
                     break;
                 case 'anon_choice':
-                    $state->update(['code' => StateEnum::POLL_ANONYMITY_CHOICE->value]);
+                    $state->update(['code' => StateEnum::PollAnonymityChoice->value]);
                     break;
                 case 'difficulty_choice':
-                    $state->update(['code' => StateEnum::POLL_DIFFICULTY_CHOICE->value]);
+                    $state->update(['code' => StateEnum::PollDifficultyChoice->value]);
                     break;
                 case 'sector_choice':
-                    $state->update(['code' => StateEnum::POLL_SECTOR_CHOICE->value]);
+                    $state->update(['code' => StateEnum::PollSectorChoice->value]);
                     break;
                 case 'subject_choice':
-                    $state->update(['code' => StateEnum::POLL_SUBJECT_CHOICE->value]);
+                    $state->update(['code' => StateEnum::PollSubjectChoice->value]);
                     break;
                 case 'theme_request':
-                    $state->update(['code' => StateEnum::POLL_THEME_WAITING->value]);
+                    $state->update(['code' => StateEnum::PollThemeWaiting->value]);
                     break;
                 case 'ai_response':
-                    $state->update(['code' => StateEnum::POLL_AI_RESPONDED_CHOICE->value]);
+                    $state->update(['code' => StateEnum::PollAiRespondedChoice->value]);
                     break;
                 case 'newsletter_waiting':
-                    $state->update(['code' => StateEnum::POLL_SUPPORT->value]);
+                    $state->update(['code' => StateEnum::PollSupport->value]);
                     break;
             }
         }
 
         /** Game */
-        State::create(['code' => StateEnum::GAME_POLLS_CHOICE->value]);
-        State::create(['code' => StateEnum::GAME_TITLE_WAITING->value]);
-        State::create(['code' => StateEnum::GAME_DESCRIPTION_WAITING->value]);
-        State::create(['code' => StateEnum::GAME_TIME_LIMIT_WAITING->value]);
-        State::create(['code' => StateEnum::GAME_CHANNEL_WAITING->value]);
-        State::create(['code' => StateEnum::GAME_CREATED_SUCCESS_SHOW->value]);
+        State::create(['code' => StateEnum::GamePollsChoice->value]);
+        State::create(['code' => StateEnum::GameTitleWaiting->value]);
+        State::create(['code' => StateEnum::GameDescriptionWaiting->value]);
+        State::create(['code' => StateEnum::GameTimeLimitWaiting->value]);
+        State::create(['code' => StateEnum::GameChannelWaiting->value]);
+        State::create(['code' => StateEnum::GameCreatedSuccessShow->value]);
         State::create(['code' => StateEnum::GamePlayersWaiting->value]);
         State::create(['code' => StateEnum::GameQuizProcess->value]);
 
         /** Admin */
-        State::create(['code' => StateEnum::ADMIN->value]);
-        State::create(['code' => StateEnum::ADMIN_NEWSLETTER_WAITING->value]);
-        State::create(['code' => StateEnum::ADMIN_NEWSLETTER_CONFIRMATION->value]);
-        State::create(['code' => StateEnum::ADMIN_NEWSLETTER_SENT_SUCCESS->value]);
-        State::create(['code' => StateEnum::ADMIN_STATISTIC_MENU_CHOICE->value]);
-        State::create(['code' => StateEnum::ADMIN_STATISTIC_POLLS_MENU_CHOICE->value]);
-        State::create(['code' => StateEnum::ADMIN_STATISTIC_POLLS_PER_YEAR_SHOW->value]);
-        State::create(['code' => StateEnum::ADMIN_STATISTIC_POLLS_PER_QUARTER_SHOW->value]);
-        State::create(['code' => StateEnum::ADMIN_STATISTIC_POLLS_PER_MONTH_SHOW->value]);
-        State::create(['code' => StateEnum::ADMIN_STATISTIC_POLLS_PER_WEEK_SHOW->value]);
-        State::create(['code' => StateEnum::ADMIN_STATISTIC_POLLS_PER_DAY_SHOW->value]);
-        State::create(['code' => StateEnum::ADMIN_STATISTIC_USERS_MENU_CHOICE->value]);
-        State::create(['code' => StateEnum::ADMIN_STATISTIC_USERS_PER_DAY_SHOW->value]);
+        State::create(['code' => StateEnum::Admin->value]);
+        State::create(['code' => StateEnum::AdminNewsletterWaiting->value]);
+        State::create(['code' => StateEnum::AdminNewsletterConfirmation->value]);
+        State::create(['code' => StateEnum::AdminNewsletterSentSuccess->value]);
+        State::create(['code' => StateEnum::AdminStatisticMenuChoice->value]);
+        State::create(['code' => StateEnum::AdminStatisticPollsMenuChoice->value]);
+        State::create(['code' => StateEnum::AdminStatisticPollsPerYearShow->value]);
+        State::create(['code' => StateEnum::AdminStatisticPollsPerQuarterShow->value]);
+        State::create(['code' => StateEnum::AdminStatisticPollsPerMonthShow->value]);
+        State::create(['code' => StateEnum::AdminStatisticPollsPerWeekShow->value]);
+        State::create(['code' => StateEnum::AdminStatisticPollsPerDayShow->value]);
+        State::create(['code' => StateEnum::AdminStatisticUsersMenuChoice->value]);
+        State::create(['code' => StateEnum::AdminStatisticUsersPerDayShow->value]);
 
         /** Account */
-        State::create(['code' => StateEnum::ACCOUNT->value]);
-        State::create(['code' => StateEnum::ACCOUNT_REFERRAL_LINK_SHOW->value]);
-        State::create(['code' => StateEnum::ACCOUNT_REFERRED_USERS_SHOW->value]);
+        State::create(['code' => StateEnum::Account->value]);
+        State::create(['code' => StateEnum::AccountReferralLinkShow->value]);
+        State::create(['code' => StateEnum::AccountReferredUsersShow->value]);
     }
 
     /**

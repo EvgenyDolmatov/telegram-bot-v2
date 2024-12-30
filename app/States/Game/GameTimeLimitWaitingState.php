@@ -10,7 +10,7 @@ use App\States\UserState;
 
 class GameTimeLimitWaitingState extends AbstractState implements UserState
 {
-    private const StateEnum STATE = StateEnum::GAME_TIME_LIMIT_WAITING;
+    private const StateEnum STATE = StateEnum::GameTimeLimitWaiting;
 
     public function handleInput(string $input, UserContext $context): void
     {
@@ -38,6 +38,6 @@ class GameTimeLimitWaitingState extends AbstractState implements UserState
             return self::STATE;
         }
 
-        return StateEnum::GAME_CHANNEL_WAITING;
+        return StateEnum::GameChannelWaiting;
     }
 }

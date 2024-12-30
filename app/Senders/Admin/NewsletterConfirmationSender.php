@@ -22,8 +22,8 @@ class NewsletterConfirmationSender extends AbstractSender
 
         $this->sendPreviewMessage($newsletter);
         $this->sendMessage(
-            text: StateEnum::ADMIN_NEWSLETTER_CONFIRMATION->title(),
-            buttons: StateEnum::ADMIN_NEWSLETTER_CONFIRMATION->buttons()
+            text: StateEnum::AdminNewsletterConfirmation->title(),
+            buttons: StateEnum::AdminNewsletterConfirmation->buttons()
         );
     }
 

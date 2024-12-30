@@ -12,8 +12,8 @@ class SupportSender extends AbstractSender
         $this->addToTrash();
 
         $this->sendMessage(
-            text: StateEnum::POLL_SUPPORT->title(),
-            buttons: StateEnum::POLL_SUPPORT->buttons()
+            text: StateEnum::PollSupport->title(),
+            buttons: StateEnum::PollSupport->buttons()
         );
     }
 }

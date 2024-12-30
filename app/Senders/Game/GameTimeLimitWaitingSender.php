@@ -7,7 +7,7 @@ use App\Senders\AbstractSender;
 
 class GameTimeLimitWaitingSender extends AbstractSender
 {
-    private const StateEnum STATE = StateEnum::GAME_TIME_LIMIT_WAITING;
+    private const StateEnum STATE = StateEnum::GameTimeLimitWaiting;
 
     public function send(): void
     {

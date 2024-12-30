@@ -9,7 +9,7 @@ use App\Senders\AbstractSender;
 
 class GamePollsChoiceSender extends AbstractSender
 {
-    private const StateEnum STATE = StateEnum::GAME_POLLS_CHOICE;
+    private const StateEnum STATE = StateEnum::GamePollsChoice;
     private const string POLL_PREFIX = 'poll_';
 
     public function send(): void
@@ -59,7 +59,7 @@ class GamePollsChoiceSender extends AbstractSender
                 text: $symbol . $poll['question']);
         }
 
-        $buttons[] = new ButtonDto(CallbackEnum::GAME_POLLS_SAVE->value, CallbackEnum::GAME_POLLS_SAVE->buttonText());
+        $buttons[] = new ButtonDto(CallbackEnum::GamePollsSave->value, CallbackEnum::GamePollsSave->buttonText());
 
         return $buttons;
     }

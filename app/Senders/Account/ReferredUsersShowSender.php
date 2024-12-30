@@ -16,7 +16,7 @@ class ReferredUsersShowSender extends AbstractSender
         $referredUsers = $this->user->referredUsers;
 
         if ($referredUsers->count()) {
-            $text = StateEnum::ACCOUNT_REFERRED_USERS_SHOW->title();
+            $text = StateEnum::AccountReferredUsersShow->title();
             foreach ($referredUsers as $referredUser) {
                 $refUser = User::find($referredUser->referred_user_id);
 
@@ -26,6 +26,6 @@ class ReferredUsersShowSender extends AbstractSender
             }
         }
 
-        $this->sendMessage($text, StateEnum::ACCOUNT_REFERRED_USERS_SHOW->buttons());
+        $this->sendMessage($text, StateEnum::AccountReferredUsersShow->buttons());
     }
 }

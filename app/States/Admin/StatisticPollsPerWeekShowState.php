@@ -9,7 +9,7 @@ use App\States\UserState;
 
 class StatisticPollsPerWeekShowState extends AbstractState implements UserState
 {
-    private const StateEnum STATE = StateEnum::ADMIN_STATISTIC_POLLS_PER_WEEK_SHOW;
+    private const StateEnum STATE = StateEnum::AdminStatisticPollsPerWeekShow;
 
     public function handleInput(string $input, UserContext $context): void
     {

@@ -44,8 +44,8 @@ class AiRespondedChoiceSender extends AbstractSender
 
         // Send message after AI response
         $this->sendMessage(
-            text: StateEnum::POLL_AI_RESPONDED_CHOICE->title(),
-            buttons: StateEnum::POLL_AI_RESPONDED_CHOICE->buttons(),
+            text: StateEnum::PollAiRespondedChoice->title(),
+            buttons: StateEnum::PollAiRespondedChoice->buttons(),
             isTrash: false
         );
     }

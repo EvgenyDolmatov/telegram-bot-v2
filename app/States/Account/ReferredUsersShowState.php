@@ -9,7 +9,7 @@ use App\States\UserState;
 
 class ReferredUsersShowState extends AbstractState implements UserState
 {
-    private const StateEnum STATE = StateEnum::ACCOUNT_REFERRED_USERS_SHOW;
+    private const StateEnum STATE = StateEnum::AccountReferredUsersShow;
 
     public function handleInput(string $input, UserContext $context): void
     {

@@ -25,8 +25,8 @@ class UserFlow extends Model
         $flowData = $this->getFlowData();
 
         return
-            isset($flowData[StateEnum::POLL_ANONYMITY_CHOICE->value])
-            && $flowData[StateEnum::POLL_ANONYMITY_CHOICE->value] === CallbackEnum::IsAnon->value;
+            isset($flowData[StateEnum::PollAnonymityChoice->value])
+            && $flowData[StateEnum::PollAnonymityChoice->value] === CallbackEnum::IsAnon->value;
     }
 
     public function isQuiz(): bool
@@ -34,7 +34,7 @@ class UserFlow extends Model
         $flowData = $this->getFlowData();
 
         return
-            isset($flowData[StateEnum::POLL_TYPE_CHOICE->value])
-            && $flowData[StateEnum::POLL_TYPE_CHOICE->value] === CallbackEnum::TypeQuiz->value;
+            isset($flowData[StateEnum::PollTypeChoice->value])
+            && $flowData[StateEnum::PollTypeChoice->value] === CallbackEnum::TypeQuiz->value;
     }
 }

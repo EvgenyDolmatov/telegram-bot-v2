@@ -9,7 +9,7 @@ use Carbon\Carbon;
 
 class StatisticPollsPerQuarterShowSender extends AbstractSender
 {
-    private const StateEnum STATE = StateEnum::ADMIN_STATISTIC_POLLS_PER_QUARTER_SHOW;
+    private const StateEnum STATE = StateEnum::AdminStatisticPollsPerQuarterShow;
 
     public function send(): void
     {

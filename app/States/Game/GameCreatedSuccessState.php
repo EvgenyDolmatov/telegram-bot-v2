@@ -9,7 +9,7 @@ use App\States\UserState;
 
 class GameCreatedSuccessState extends AbstractState implements UserState
 {
-    private const StateEnum STATE = StateEnum::GAME_CREATED_SUCCESS_SHOW;
+    private const StateEnum STATE = StateEnum::GameCreatedSuccessShow;
 
     public function handleInput(string $input, UserContext $context): void
     {

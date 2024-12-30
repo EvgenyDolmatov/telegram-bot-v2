@@ -15,8 +15,8 @@ class AdminSender extends AbstractSender
         }
 
         $this->sendMessage(
-            text: StateEnum::ADMIN->title(),
-            buttons: StateEnum::ADMIN->buttons()
+            text: StateEnum::Admin->title(),
+            buttons: StateEnum::Admin->buttons()
         );
     }
 }

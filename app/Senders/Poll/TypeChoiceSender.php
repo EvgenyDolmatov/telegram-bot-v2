@@ -12,8 +12,8 @@ class TypeChoiceSender extends AbstractSender
         $this->addToTrash();
 
         $this->sendMessage(
-            text: StateEnum::POLL_TYPE_CHOICE->title(),
-            buttons: StateEnum::POLL_TYPE_CHOICE->buttons()
+            text: StateEnum::PollTypeChoice->title(),
+            buttons: StateEnum::PollTypeChoice->buttons()
         );
     }
 }

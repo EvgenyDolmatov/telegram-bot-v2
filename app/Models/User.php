@@ -134,7 +134,7 @@ class User extends Model
             return $currentState;
         }
 
-        $startState = State::where('code', StateEnum::START->value)->first();
+        $startState = State::where('code', StateEnum::Start->value)->first();
         $this->states()->attach($startState->id);
 
         return $startState;

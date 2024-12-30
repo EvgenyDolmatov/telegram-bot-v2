@@ -10,7 +10,7 @@ use App\States\UserState;
 
 class GamePollsChoiceState extends AbstractState implements UserState
 {
-    private const StateEnum STATE = StateEnum::GAME_POLLS_CHOICE;
+    private const StateEnum STATE = StateEnum::GamePollsChoice;
     private const string POLL_PREFIX = 'poll_';
 
     public function handleInput(string $input, UserContext $context): void
@@ -41,6 +41,6 @@ class GamePollsChoiceState extends AbstractState implements UserState
             return self::STATE;
         }
 
-        return StateEnum::GAME_TITLE_WAITING;
+        return StateEnum::GameTitleWaiting;
     }
 }

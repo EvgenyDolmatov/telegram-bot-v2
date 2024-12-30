@@ -11,7 +11,7 @@ use App\States\UserState;
 
 class SubjectChoiceState extends AbstractState implements UserState
 {
-    private const StateEnum STATE = StateEnum::POLL_SUBJECT_CHOICE;
+    private const StateEnum STATE = StateEnum::PollSubjectChoice;
 
     public function handleInput(string $input, UserContext $context): void
     {
@@ -38,6 +38,6 @@ class SubjectChoiceState extends AbstractState implements UserState
 
         return $subject->has_child
             ? self::STATE
-            : StateEnum::POLL_THEME_WAITING;
+            : StateEnum::PollThemeWaiting;
     }
 }

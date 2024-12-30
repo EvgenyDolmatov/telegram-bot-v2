@@ -7,7 +7,7 @@ use App\States\AbstractState;
 
 class NewsletterConfirmationState extends AbstractState
 {
-    private const StateEnum STATE = StateEnum::ADMIN_NEWSLETTER_CONFIRMATION;
+    private const StateEnum STATE = StateEnum::AdminNewsletterConfirmation;
 
     public function handleInput(string $input, $context): void
     {

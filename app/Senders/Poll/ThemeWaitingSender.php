@@ -12,8 +12,8 @@ class ThemeWaitingSender extends AbstractSender
         $this->addToTrash();
 
         $this->sendMessage(
-            text: StateEnum::POLL_THEME_WAITING->title(),
-            buttons: StateEnum::POLL_THEME_WAITING->buttons()
+            text: StateEnum::PollThemeWaiting->title(),
+            buttons: StateEnum::PollThemeWaiting->buttons()
         );
     }
 }

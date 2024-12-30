@@ -11,6 +11,6 @@ class AccountSender extends AbstractSender
     {
         $this->addToTrash();
 
-        $this->sendMessage(StateEnum::ACCOUNT->title(), StateEnum::ACCOUNT->buttons());
+        $this->sendMessage(StateEnum::Account->title(), StateEnum::Account->buttons());
     }
 }

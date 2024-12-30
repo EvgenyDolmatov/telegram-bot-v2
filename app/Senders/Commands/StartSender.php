@@ -17,8 +17,8 @@ class StartSender extends AbstractSender
 
         $this->sendPhoto(
             imageUrl: asset('assets/img/start.png'),
-            text: StateEnum::START->title(),
-            buttons: StateEnum::START->buttons()
+            text: StateEnum::Start->title(),
+            buttons: StateEnum::Start->buttons()
         );
     }
 }

@@ -28,14 +28,14 @@ return new class extends Migration
         });
 
         DB::table('states')->insert([
-            [self::CODE => StateEnum::START->value],
-            [self::CODE => StateEnum::POLL_TYPE_CHOICE->value],
-            [self::CODE => StateEnum::POLL_ANONYMITY_CHOICE->value],
-            [self::CODE => StateEnum::POLL_DIFFICULTY_CHOICE->value],
-            [self::CODE => StateEnum::POLL_SECTOR_CHOICE->value],
-            [self::CODE => StateEnum::POLL_SUBJECT_CHOICE->value],
-            [self::CODE => StateEnum::POLL_THEME_WAITING->value],
-            [self::CODE => StateEnum::POLL_AI_RESPONDED_CHOICE->value],
+            [self::CODE => StateEnum::Start->value],
+            [self::CODE => StateEnum::PollTypeChoice->value],
+            [self::CODE => StateEnum::PollAnonymityChoice->value],
+            [self::CODE => StateEnum::PollDifficultyChoice->value],
+            [self::CODE => StateEnum::PollSectorChoice->value],
+            [self::CODE => StateEnum::PollSubjectChoice->value],
+            [self::CODE => StateEnum::PollThemeWaiting->value],
+            [self::CODE => StateEnum::PollAiRespondedChoice->value],
         ]);
     }
 

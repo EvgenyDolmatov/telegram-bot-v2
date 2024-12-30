@@ -10,7 +10,7 @@ use App\States\UserState;
 
 class ThemeWaitingState extends AbstractState implements UserState
 {
-    private const StateEnum STATE = StateEnum::POLL_THEME_WAITING;
+    private const StateEnum STATE = StateEnum::PollThemeWaiting;
 
     public function handleInput(string $input, UserContext $context): void
     {
@@ -31,6 +31,6 @@ class ThemeWaitingState extends AbstractState implements UserState
             return $baseState->backState();
         }
 
-        return StateEnum::POLL_AI_RESPONDED_CHOICE;
+        return StateEnum::PollAiRespondedChoice;
     }
 }

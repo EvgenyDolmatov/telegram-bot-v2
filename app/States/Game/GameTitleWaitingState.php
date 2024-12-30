@@ -10,7 +10,7 @@ use App\States\UserState;
 
 class GameTitleWaitingState extends AbstractState implements UserState
 {
-    private const StateEnum STATE = StateEnum::GAME_TITLE_WAITING;
+    private const StateEnum STATE = StateEnum::GameTitleWaiting;
 
     public function handleInput(string $input, UserContext $context): void
     {
@@ -33,6 +33,6 @@ class GameTitleWaitingState extends AbstractState implements UserState
             return $baseState->backState();
         }
 
-        return StateEnum::GAME_DESCRIPTION_WAITING;
+        return StateEnum::GameDescriptionWaiting;
     }
 }

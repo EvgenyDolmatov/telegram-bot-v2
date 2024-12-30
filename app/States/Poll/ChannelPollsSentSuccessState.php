@@ -9,7 +9,7 @@ use App\States\UserState;
 
 class ChannelPollsSentSuccessState extends AbstractState implements UserState
 {
-    private const StateEnum STATE = StateEnum::CHANNEL_POLLS_SENT_SUCCESS;
+    private const StateEnum STATE = StateEnum::ChannelPollsSentSuccess;
 
     public function handleInput(string $input, UserContext $context): void
     {

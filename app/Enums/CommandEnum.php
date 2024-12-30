@@ -12,10 +12,10 @@ enum CommandEnum: string
     public function toState(): StateEnum
     {
         return match ($this) {
-            self::ACCOUNT => StateEnum::ACCOUNT,
-            self::ADMIN => StateEnum::ADMIN,
+            self::ACCOUNT => StateEnum::Account,
+            self::ADMIN => StateEnum::Admin,
             self::HELP => StateEnum::HELP,
-            self::START => StateEnum::START,
+            self::START => StateEnum::Start,
         };
     }
 

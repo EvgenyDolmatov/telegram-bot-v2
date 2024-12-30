@@ -7,7 +7,7 @@ use App\States\AbstractState;
 
 class NewsletterSentSuccessState extends AbstractState
 {
-    private const StateEnum STATE = StateEnum::ADMIN_NEWSLETTER_SENT_SUCCESS;
+    private const StateEnum STATE = StateEnum::AdminNewsletterSentSuccess;
 
     public function handleInput(string $input, $context): void
     {

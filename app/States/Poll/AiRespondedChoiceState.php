@@ -11,7 +11,7 @@ use App\States\UserState;
 
 class AiRespondedChoiceState extends AbstractState implements UserState
 {
-    private const StateEnum STATE = StateEnum::POLL_AI_RESPONDED_CHOICE;
+    private const StateEnum STATE = StateEnum::PollAiRespondedChoice;
 
     public function handleInput(string $input, UserContext $context): void
     {
@@ -46,8 +46,8 @@ class AiRespondedChoiceState extends AbstractState implements UserState
 
         if ($lastFlow) {
             $data = $lastFlow->flow ? json_decode($lastFlow->flow, true): null;
-            if ($data && array_key_exists(StateEnum::POLL_AI_RESPONDED_CHOICE->value, $data)) {
-                unset($data[StateEnum::POLL_AI_RESPONDED_CHOICE->value]);
+            if ($data && array_key_exists(StateEnum::PollAiRespondedChoice->value, $data)) {
+                unset($data[StateEnum::PollAiRespondedChoice->value]);
             }
 
             UserFlow::create([

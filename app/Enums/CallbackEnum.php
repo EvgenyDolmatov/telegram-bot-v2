@@ -21,71 +21,71 @@ enum CallbackEnum: string
     case RepeatFlow = 'repeat_flow';
 
     /** Game */
-    case GAME_CREATE = 'game_create';
-    case GAME_POLLS_SAVE = 'game_polls_save';
-    case GAME_TITLE_SAVE = 'game_title_save';
-    case GAME_DESCRIPTION_SAVE = 'game_description_save';
-    case GAME_TIME_LIMIT_SAVE = 'game_time_limit_save';
-    case GAME_CHANNEL_SAVE = 'game_channel_save';
+    case GameCreate = 'game_create';
+    case GamePollsSave = 'game_polls_save';
+    case GameTitleSave = 'game_title_save';
+    case GameDescriptionSave = 'game_description_save';
+    case GameTimeLimitSave = 'game_time_limit_save';
+    case GameChannelSave = 'game_channel_save';
     case GameQuizStart = 'game_quiz_start';
     case GameJoinUserToQuiz = 'game_join_user_to_quiz'; // Show in communities
 
     /** Account */
-    case ACCOUNT_REFERRAL_LINK = 'account_referral_link';
-    case ACCOUNT_REFERRED_USERS = 'account_referred_users';
+    case AccountReferralLink = 'account_referral_link';
+    case AccountReferredUsers = 'account_referred_users';
 
     /** Admin */
-    case ADMIN_NEWSLETTER_CREATE = 'admin_newsletter_create';
-    case ADMIN_NEWSLETTER_CHANGE = 'admin_newsletter_change';
-    case ADMIN_NEWSLETTER_ACCEPT = 'admin_newsletter_accept';
-    case ADMIN_STATISTIC_MENU = 'admin_statistic_menu';
-    case ADMIN_STATISTIC_POLLS = 'admin_statistic_polls';
-    case ADMIN_STATISTIC_POLLS_PER_YEAR = 'admin_statistic_polls_per_year';
-    case ADMIN_STATISTIC_POLLS_PER_QUARTER = 'admin_statistic_polls_per_quarter';
-    case ADMIN_STATISTIC_POLLS_PER_MONTH = 'admin_statistic_polls_per_month';
-    case ADMIN_STATISTIC_POLLS_PER_WEEK = 'admin_statistic_polls_per_week';
-    case ADMIN_STATISTIC_POLLS_PER_DAY = 'admin_statistic_polls_per_day';
-    case ADMIN_STATISTIC_USERS = 'admin_statistic_users';
-    case ADMIN_STATISTIC_USERS_PER_DAY = 'admin_statistic_users_per_day';
+    case AdminNewsletterCreate = 'admin_newsletter_create';
+    case AdminNewsletterChange = 'admin_newsletter_change';
+    case AdminNewsletterAccept = 'admin_newsletter_accept';
+    case AdminStatisticMenu = 'admin_statistic_menu';
+    case AdminStatisticPolls = 'admin_statistic_polls';
+    case AdminStatisticPollsPerYear = 'admin_statistic_polls_per_year';
+    case AdminStatisticPollsPerQuarter = 'admin_statistic_polls_per_quarter';
+    case AdminStatisticPollsPerMonth = 'admin_statistic_polls_per_month';
+    case AdminStatisticPollsPerWeek = 'admin_statistic_polls_per_week';
+    case AdminStatisticPollsPerDay = 'admin_statistic_polls_per_day';
+    case AdminStatisticUsers = 'admin_statistic_users';
+    case AdminStatisticUsersPerDay = 'admin_statistic_users_per_day';
 
     public function toState(): StateEnum
     {
         return match ($this) {
-            self::CreateSurvey => StateEnum::POLL_TYPE_CHOICE,
-            self::Support => StateEnum::POLL_SUPPORT,
+            self::CreateSurvey => StateEnum::PollTypeChoice,
+            self::Support => StateEnum::PollSupport,
             self::TypeQuiz,
-            self::TypeSurvey => StateEnum::POLL_ANONYMITY_CHOICE,
+            self::TypeSurvey => StateEnum::PollAnonymityChoice,
             self::IsAnon,
-            self::IsNotAnon => StateEnum::POLL_DIFFICULTY_CHOICE,
+            self::IsNotAnon => StateEnum::PollDifficultyChoice,
             self::LevelHard,
             self::LevelMiddle,
             self::LevelEasy,
-            self::LevelAny => StateEnum::POLL_SECTOR_CHOICE,
-            self::RepeatFlow => StateEnum::POLL_AI_RESPONDED_CHOICE,
+            self::LevelAny => StateEnum::PollSectorChoice,
+            self::RepeatFlow => StateEnum::PollAiRespondedChoice,
             /** Game */
-            self::GAME_CREATE => StateEnum::GAME_POLLS_CHOICE,
-            self::GAME_POLLS_SAVE => StateEnum::GAME_TITLE_WAITING,
-            self::GAME_TITLE_SAVE => StateEnum::GAME_DESCRIPTION_WAITING,
-            self::GAME_DESCRIPTION_SAVE => StateEnum::GAME_TIME_LIMIT_WAITING,
-            self::GAME_TIME_LIMIT_SAVE => StateEnum::GAME_CHANNEL_WAITING,
-            self::GAME_CHANNEL_SAVE => StateEnum::GAME_CREATED_SUCCESS_SHOW,
+            self::GameCreate => StateEnum::GamePollsChoice,
+            self::GamePollsSave => StateEnum::GameTitleWaiting,
+            self::GameTitleSave => StateEnum::GameDescriptionWaiting,
+            self::GameDescriptionSave => StateEnum::GameTimeLimitWaiting,
+            self::GameTimeLimitSave => StateEnum::GameChannelWaiting,
+            self::GameChannelSave => StateEnum::GameCreatedSuccessShow,
             self::GameQuizStart => StateEnum::GamePlayersWaiting,
             self::GameJoinUserToQuiz => StateEnum::GameQuizProcess,
 
-            self::ACCOUNT_REFERRAL_LINK => StateEnum::ACCOUNT_REFERRAL_LINK_SHOW,
-            self::ACCOUNT_REFERRED_USERS => StateEnum::ACCOUNT_REFERRED_USERS_SHOW,
-            self::ADMIN_NEWSLETTER_CREATE,
-            self::ADMIN_NEWSLETTER_CHANGE => StateEnum::ADMIN_NEWSLETTER_WAITING,
-            self::ADMIN_NEWSLETTER_ACCEPT => StateEnum::ADMIN_NEWSLETTER_SENT_SUCCESS,
-            self::ADMIN_STATISTIC_MENU => StateEnum::ADMIN_STATISTIC_MENU_CHOICE,
-            self::ADMIN_STATISTIC_POLLS => StateEnum::ADMIN_STATISTIC_POLLS_MENU_CHOICE,
-            self::ADMIN_STATISTIC_POLLS_PER_YEAR => StateEnum::ADMIN_STATISTIC_POLLS_PER_YEAR_SHOW,
-            self::ADMIN_STATISTIC_POLLS_PER_QUARTER => StateEnum::ADMIN_STATISTIC_POLLS_PER_QUARTER_SHOW,
-            self::ADMIN_STATISTIC_POLLS_PER_MONTH => StateEnum::ADMIN_STATISTIC_POLLS_PER_MONTH_SHOW,
-            self::ADMIN_STATISTIC_POLLS_PER_WEEK => StateEnum::ADMIN_STATISTIC_POLLS_PER_WEEK_SHOW,
-            self::ADMIN_STATISTIC_POLLS_PER_DAY => StateEnum::ADMIN_STATISTIC_POLLS_PER_DAY_SHOW,
-            self::ADMIN_STATISTIC_USERS => StateEnum::ADMIN_STATISTIC_USERS_MENU_CHOICE,
-            self::ADMIN_STATISTIC_USERS_PER_DAY => StateEnum::ADMIN_STATISTIC_USERS_PER_DAY_SHOW,
+            self::AccountReferralLink => StateEnum::AccountReferralLinkShow,
+            self::AccountReferredUsers => StateEnum::AccountReferredUsersShow,
+            self::AdminNewsletterCreate,
+            self::AdminNewsletterChange => StateEnum::AdminNewsletterWaiting,
+            self::AdminNewsletterAccept => StateEnum::AdminNewsletterSentSuccess,
+            self::AdminStatisticMenu => StateEnum::AdminStatisticMenuChoice,
+            self::AdminStatisticPolls => StateEnum::AdminStatisticPollsMenuChoice,
+            self::AdminStatisticPollsPerYear => StateEnum::AdminStatisticPollsPerYearShow,
+            self::AdminStatisticPollsPerQuarter => StateEnum::AdminStatisticPollsPerQuarterShow,
+            self::AdminStatisticPollsPerMonth => StateEnum::AdminStatisticPollsPerMonthShow,
+            self::AdminStatisticPollsPerWeek => StateEnum::AdminStatisticPollsPerWeekShow,
+            self::AdminStatisticPollsPerDay => StateEnum::AdminStatisticPollsPerDayShow,
+            self::AdminStatisticUsers => StateEnum::AdminStatisticUsersMenuChoice,
+            self::AdminStatisticUsersPerDay => StateEnum::AdminStatisticUsersPerDayShow,
         };
     }
 
@@ -104,28 +104,28 @@ enum CallbackEnum: string
             self::LevelEasy => "Низкая сложность",
             self::LevelAny => "Любая сложность",
             self::RepeatFlow => "🔄 Создать еще 5 вопросов",
-            self::GAME_CREATE => "🎲 Создать игру для канала",
-            self::GAME_POLLS_SAVE => "Сохранить выбранные вопросы",
-            self::GAME_TITLE_SAVE => "Сохранить название",
-            self::GAME_DESCRIPTION_SAVE => "Сохранить описание",
-            self::GAME_TIME_LIMIT_SAVE => "Сохранить ограничение по времени",
-            self::GAME_CHANNEL_SAVE => "Сохранить канал",
+            self::GameCreate => "🎲 Создать игру для канала",
+            self::GamePollsSave => "Сохранить выбранные вопросы",
+            self::GameTitleSave => "Сохранить название",
+            self::GameDescriptionSave => "Сохранить описание",
+            self::GameTimeLimitSave => "Сохранить ограничение по времени",
+            self::GameChannelSave => "Сохранить канал",
             self::GameQuizStart => "Отправить в канал",
             self::GameJoinUserToQuiz => "Присоединиться к викторине",
-            self::ACCOUNT_REFERRAL_LINK => "Моя реферальная ссылка",
-            self::ACCOUNT_REFERRED_USERS => "Приглашенные пользователи",
-            self::ADMIN_NEWSLETTER_CREATE => 'Создать рассылку',
-            self::ADMIN_NEWSLETTER_CHANGE => '❌ Загрузить другое сообщение',
-            self::ADMIN_NEWSLETTER_ACCEPT => '✅ Все верно, отправить сообщение всем участникам!',
-            self::ADMIN_STATISTIC_MENU => 'Статистика бота',
-            self::ADMIN_STATISTIC_POLLS => 'Статистика тестов',
-            self::ADMIN_STATISTIC_POLLS_PER_YEAR => 'За год',
-            self::ADMIN_STATISTIC_POLLS_PER_QUARTER => 'За квартал',
-            self::ADMIN_STATISTIC_POLLS_PER_MONTH => 'За месяц',
-            self::ADMIN_STATISTIC_POLLS_PER_WEEK => 'За неделю',
-            self::ADMIN_STATISTIC_POLLS_PER_DAY => 'За сегодня',
-            self::ADMIN_STATISTIC_USERS => 'Статистика пользователей',
-            self::ADMIN_STATISTIC_USERS_PER_DAY => 'Новые пользователи сегодня',
+            self::AccountReferralLink => "Моя реферальная ссылка",
+            self::AccountReferredUsers => "Приглашенные пользователи",
+            self::AdminNewsletterCreate => 'Создать рассылку',
+            self::AdminNewsletterChange => '❌ Загрузить другое сообщение',
+            self::AdminNewsletterAccept => '✅ Все верно, отправить сообщение всем участникам!',
+            self::AdminStatisticMenu => 'Статистика бота',
+            self::AdminStatisticPolls => 'Статистика тестов',
+            self::AdminStatisticPollsPerYear => 'За год',
+            self::AdminStatisticPollsPerQuarter => 'За квартал',
+            self::AdminStatisticPollsPerMonth => 'За месяц',
+            self::AdminStatisticPollsPerWeek => 'За неделю',
+            self::AdminStatisticPollsPerDay => 'За сегодня',
+            self::AdminStatisticUsers => 'Статистика пользователей',
+            self::AdminStatisticUsersPerDay => 'Новые пользователи сегодня',
         };
     }
 }

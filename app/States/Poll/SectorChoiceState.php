@@ -11,7 +11,7 @@ use App\States\UserState;
 
 class SectorChoiceState extends AbstractState implements UserState
 {
-    private const StateEnum STATE = StateEnum::POLL_SECTOR_CHOICE;
+    private const StateEnum STATE = StateEnum::PollSectorChoice;
 
     public function handleInput(string $input, UserContext $context): void
     {
@@ -33,7 +33,7 @@ class SectorChoiceState extends AbstractState implements UserState
         }
 
         return Sector::where('code', $input)->first()
-            ? StateEnum::POLL_SUBJECT_CHOICE
+            ? StateEnum::PollSubjectChoice
             : self::STATE;
     }
 }

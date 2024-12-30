@@ -7,7 +7,7 @@ use App\States\AbstractState;
 
 class AdminState extends AbstractState
 {
-    private const StateEnum STATE = StateEnum::ADMIN;
+    private const StateEnum STATE = StateEnum::Admin;
 
     public function handleInput(string $input, $context): void
     {

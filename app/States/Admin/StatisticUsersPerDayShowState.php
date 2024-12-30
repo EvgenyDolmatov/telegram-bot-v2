@@ -9,7 +9,7 @@ use App\States\UserState;
 
 class StatisticUsersPerDayShowState extends AbstractState implements UserState
 {
-    private const StateEnum STATE = StateEnum::ADMIN_STATISTIC_USERS_PER_DAY_SHOW;
+    private const StateEnum STATE = StateEnum::AdminStatisticUsersPerDayShow;
 
     public function handleInput(string $input, UserContext $context): void
     {

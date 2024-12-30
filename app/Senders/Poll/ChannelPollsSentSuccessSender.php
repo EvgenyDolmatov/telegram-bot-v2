@@ -18,8 +18,8 @@ class ChannelPollsSentSuccessSender extends AbstractSender
         $this->sendPollsToChannel();
 
         $this->sendMessage(
-            text: StateEnum::CHANNEL_POLLS_SENT_SUCCESS->title(),
-            buttons: StateEnum::CHANNEL_POLLS_SENT_SUCCESS->buttons()
+            text: StateEnum::ChannelPollsSentSuccess->title(),
+            buttons: StateEnum::ChannelPollsSentSuccess->buttons()
         );
     }
 

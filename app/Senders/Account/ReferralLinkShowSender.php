@@ -20,7 +20,7 @@ class ReferralLinkShowSender extends AbstractSender
         $this->sendPhoto(
             imageUrl: asset('assets/img/referral.png'),
             text: $text,
-            buttons: StateEnum::ACCOUNT_REFERRAL_LINK_SHOW->buttons()
+            buttons: StateEnum::AccountReferralLinkShow->buttons()
         );
     }
 }

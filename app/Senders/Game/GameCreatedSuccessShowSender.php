@@ -7,7 +7,7 @@ use App\Senders\AbstractSender;
 
 class GameCreatedSuccessShowSender extends AbstractSender
 {
-    private const StateEnum STATE = StateEnum::GAME_CREATED_SUCCESS_SHOW;
+    private const StateEnum STATE = StateEnum::GameCreatedSuccessShow;
 
     public function send(): void
     {
