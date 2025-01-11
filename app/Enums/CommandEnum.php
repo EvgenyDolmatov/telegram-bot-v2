@@ -4,28 +4,23 @@ namespace App\Enums;
 
 enum CommandEnum: string
 {
-    case ACCOUNT = 'account';
-    case ADMIN = 'admin';
-    case HELP = 'help';
-    case START = 'start';
+    case Account = 'account';
+    case Admin = 'admin';
+    case Help = 'help';
+    case Start = 'start';
 
     public function toState(): StateEnum
     {
         return match ($this) {
-            self::ACCOUNT => StateEnum::Account,
-            self::ADMIN => StateEnum::Admin,
-            self::HELP => StateEnum::HELP,
-            self::START => StateEnum::Start,
+            self::Account => StateEnum::Account,
+            self::Admin => StateEnum::Admin,
+            self::Help => StateEnum::HELP,
+            self::Start => StateEnum::Start,
         };
     }
 
     public function getCommand(): string
     {
-        return match ($this) {
-            self::ACCOUNT => '/' . self::ACCOUNT->value,
-            self::ADMIN => '/' . self::ADMIN->value,
-            self::HELP => '/' . self::HELP->value,
-            self::START => '/' . self::START->value,
-        };
+        return '/' . $this->value;
     }
 }

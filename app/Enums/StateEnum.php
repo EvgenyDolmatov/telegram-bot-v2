@@ -22,6 +22,7 @@ use App\Senders\Admin\StatisticUsersPerDayShowSender;
 use App\Senders\Commands\AccountSender;
 use App\Senders\Commands\AdminSender;
 use App\Senders\Commands\HelpSender;
+use App\Senders\Commands\SetGroupSender;
 use App\Senders\Commands\StartSender;
 use App\Senders\Game\GameChannelWaitingSender;
 use App\Senders\Game\GameCreatedSuccessShowSender;
@@ -257,14 +258,14 @@ enum StateEnum: string
     public function title(): string
     {
         return match ($this) {
-            self::Start => "Привет! Выбери вариант:",
-            self::PollTypeChoice => "Выберите тип опроса:",
+            self::Start => "<b>Это бот Corgish.</b>\n\nВы можете создавать и проводить многопользовательские онлайн-викторины и опросы с помощью Corgish AI или вручную.\n\n<b>Бот умеет:</b>\n- создавать онлайн-викторины,\n- отправлять викторины в группы,\n- выдавать статистику.\n\nСписок команд:",
+            self::PollTypeChoice => "<b>Викторина</b>\nМногопользовательская игра\n\n<b>Опрос</b>\nСоздаст список вопросов для исследования вашей аудитории\n\nВыберите тип игры:",
             self::PollSupport => "Если у вас есть вопросы, напишите мне в личные сообщения: <a href='https://t.me/nkm_studio'>https://t.me/nkm_studio</a>",
             self::PollAnonymityChoice => "Опрос будет анонимный?",
             self::PollDifficultyChoice => "Выберите сложность вопросов:",
             self::PollSectorChoice => "Выберите направление:",
             self::PollSubjectChoice => "Выберите предмет:",
-            self::PollThemeWaiting => "Введите свой вопрос:",
+            self::PollThemeWaiting => "<b>Введите запрос:</b>\n<b>Например для темы «Игры»:</b>\n\nРоблокс, Mega Hide and Seak, Фишки и скрытые эффекты.\n\nℹ️ От точности формулировки зависит результат вопросов и ответов.",
             self::PollAiRespondedChoice => "Выберите, что делать дальше:",
 
             self::GamePollsChoice => "Выберите, какие вопросы нужно отправить?",
@@ -302,6 +303,11 @@ enum StateEnum: string
             self::Start => [
                 new ButtonDto(CallbackEnum::CreateSurvey->value, CallbackEnum::CreateSurvey->buttonText()),
                 new ButtonDto(CallbackEnum::Support->value, CallbackEnum::Support->buttonText()),
+                new ButtonDto(
+                    callbackData: "",
+                    text: "test",
+                    url: 'https://t.me/DevTest067Bot?startgroup=start'
+                ),
             ],
             self::PollTypeChoice => [
                 new ButtonDto(CallbackEnum::TypeQuiz->value, CallbackEnum::TypeQuiz->buttonText()),
@@ -340,35 +346,35 @@ enum StateEnum: string
             ],
             self::PollAiRespondedChoice => [
                 new ButtonDto(CallbackEnum::RepeatFlow->value, CallbackEnum::RepeatFlow->buttonText()),
+                new ButtonDto(CommandEnum::Start->getCommand(), '↩️ Выбрать другую тему'),
                 new ButtonDto(CallbackEnum::GameCreate->value, CallbackEnum::GameCreate->buttonText()),
-                new ButtonDto(CommandEnum::START->getCommand(), '↩️ Выбрать другую тему'),
             ],
 
             self::GameCreatedSuccessShow => [
                 new ButtonDto(CallbackEnum::GameQuizStart->value, CallbackEnum::GameQuizStart->buttonText()),
-                new ButtonDto(CommandEnum::START->getCommand(), "↩️ Вернуться в начало")
+                new ButtonDto(CommandEnum::Start->getCommand(), "↩️ Вернуться в начало")
             ],
             self::GamePlayersWaiting => [
-                new ButtonDto(CommandEnum::START->getCommand(), "↩️ Вернуться в начало")
+                new ButtonDto(CommandEnum::Start->getCommand(), "↩️ Вернуться в начало")
             ],
 
             self::Account => [
                 new ButtonDto(CallbackEnum::AccountReferredUsers->value, CallbackEnum::AccountReferredUsers->buttonText()),
                 new ButtonDto(CallbackEnum::AccountReferralLink->value, CallbackEnum::AccountReferralLink->buttonText()),
-                new ButtonDto(CommandEnum::START->getCommand(), "↩️ Вернуться в начало")
+                new ButtonDto(CommandEnum::Start->getCommand(), "↩️ Вернуться в начало")
             ],
 
             self::Admin => [
                 new ButtonDto(CallbackEnum::AdminNewsletterCreate->value, CallbackEnum::AdminNewsletterCreate->buttonText()),
                 new ButtonDto(CallbackEnum::AdminStatisticMenu->value, CallbackEnum::AdminStatisticMenu->buttonText()),
-                new ButtonDto(CommandEnum::START->getCommand(), '↩️ Вернуться в начало')
+                new ButtonDto(CommandEnum::Start->getCommand(), '↩️ Вернуться в начало')
             ],
             self::AdminNewsletterConfirmation => [
                 new ButtonDto(CallbackEnum::AdminNewsletterAccept->value, CallbackEnum::AdminNewsletterAccept->buttonText()),
                 new ButtonDto(CallbackEnum::AdminNewsletterChange->value, CallbackEnum::AdminNewsletterChange->buttonText()),
             ],
             self::AdminNewsletterSentSuccess => [
-                new ButtonDto(CommandEnum::ADMIN->value, '↩️ Вернуться в начало')
+                new ButtonDto(CommandEnum::Admin->value, '↩️ Вернуться в начало')
             ],
             self::AdminStatisticMenuChoice => [
                 new ButtonDto(CallbackEnum::AdminStatisticPolls->value, CallbackEnum::AdminStatisticPolls->buttonText()),

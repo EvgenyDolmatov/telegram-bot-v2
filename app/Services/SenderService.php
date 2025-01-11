@@ -130,13 +130,17 @@ readonly class SenderService
     public function addButtonsToBody(array $buttons, array $body): array
     {
         if (count($buttons) !== 0) {
-            foreach ($buttons as $button) {
+            foreach ($buttons as $key => $button) {
                 $body['reply_markup']['inline_keyboard'][] = [
                     [
                         'text' => $button->getText(),
                         'callback_data' => $button->getCallbackData()
                     ]
                 ];
+
+                if ($button->getUrl() !== null) {
+                    $body['reply_markup']['inline_keyboard'][$key][0]['url'] = $button->getUrl();
+                }
             }
         }
 
@@ -297,6 +301,12 @@ readonly class SenderService
 
     private function getChatId(?int $chatId = null): int
     {
+        $dto = $this->repository->createDto();
+
+        if (method_exists($dto, 'getChat')) {
+            return $dto->getChat()->getId();
+        }
+
         return $chatId ?? $this->getMessageDto()->getChat()->getId();
     }
 }

@@ -2,21 +2,27 @@
 
 namespace App\Handlers\Message;
 
+use App\Builder\Message\MessageBuilder;
+use App\Builder\MessageSender;
 use App\Dto\Telegram\MessageDto;
-use App\Enums\StateEnum;
 use App\Models\Game;
-use App\States\UserContext;
+use App\Services\SenderService;
 
 class CommunityHandler extends AbstractHandler
 {
     public function handle(string $message): void
     {
-        $game = $this->getGame($this->getMessageDto());
-        $organizer = $game->organizer;
+//        $game = $this->getGame($this->getMessageDto());
+//        $organizer = $game->organizer;
 
-        $state = StateEnum::from($organizer->getCurrentState()->code);
-        $userContext = new UserContext($state->userState($this->repository, $this->telegramService));
-        $userContext->handleInput($message);
+//        $state = StateEnum::from($organizer->getCurrentState()->code);
+//        $userContext = new UserContext($state->userState($this->repository, $this->telegramService));
+//        $userContext->handleInput($message);
+
+        $msg = (new MessageSender())->setBuilder(new MessageBuilder())->createMessage("Hello, Bro!");
+
+        (new SenderService($this->repository, $this->telegramService))
+            ->sendMessage($msg, false, -1002401365163);
     }
 
     private function getGame(MessageDto $dto): Game

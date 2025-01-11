@@ -93,10 +93,10 @@ enum CallbackEnum: string
     {
         return match ($this) {
             self::Back => "↩️ Назад",
-            self::CreateSurvey => "Создать тест",
+            self::CreateSurvey => "Создать с Corgish AI",
             self::Support => "Поддержка",
-            self::TypeQuiz => "Викторина (1 вариант ответа)",
-            self::TypeSurvey => "Опрос (несколько вариантов)",
+            self::TypeQuiz => "Викторина",
+            self::TypeSurvey => "Опрос",
             self::IsAnon => "Да",
             self::IsNotAnon => "Нет",
             self::LevelHard => "Высокая сложность",
@@ -104,7 +104,7 @@ enum CallbackEnum: string
             self::LevelEasy => "Низкая сложность",
             self::LevelAny => "Любая сложность",
             self::RepeatFlow => "🔄 Создать еще 5 вопросов",
-            self::GameCreate => "🎲 Создать игру для канала",
+            self::GameCreate => "🎲 Завершить",
             self::GamePollsSave => "Сохранить выбранные вопросы",
             self::GameTitleSave => "Сохранить название",
             self::GameDescriptionSave => "Сохранить описание",

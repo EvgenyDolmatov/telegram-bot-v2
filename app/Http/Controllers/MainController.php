@@ -20,14 +20,15 @@ class MainController extends Controller
 
         Log::debug(json_encode($request->all()));
 
-        $repository = (new RequestStrategy($request))->defineRepository();
+        $requestStrategy = new RequestStrategy($request);
+        $repository = $requestStrategy->defineRepository();
 
         // Prepare message to delete on next step
         if (method_exists($repository->createDto(), 'getChat')) {
             $repository->addToTrash();
         }
 
-        $strategy = new MessageStrategy($telegram, $repository);
-        $strategy->defineHandler()->process();
+        $messageStrategy = new MessageStrategy($telegram, $repository);
+        $messageStrategy->defineHandler()->process();
     }
 }

@@ -160,7 +160,7 @@ class User extends Model
      */
     public function addReferredUser(string $message): void
     {
-        if (str_starts_with($message, CommandEnum::START->value) && str_contains($message, ' ')) {
+        if (str_starts_with($message, CommandEnum::Start->value) && str_contains($message, ' ')) {
             $messageData = explode(' ', $message);
             $referralCode = $messageData[1];
             $parentUser = User::where('referrer_link', $referralCode)->first();

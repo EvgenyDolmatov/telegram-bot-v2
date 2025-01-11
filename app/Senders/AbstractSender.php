@@ -44,7 +44,7 @@ abstract class AbstractSender implements SenderInterface
     protected function someProblemMessage(): void
     {
         $text = "Что-то пошло не так. Попробуйте еще раз...";
-        $buttons = [new ButtonDto('/' . CommandEnum::START->value, 'Начать сначала')];
+        $buttons = [new ButtonDto('/' . CommandEnum::Start->value, 'Начать сначала')];
 
         $this->sendMessage($text, $buttons);
     }
@@ -52,7 +52,7 @@ abstract class AbstractSender implements SenderInterface
     protected function subscribeToCommunity(): void
     {
         $text = "Подпишись на <a href='https://t.me/corgish_ru'>наш канал</a>, чтобы продолжить...";
-        $buttons = [new ButtonDto('/' . CommandEnum::START->value, 'Я подписался')];
+        $buttons = [new ButtonDto('/' . CommandEnum::Start->value, 'Я подписался')];
 
         $this->sendMessage($text, $buttons);
     }
