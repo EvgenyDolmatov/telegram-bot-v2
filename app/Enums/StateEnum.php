@@ -22,7 +22,6 @@ use App\Senders\Admin\StatisticUsersPerDayShowSender;
 use App\Senders\Commands\AccountSender;
 use App\Senders\Commands\AdminSender;
 use App\Senders\Commands\HelpSender;
-use App\Senders\Commands\SetGroupSender;
 use App\Senders\Commands\StartSender;
 use App\Senders\Game\GameChannelWaitingSender;
 use App\Senders\Game\GameCreatedSuccessShowSender;
@@ -31,6 +30,7 @@ use App\Senders\Game\GamePlayersWaitingSender;
 use App\Senders\Game\GamePollsChoiceSender;
 use App\Senders\Game\GameTimeLimitWaitingSender;
 use App\Senders\Game\GameTitleWaitingSender;
+use App\Senders\Poll\AfterResultChoiceSender;
 use App\Senders\Poll\AiRespondedChoiceSender;
 use App\Senders\Poll\AnonymityChoiceSender;
 use App\Senders\Poll\DifficultyChoiceSender;
@@ -65,6 +65,7 @@ use App\States\Game\GamePollsChoiceState;
 use App\States\Game\GameTimeLimitWaitingState;
 use App\States\Game\GameTitleWaitingState;
 use App\States\Help\HelpState;
+use App\States\Poll\AfterResultChoiceState;
 use App\States\Poll\AiRespondedChoiceState;
 use App\States\Poll\AnonymityChoiceState;
 use App\States\Poll\DifficultyChoiceState;
@@ -88,6 +89,7 @@ enum StateEnum: string
     case PollSubjectChoice = 'poll_subject_choice';
     case PollThemeWaiting = 'poll_theme_waiting';
     case PollAiRespondedChoice = 'poll_ai_responded_choice';
+    case PollAfterResultChoice = 'poll_after_result_choice';
 
     /** Game */
     case GamePollsChoice = 'game_polls_choice';
@@ -142,6 +144,7 @@ enum StateEnum: string
             self::PollSubjectChoice => new SubjectChoiceState($repository, $telegramService),
             self::PollThemeWaiting => new ThemeWaitingState($repository, $telegramService),
             self::PollAiRespondedChoice => new AiRespondedChoiceState($repository, $telegramService),
+            self::PollAfterResultChoice => new AfterResultChoiceState($repository, $telegramService),
             /** Game states */
             self::GamePollsChoice => new GamePollsChoiceState($repository, $telegramService),
             self::GameTitleWaiting => new GameTitleWaitingState($repository, $telegramService),
@@ -185,6 +188,7 @@ enum StateEnum: string
             self::PollSupport,
             self::PollTypeChoice,
             self::PollAiRespondedChoice,
+            self::PollAfterResultChoice,
             self::GamePollsChoice,
             self::GameCreatedSuccessShow,
             self::GamePlayersWaiting => self::Start,
@@ -228,6 +232,7 @@ enum StateEnum: string
             self::PollSubjectChoice => new SubjectChoiceSender($repository, $telegramService, $user),
             self::PollThemeWaiting => new ThemeWaitingSender($repository, $telegramService, $user),
             self::PollAiRespondedChoice => new AiRespondedChoiceSender($repository, $telegramService, $user),
+            self::PollAfterResultChoice => new AfterResultChoiceSender($repository, $telegramService, $user),
 
             self::GamePollsChoice => new GamePollsChoiceSender($repository, $telegramService, $user),
             self::GameTitleWaiting => new GameTitleWaitingSender($repository, $telegramService, $user),
@@ -267,6 +272,7 @@ enum StateEnum: string
             self::PollSubjectChoice => "Выберите предмет:",
             self::PollThemeWaiting => "<b>Введите запрос:</b>\n<b>Например для темы «Игры»:</b>\n\nРоблокс, Mega Hide and Seak, Фишки и скрытые эффекты.\n\nℹ️ От точности формулировки зависит результат вопросов и ответов.",
             self::PollAiRespondedChoice => "Выберите, что делать дальше:",
+            self::PollAfterResultChoice => "<b>Вы можете создать викторину из созданных вопросов.</b>\n\nНажмите кнопку «Создать викторину», выберите вопросы, на которые будут отвечать участники",
 
             self::GamePollsChoice => "Выберите, какие вопросы нужно отправить?",
             self::GameTitleWaiting => "Введите название вашей игры:",
@@ -347,7 +353,11 @@ enum StateEnum: string
             self::PollAiRespondedChoice => [
                 new ButtonDto(CallbackEnum::RepeatFlow->value, CallbackEnum::RepeatFlow->buttonText()),
                 new ButtonDto(CommandEnum::Start->getCommand(), '↩️ Выбрать другую тему'),
+                new ButtonDto(CallbackEnum::AfterPollCreatedMenu->value, CallbackEnum::AfterPollCreatedMenu->buttonText()),
+            ],
+            self::PollAfterResultChoice => [
                 new ButtonDto(CallbackEnum::GameCreate->value, CallbackEnum::GameCreate->buttonText()),
+                new ButtonDto(CommandEnum::Start->getCommand(), "Отменить и выйти")
             ],
 
             self::GameCreatedSuccessShow => [

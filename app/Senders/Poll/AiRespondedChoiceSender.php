@@ -7,6 +7,7 @@ use App\Dto\OpenAiCompletionDto;
 use App\Enums\StateEnum;
 use App\Models\AiRequest;
 use App\Models\Poll;
+use App\Models\PollGroup;
 use App\Models\PollOption;
 use App\Models\PreparedPoll;
 use App\Models\UserFlow;
@@ -129,6 +130,8 @@ class AiRespondedChoiceSender extends AbstractSender
             $correctAnswers = '';
             $questionNumber = 0;
 
+            $messagePollIds = [];
+
             foreach ($questions as $question) {
                 $response = $this->sendPoll(
                     question: $question->getText(),
@@ -139,13 +142,28 @@ class AiRespondedChoiceSender extends AbstractSender
                     isTrash: false
                 );
 
+                $messageId = $response['result']['message_id'];
+
                 // Prepare message with correct answers
                 if ($flow->isQuiz()) {
                     $questionNumber++;
                     $questionText = trim($question->getText(), ':');
-                    $correctAnswers .= "\n\nВопрос № $questionNumber. [ID: {$response['result']['message_id']}] $questionText";
+                    $correctAnswers .= "\n\nВопрос № $questionNumber. [ID: $messageId] $questionText";
                     $correctAnswers .= "\nПравильный ответ: {$question->getOptions()[$question->getAnswer()]}";
                 }
+
+                $messagePollIds[] = $messageId;
+            }
+
+            if ($userPollGroup = PollGroup::where('user_id', $this->user->id)->where('is_closed', false)->first()) {
+                $userPollGroup->update([
+                    'poll_ids' => $userPollGroup->poll_ids . ',' . implode(',', $messagePollIds),
+                ]);
+            } else {
+                PollGroup::create([
+                    'user_id' => $this->user->id,
+                    'poll_ids' => implode(',', $messagePollIds),
+                ]);
             }
 
             // Send message with correct answers

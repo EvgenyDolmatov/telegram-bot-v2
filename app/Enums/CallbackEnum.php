@@ -19,6 +19,7 @@ enum CallbackEnum: string
     case LevelHard = 'level_hard';
     case LevelAny = 'level_any';
     case RepeatFlow = 'repeat_flow';
+    case AfterPollCreatedMenu = 'after_poll_created_menu';
 
     /** Game */
     case GameCreate = 'game_create';
@@ -62,12 +63,14 @@ enum CallbackEnum: string
             self::LevelEasy,
             self::LevelAny => StateEnum::PollSectorChoice,
             self::RepeatFlow => StateEnum::PollAiRespondedChoice,
+            self::AfterPollCreatedMenu => StateEnum::PollAfterResultChoice,
             /** Game */
-            self::GameCreate => StateEnum::GamePollsChoice,
-            self::GamePollsSave => StateEnum::GameTitleWaiting,
-            self::GameTitleSave => StateEnum::GameDescriptionWaiting,
-            self::GameDescriptionSave => StateEnum::GameTimeLimitWaiting,
+            self::GameCreate => StateEnum::GameTitleWaiting,
+            self::GameTitleSave => StateEnum::GamePollsChoice,
+            self::GamePollsSave => StateEnum::GameTimeLimitWaiting,
             self::GameTimeLimitSave => StateEnum::GameChannelWaiting,
+
+            self::GameDescriptionSave => StateEnum::GameTimeLimitWaiting, // TODO: Remove
             self::GameChannelSave => StateEnum::GameCreatedSuccessShow,
             self::GameQuizStart => StateEnum::GamePlayersWaiting,
             self::GameJoinUserToQuiz => StateEnum::GameQuizProcess,
@@ -104,7 +107,8 @@ enum CallbackEnum: string
             self::LevelEasy => "Низкая сложность",
             self::LevelAny => "Любая сложность",
             self::RepeatFlow => "🔄 Создать еще 5 вопросов",
-            self::GameCreate => "🎲 Завершить",
+            self::AfterPollCreatedMenu => "🎲 Завершить",
+            self::GameCreate => "Создать игру из вопросов",
             self::GamePollsSave => "Сохранить выбранные вопросы",
             self::GameTitleSave => "Сохранить название",
             self::GameDescriptionSave => "Сохранить описание",

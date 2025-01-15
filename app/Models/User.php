@@ -64,6 +64,11 @@ class User extends Model
         return $this->belongsTo(Role::class);
     }
 
+    public function pollGroups(): HasMany
+    {
+        return $this->hasMany(PollGroup::class, 'user_id');
+    }
+
     public static function getByRequestRepository(RepositoryInterface $repository): ?User
     {
         $telegramUserId = $repository->createDto()->getFrom()->getId();
