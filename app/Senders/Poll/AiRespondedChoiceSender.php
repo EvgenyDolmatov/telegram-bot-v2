@@ -3,6 +3,8 @@
 namespace App\Senders\Poll;
 
 use App\Builder\Poll\PollBuilder;
+use App\Dto\OpenAi\OpenAiQuestionDto;
+use App\Dto\OpenAi\OpenAiUsageDto;
 use App\Dto\OpenAiCompletionDto;
 use App\Enums\StateEnum;
 use App\Models\AiRequest;
@@ -21,6 +23,9 @@ use PHPUnit\Logging\Exception;
 
 class AiRespondedChoiceSender extends AbstractSender
 {
+    // TODO: Remove after testing
+    private const bool IS_TESTING = true;
+
     public function send(): void
     {
         $this->addToTrash();
@@ -28,7 +33,6 @@ class AiRespondedChoiceSender extends AbstractSender
         // Send message about waiting...
         $this->sendMessage('Подождите. Ваш запрос обрабатывается...');
 
-        // Get response dto from open ai
         if (!$aiCompletionDto = $this->getAiCompletionDto()) {
             $this->someProblemMessage();
             return;
@@ -53,6 +57,11 @@ class AiRespondedChoiceSender extends AbstractSender
 
     private function getAiCompletionDto(): OpenAiCompletionDto
     {
+        // TODO: Remove after testing
+        if (self::IS_TESTING) {
+            return $this->getTestCompletionDto();
+        }
+
         // Connect to OpenAI service
         $aiService = new OpenAiService($this->user);
         $aiRepository = new OpenAiRepository($aiService);
@@ -67,6 +76,74 @@ class AiRespondedChoiceSender extends AbstractSender
         }
 
         return $aiCompletionDto;
+    }
+
+    // TODO: Remove after testing
+    private function getTestCompletionDto(): OpenAiCompletionDto
+    {
+        return new OpenAiCompletionDto(
+            id: 'cmpl-uqkvlQyYK7bGYrRHQ0eXlWi7',
+            object: 'chat.completion',
+            createdAt: 1589478378,
+            model: 'gpt-4-0125-preview',
+            questions: [
+                new OpenAiQuestionDto(
+                    text: "Вопрос 1?",
+                    options: [
+                        "a" => "Ответ 1",
+                        "b" => "Ответ 2",
+                        "c" => "Ответ 3",
+                        "d" => "Ответ 4",
+                    ],
+                    answer: "a"
+                ),
+                new OpenAiQuestionDto(
+                    text: "Вопрос 2?",
+                    options: [
+                        "a" => "Ответ 1",
+                        "b" => "Ответ 2",
+                        "c" => "Ответ 3",
+                        "d" => "Ответ 4",
+                    ],
+                    answer: "a"
+                ),
+                new OpenAiQuestionDto(
+                    text: "Вопрос 3?",
+                    options: [
+                        "a" => "Ответ 1",
+                        "b" => "Ответ 2",
+                        "c" => "Ответ 3",
+                        "d" => "Ответ 4",
+                    ],
+                    answer: "a"
+                ),
+                new OpenAiQuestionDto(
+                    text: "Вопрос 4?",
+                    options: [
+                        "a" => "Ответ 1",
+                        "b" => "Ответ 2",
+                        "c" => "Ответ 3",
+                        "d" => "Ответ 4",
+                    ],
+                    answer: "a"
+                ),
+                new OpenAiQuestionDto(
+                    text: "Вопрос 5?",
+                    options: [
+                        "a" => "Ответ 1",
+                        "b" => "Ответ 2",
+                        "c" => "Ответ 3",
+                        "d" => "Ответ 4",
+                    ],
+                    answer: "a"
+                ),
+            ],
+            usage: new OpenAiUsageDto(
+                promptTokens: 500,
+                completionTokens: 500,
+                totalTokens: 1000
+            )
+        );
     }
 
     private function sendPoll(
