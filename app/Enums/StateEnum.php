@@ -30,14 +30,11 @@ use App\Senders\Game\GamePlayersWaitingSender;
 use App\Senders\Game\GamePollsChoiceSender;
 use App\Senders\Game\GameTimeLimitWaitingSender;
 use App\Senders\Game\GameTitleWaitingSender;
-use App\Senders\Poll\AfterResultChoiceSender;
+use App\Senders\Poll\AfterAiRespondedChoiceSender;
 use App\Senders\Poll\AiRespondedChoiceSender;
-use App\Senders\Poll\AnonymityChoiceSender;
-use App\Senders\Poll\DifficultyChoiceSender;
-use App\Senders\Poll\SectorChoiceSender;
-use App\Senders\Poll\SubjectChoiceSender;
 use App\Senders\Poll\SupportSender;
-use App\Senders\Poll\ThemeWaitingSender;
+use App\Senders\Poll\RequestWaitingSender;
+use App\Senders\Poll\ThemeChoiceSender;
 use App\Senders\Poll\TypeChoiceSender;
 use App\Senders\SenderInterface;
 use App\Services\TelegramService;
@@ -65,31 +62,29 @@ use App\States\Game\GamePollsChoiceState;
 use App\States\Game\GameTimeLimitWaitingState;
 use App\States\Game\GameTitleWaitingState;
 use App\States\Help\HelpState;
-use App\States\Poll\AfterResultChoiceState;
+use App\States\Poll\AfterAiRespondedChoiceState;
 use App\States\Poll\AiRespondedChoiceState;
-use App\States\Poll\AnonymityChoiceState;
-use App\States\Poll\DifficultyChoiceState;
-use App\States\Poll\SectorChoiceState;
-use App\States\Poll\SubjectChoiceState;
 use App\States\Poll\SupportState;
-use App\States\Poll\ThemeWaitingState;
+use App\States\Poll\RequestWaitingState;
+use App\States\Poll\ThemeChoiceState;
 use App\States\Poll\TypeChoiceState;
 use App\States\StartState;
 use App\States\UserState;
 
 enum StateEnum: string
 {
-    /** Poll */
+    /** Common */
     case Start = 'start';
     case PollSupport = 'poll_support';
+
+    /** Poll */
     case PollTypeChoice = 'poll_type_choice';
-    case PollAnonymityChoice = 'poll_anonymity_choice';
-    case PollDifficultyChoice = 'poll_difficulty_choice';
-    case PollSectorChoice = 'poll_sector_choice';
-    case PollSubjectChoice = 'poll_subject_choice';
-    case PollThemeWaiting = 'poll_theme_waiting';
+    case PollThemeChoice = 'poll_theme_choice';
+    case PollRequestWaiting = 'poll_request_waiting';
     case PollAiRespondedChoice = 'poll_ai_responded_choice';
-    case PollAfterResultChoice = 'poll_after_result_choice';
+    case PollAfterAiRespondedChoice = 'poll_after_ai_responded_choice';
+
+
 
     /** Game */
     case GamePollsChoice = 'game_polls_choice';
@@ -129,22 +124,22 @@ enum StateEnum: string
     case AdminStatisticUsersPerDayShow = 'admin_statistic_users_per_day_show';
 
     /** Help */
-    case HELP = 'help';
+    case Help = 'help';
 
     public function userState(RepositoryInterface $repository, TelegramService $telegramService): UserState
     {
         return match ($this) {
-            /** Poll states */
+            /** Common states */
             self::Start => new StartState($repository, $telegramService),
             self::PollSupport => new SupportState($repository, $telegramService),
+
+            /** Poll states */
             self::PollTypeChoice => new TypeChoiceState($repository, $telegramService),
-            self::PollAnonymityChoice => new AnonymityChoiceState($repository, $telegramService),
-            self::PollDifficultyChoice => new DifficultyChoiceState($repository, $telegramService),
-            self::PollSectorChoice => new SectorChoiceState($repository, $telegramService),
-            self::PollSubjectChoice => new SubjectChoiceState($repository, $telegramService),
-            self::PollThemeWaiting => new ThemeWaitingState($repository, $telegramService),
+            self::PollThemeChoice => new ThemeChoiceState($repository, $telegramService),
+            self::PollRequestWaiting => new RequestWaitingState($repository, $telegramService),
             self::PollAiRespondedChoice => new AiRespondedChoiceState($repository, $telegramService),
-            self::PollAfterResultChoice => new AfterResultChoiceState($repository, $telegramService),
+            self::PollAfterAiRespondedChoice => new AfterAiRespondedChoiceState($repository, $telegramService),
+
             /** Game states */
             self::GamePollsChoice => new GamePollsChoiceState($repository, $telegramService),
             self::GameTitleWaiting => new GameTitleWaitingState($repository, $telegramService),
@@ -174,7 +169,7 @@ enum StateEnum: string
             self::AdminStatisticUsersMenuChoice => new StatisticUsersMenuChoiceState($repository, $telegramService),
             self::AdminStatisticUsersPerDayShow => new StatisticUsersPerDayShowState($repository, $telegramService),
             /** Help states */
-            self::HELP => new HelpState($repository, $telegramService),
+            self::Help => new HelpState($repository, $telegramService),
         };
     }
 
@@ -183,20 +178,16 @@ enum StateEnum: string
         return match ($this) {
             self::Account,
             self::Admin,
-            self::HELP,
+            self::Help,
             self::Start,
             self::PollSupport,
             self::PollTypeChoice,
             self::PollAiRespondedChoice,
-            self::PollAfterResultChoice,
+            self::PollAfterAiRespondedChoice,
             self::GamePollsChoice,
             self::GameCreatedSuccessShow,
             self::GamePlayersWaiting => self::Start,
-            self::PollAnonymityChoice => self::PollTypeChoice,
-            self::PollDifficultyChoice => self::PollAnonymityChoice,
-            self::PollSectorChoice => self::PollDifficultyChoice,
-            self::PollSubjectChoice => self::PollSectorChoice,
-            self::PollThemeWaiting => self::PollSubjectChoice,
+            self::PollRequestWaiting => self::PollThemeChoice,
             self::GameTitleWaiting => self::GamePollsChoice,
             self::GameDescriptionWaiting => self::GameTitleWaiting,
             self::GameTimeLimitWaiting => self::GameDescriptionWaiting,
@@ -221,18 +212,20 @@ enum StateEnum: string
     public function sender(RepositoryInterface $repository, TelegramService $telegramService, User $user): SenderInterface
     {
         return match ($this) {
-            self::Account => new AccountSender($repository, $telegramService, $user),
-            self::HELP => new HelpSender($repository, $telegramService, $user),
+            /** Common senders */
             self::Start => new StartSender($repository, $telegramService, $user),
             self::PollSupport => new SupportSender($repository, $telegramService, $user),
+
+            /** Poll senders */
             self::PollTypeChoice => new TypeChoiceSender($repository, $telegramService, $user),
-            self::PollAnonymityChoice => new AnonymityChoiceSender($repository, $telegramService, $user),
-            self::PollDifficultyChoice => new DifficultyChoiceSender($repository, $telegramService, $user),
-            self::PollSectorChoice => new SectorChoiceSender($repository, $telegramService, $user),
-            self::PollSubjectChoice => new SubjectChoiceSender($repository, $telegramService, $user),
-            self::PollThemeWaiting => new ThemeWaitingSender($repository, $telegramService, $user),
+            self::PollThemeChoice => new ThemeChoiceSender($repository, $telegramService, $user),
+            self::PollRequestWaiting => new RequestWaitingSender($repository, $telegramService, $user),
             self::PollAiRespondedChoice => new AiRespondedChoiceSender($repository, $telegramService, $user),
-            self::PollAfterResultChoice => new AfterResultChoiceSender($repository, $telegramService, $user),
+            self::PollAfterAiRespondedChoice => new AfterAiRespondedChoiceSender($repository, $telegramService, $user),
+
+
+            self::Account => new AccountSender($repository, $telegramService, $user),
+            self::Help => new HelpSender($repository, $telegramService, $user),
 
             self::GamePollsChoice => new GamePollsChoiceSender($repository, $telegramService, $user),
             self::GameTitleWaiting => new GameTitleWaitingSender($repository, $telegramService, $user),
@@ -263,16 +256,17 @@ enum StateEnum: string
     public function title(): string
     {
         return match ($this) {
+            /** Common titles */
             self::Start => "<b>Это бот Corgish.</b>\n\nВы можете создавать и проводить многопользовательские онлайн-викторины и опросы с помощью Corgish AI или вручную.\n\n<b>Бот умеет:</b>\n- создавать онлайн-викторины,\n- отправлять викторины в группы,\n- выдавать статистику.\n\nСписок команд:",
-            self::PollTypeChoice => "<b>Викторина</b>\nМногопользовательская игра\n\n<b>Опрос</b>\nСоздаст список вопросов для исследования вашей аудитории\n\nВыберите тип игры:",
             self::PollSupport => "Если у вас есть вопросы, напишите мне в личные сообщения: <a href='https://t.me/nkm_studio'>https://t.me/nkm_studio</a>",
-            self::PollAnonymityChoice => "Опрос будет анонимный?",
-            self::PollDifficultyChoice => "Выберите сложность вопросов:",
-            self::PollSectorChoice => "Выберите направление:",
-            self::PollSubjectChoice => "Выберите предмет:",
-            self::PollThemeWaiting => "<b>Введите запрос:</b>\n<b>Например для темы «Игры»:</b>\n\nРоблокс, Mega Hide and Seak, Фишки и скрытые эффекты.\n\nℹ️ От точности формулировки зависит результат вопросов и ответов.",
+
+            /** Poll titles */
+            self::PollTypeChoice => "<b>Викторина</b>\nМногопользовательская игра\n\n<b>Опрос</b>\nСоздаст список вопросов для исследования вашей аудитории\n\nВыберите тип игры:",
+            self::PollThemeChoice => "<b>Выберите тему:</b>\n\n- Образование — /education\n- Игры — /games\n- Кино — /movies\n- Спорт — /sports\n- Музыка — /music\n- Технологии — /tech\n- Наука — /science\n- Здоровье — /health\n- Еда — /food\n- Путешествия — /travel\n- Искусство — /art\n- Мода — /fashion\n- История — /history\n- Литература — /books\n- Финансы — /finance\n- Автомобили — /cars\n- Дом и сад — /home\n- Животные — /pets\n- Новости — /news\n- Развлечения — /fun",
+            self::PollRequestWaiting => "<b>Введите запрос:</b>\n<b>Например для темы «Игры»:</b>\n\nРоблокс, Mega Hide and Seak, Фишки и скрытые эффекты.\n\nℹ️ От точности формулировки зависит результат вопросов и ответов.",
             self::PollAiRespondedChoice => "Выберите, что делать дальше:",
-            self::PollAfterResultChoice => "<b>Вы можете создать викторину из созданных вопросов.</b>\n\nНажмите кнопку «Создать викторину», выберите вопросы, на которые будут отвечать участники",
+            self::PollAfterAiRespondedChoice => "<b>Вы можете создать викторину из созданных вопросов.</b>\n\nНажмите кнопку «Создать викторину», выберите вопросы, на которые будут отвечать участники",
+
 
             self::GamePollsChoice => "Выберите, какие вопросы нужно отправить?",
             self::GameTitleWaiting => "Введите название вашей игры:",
@@ -299,29 +293,48 @@ enum StateEnum: string
             self::AdminStatisticUsersPerDayShow => "Новые пользователи сегодня не регистрировались.",
             self::AdminStatisticUsersMenuChoice => "Статистика пользователей:",
 
-            self::HELP => "Инструкция по работе с ботом:\n\nДля того, чтобы Corgish-бот корректно составил тест, ответьте на вопросы бота и пройдите все шаги.\n\n/start - начать сначала\n/help - помощь и техподдержка",
+            self::Help => "Инструкция по работе с ботом:\n\nДля того, чтобы Corgish-бот корректно составил тест, ответьте на вопросы бота и пройдите все шаги.\n\n/start - начать сначала\n/help - помощь и техподдержка",
         };
     }
 
     public function buttons(): array
     {
         return match ($this) {
+            /** Common buttons */
             self::Start => [
-                new ButtonDto(CallbackEnum::CreateSurvey->value, CallbackEnum::CreateSurvey->buttonText()),
+                new ButtonDto(CallbackEnum::CreateSurveyWithAi->value, CallbackEnum::CreateSurveyWithAi->buttonText()),
                 new ButtonDto(CallbackEnum::Support->value, CallbackEnum::Support->buttonText()),
                 new ButtonDto(
                     callbackData: "",
                     text: "test",
                     url: 'https://t.me/DevTest067Bot?startgroup=start'
-                ),
+                ), // TODO: Do not forget to remove it.
             ],
+            self::PollSupport => [
+                new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText())
+            ],
+
+            /** Poll buttons */
             self::PollTypeChoice => [
                 new ButtonDto(CallbackEnum::TypeQuiz->value, CallbackEnum::TypeQuiz->buttonText()),
                 new ButtonDto(CallbackEnum::TypeSurvey->value, CallbackEnum::TypeSurvey->buttonText()),
                 new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText()),
             ],
-            self::PollSupport,
-            self::PollThemeWaiting,
+            self::PollThemeChoice,
+            self::PollRequestWaiting => [
+                new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText()),
+            ],
+            self::PollAiRespondedChoice => [
+                new ButtonDto(CallbackEnum::RepeatFlow->value, CallbackEnum::RepeatFlow->buttonText()),
+                new ButtonDto(CommandEnum::Start->getCommand(), '↩️ Выбрать другую тему'),
+                new ButtonDto(CallbackEnum::AfterAiRespondedMenu->value, CallbackEnum::AfterAiRespondedMenu->buttonText()),
+            ],
+            self::PollAfterAiRespondedChoice => [
+                new ButtonDto(CallbackEnum::GameCreate->value, CallbackEnum::GameCreate->buttonText()),
+                new ButtonDto(CommandEnum::Start->getCommand(), "Отменить и выйти")
+            ],
+
+
             self::GameTitleWaiting,
             self::GameDescriptionWaiting,
             self::GameTimeLimitWaiting,
@@ -335,29 +348,8 @@ enum StateEnum: string
             self::AccountReferralLinkShow,
             self::AccountReferredUsersShow,
             self::AdminNewsletterWaiting,
-            self::HELP => [
+            self::Help => [
                 new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText())
-            ],
-            self::PollAnonymityChoice => [
-                new ButtonDto(CallbackEnum::IsAnon->value, CallbackEnum::IsAnon->buttonText()),
-                new ButtonDto(CallbackEnum::IsNotAnon->value, CallbackEnum::IsNotAnon->buttonText()),
-                new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText()),
-            ],
-            self::PollDifficultyChoice => [
-                new ButtonDto(CallbackEnum::LevelEasy->value, CallbackEnum::LevelEasy->buttonText()),
-                new ButtonDto(CallbackEnum::LevelMiddle->value, CallbackEnum::LevelMiddle->buttonText()),
-                new ButtonDto(CallbackEnum::LevelHard->value, CallbackEnum::LevelHard->buttonText()),
-                new ButtonDto(CallbackEnum::LevelAny->value, CallbackEnum::LevelAny->buttonText()),
-                new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText()),
-            ],
-            self::PollAiRespondedChoice => [
-                new ButtonDto(CallbackEnum::RepeatFlow->value, CallbackEnum::RepeatFlow->buttonText()),
-                new ButtonDto(CommandEnum::Start->getCommand(), '↩️ Выбрать другую тему'),
-                new ButtonDto(CallbackEnum::AfterPollCreatedMenu->value, CallbackEnum::AfterPollCreatedMenu->buttonText()),
-            ],
-            self::PollAfterResultChoice => [
-                new ButtonDto(CallbackEnum::GameCreate->value, CallbackEnum::GameCreate->buttonText()),
-                new ButtonDto(CommandEnum::Start->getCommand(), "Отменить и выйти")
             ],
 
             self::GameCreatedSuccessShow => [

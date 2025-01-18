@@ -21,7 +21,9 @@ class User extends Model
         'username',
         'first_name',
         'last_name',
-        'referrer_link'
+        'referrer_link',
+        'role_id',
+        'state'
     ];
 
     public function states(): BelongsToMany
@@ -133,16 +135,13 @@ class User extends Model
         return $flow ? json_decode($flow->flow, true) : null;
     }
 
-    public function getCurrentState(): State
+    public function getCurrentState(): string
     {
-        if ($currentState = $this->states()->first()) {
+        if ($currentState = $this->state) {
             return $currentState;
         }
 
-        $startState = State::where('code', StateEnum::Start->value)->first();
-        $this->states()->attach($startState->id);
-
-        return $startState;
+        return StateEnum::Start->value;
     }
 
     public function getPreparedPoll(): ?PreparedPoll
@@ -179,20 +178,6 @@ class User extends Model
                 ]);
             }
         }
-    }
-
-    /**
-     * Update user state
-     */
-    public function updateStateByCode(string $code): void
-    {
-        $state = State::where('code', $code)->first();
-
-        if ($state) {
-            $this->states()->detach();
-            $this->states()->attach($state->id);
-        }
-
     }
 
     public function updateFlow(StateEnum $state, ?string $value = null, bool $isCompleted = false): UserFlow

@@ -231,8 +231,15 @@ readonly class SenderService
             "user_id" => $user->getId()
         ];
 
+        Log::debug('CHAT_ID: ' . $body['chat_id']);
+        Log::debug('USER_ID: ' . $body['user_id']);
+
         $allowedUserStatuses = ['administrator', 'creator', 'member'];
         $data = json_decode(Http::post($url, $body), true);
+
+        if ($data['ok'] !== true) {
+            Log::debug('BOT: ' . $data['description']);
+        }
 
         return isset($data['result']['status']) && (in_array($data['result']['status'], $allowedUserStatuses));
     }

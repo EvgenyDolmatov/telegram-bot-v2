@@ -5,15 +5,15 @@ namespace App\Senders\Poll;
 use App\Enums\StateEnum;
 use App\Senders\AbstractSender;
 
-class DifficultyChoiceSender extends AbstractSender
+class ThemeChoiceSender extends AbstractSender
 {
     public function send(): void
     {
         $this->addToTrash();
 
         $this->sendMessage(
-            text: StateEnum::PollDifficultyChoice->title(),
-            buttons: StateEnum::PollDifficultyChoice->buttons()
+            text: StateEnum::PollThemeChoice->title(),
+            buttons: StateEnum::PollThemeChoice->buttons()
         );
     }
 }

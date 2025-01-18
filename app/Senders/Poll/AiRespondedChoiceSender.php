@@ -72,7 +72,6 @@ class AiRespondedChoiceSender extends AbstractSender
     private function sendPoll(
         string  $question,
         array   $options,
-        bool    $isAnonymous,
         bool    $isQuiz = false,
         ?string $correctOptionId = null,
         ?int    $chatId = null,
@@ -82,7 +81,7 @@ class AiRespondedChoiceSender extends AbstractSender
             // Send poll message
             $pollBuilder = $this->pollBuilder
                 ->setBuilder(new PollBuilder())
-                ->createPoll($question, $options, $isAnonymous, $isQuiz, $correctOptionId);
+                ->createPoll($question, $options, $isQuiz, $correctOptionId);
 
             $response = $this->senderService->sendPoll($pollBuilder, $chatId, $isTrash);
         } catch (\Throwable $exception) {
@@ -136,7 +135,6 @@ class AiRespondedChoiceSender extends AbstractSender
                 $response = $this->sendPoll(
                     question: $question->getText(),
                     options: $question->getOptions(),
-                    isAnonymous: $flow->isAnonymous(),
                     isQuiz: $flow->isQuiz(),
                     correctOptionId: $question->getAnswer(),
                     isTrash: false

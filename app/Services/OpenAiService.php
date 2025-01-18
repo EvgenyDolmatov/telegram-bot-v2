@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\CallbackEnum;
 use App\Enums\StateEnum;
+use App\Enums\ThemeEnum;
 use App\Models\Sector;
 use App\Models\Subject;
 use App\Models\User;
@@ -72,23 +73,13 @@ class OpenAiService
             ],
         ];
 
-        $hasCorrectAnswer = '';
+        $hasCorrectAnswer = 'верных ответов может быть несколько';
         if ($data[StateEnum::PollTypeChoice->value] === CallbackEnum::TypeQuiz->value) {
             $template['question1']['correct_answer'] = 'c';
             $template['question2']['correct_answer'] = 'a';
 
-            $hasCorrectAnswer = ', с одним правильным ответом';
+            $hasCorrectAnswer = 'один из которых верный';
         }
-
-        $difficultyData = [
-            CallbackEnum::LevelEasy->value => 'низкой',
-            CallbackEnum::LevelMiddle->value => 'средней',
-            CallbackEnum::LevelHard->value => 'высокой',
-            CallbackEnum::LevelAny->value => 'любой',
-        ];
-
-        $sector = Sector::where('code', $data[StateEnum::PollSectorChoice->value])->first()->title;
-        $difficulty = $difficultyData[$data[StateEnum::PollDifficultyChoice->value]];
 
         $body = [
             'model' => config('services.openai.model'),
@@ -96,29 +87,36 @@ class OpenAiService
                 'type' => 'json_object'
             ],
             'messages' => [
+//                [
+//                    'role' => 'system',
+//                    'content' => "Ты преподаватель в сфере $sector. Тебе нужно сгенерировать 5 вопросов $difficulty сложности, состоящие из 4 вариантов ответов$hasCorrectAnswer. Вопрос должен быть понятным и емким,
+//                    но не превышать 255 символов. Ответы должны быть понятны отвечающим, но не превышать 100 символов. Ответ пришли в формате JSON. Пример JSON ответа: " . json_encode($template)
+//                ]
                 [
                     'role' => 'system',
-                    'content' => "Ты преподаватель в сфере $sector. Тебе нужно сгенерировать 5 вопросов $difficulty сложности, состоящие из 4 вариантов ответов$hasCorrectAnswer. Вопрос должен быть понятным и емким,
-                    но не превышать 255 символов. Ответы должны быть понятны отвечающим, но не превышать 100 символов. Ответ пришли в формате JSON. Пример JSON ответа: " . json_encode($template)
+                    'content' => "Ты — мастер по созданию квизов (викторин). Ты умеешь создавать тесты с 4-мя " .
+                                 "вариантами ответов, $hasCorrectAnswer. Тебе нужно составить тест из 5 вопросов. В " .
+                                 "каждом вопросе должно быть 4 варианта ответа, один из которых верный. Вопросы и " .
+                                 "ответы, должны соответствовать интернет поиску. Ответ пришли в формате JSON. Пример" .
+                                 " JSON ответа: " . json_encode($template)
                 ]
             ]
         ];
 
         // If subject choice exists
-        if (isset($data[StateEnum::PollSubjectChoice->value])) {
-            $subject = Subject::where('code', $data[StateEnum::PollSubjectChoice->value])->first()->title;
+        if (isset($data[StateEnum::PollThemeChoice->value])) {
+            $themeCode = $data[StateEnum::PollThemeChoice->value] ?? null;
             $body['messages'][] = [
                 'role' => 'user',
-                'content' => "Предмет: $subject"
+                'content' => "Тема: " . ThemeEnum::tryFrom($themeCode)->getName()
             ];
         }
 
         // If theme request exists
-        if (isset($data[StateEnum::PollThemeWaiting->value])) {
-            $theme = $data[StateEnum::PollThemeWaiting->value];
+        if (isset($data[StateEnum::PollRequestWaiting->value])) {
             $body['messages'][] = [
                 'role' => 'user',
-                'content' => "Тема: $theme"
+                'content' => $data[StateEnum::PollRequestWaiting->value]
             ];
         }
 

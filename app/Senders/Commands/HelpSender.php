@@ -12,8 +12,8 @@ class HelpSender extends AbstractSender
         $this->addToTrash();
 
         $this->sendMessage(
-            text: StateEnum::HELP->title(),
-            buttons: StateEnum::HELP->buttons()
+            text: StateEnum::Help->title(),
+            buttons: StateEnum::Help->buttons()
         );
     }
 }
