@@ -4,6 +4,7 @@ namespace App\Enums;
 
 enum CommandEnum: string
 {
+    /** Main commands */
     case Account = 'account';
     case Admin = 'admin';
     case Help = 'help';
@@ -14,7 +15,7 @@ enum CommandEnum: string
         return match ($this) {
             self::Account => StateEnum::Account,
             self::Admin => StateEnum::Admin,
-            self::Help => StateEnum::HELP,
+            self::Help => StateEnum::Help,
             self::Start => StateEnum::Start,
         };
     }

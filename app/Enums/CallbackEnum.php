@@ -6,20 +6,14 @@ enum CallbackEnum: string
 {
     /** Common */
     case Back = 'back';
+    case Support = 'support';
+    case CreateSurveyWithAi = 'create_survey_with_ai';
 
     /** Poll */
-    case CreateSurvey = 'create_survey';
-    case Support = 'support';
     case TypeQuiz = 'type_quiz';
     case TypeSurvey = 'type_survey';
-    case IsAnon = 'is_anon';
-    case IsNotAnon = 'is_not_anon';
-    case LevelEasy = 'level_easy';
-    case LevelMiddle = 'level_middle';
-    case LevelHard = 'level_hard';
-    case LevelAny = 'level_any';
     case RepeatFlow = 'repeat_flow';
-    case AfterPollCreatedMenu = 'after_poll_created_menu';
+    case AfterAiRespondedMenu = 'after_ai_responded_menu';
 
     /** Game */
     case GameCreate = 'game_create';
@@ -52,18 +46,12 @@ enum CallbackEnum: string
     public function toState(): StateEnum
     {
         return match ($this) {
-            self::CreateSurvey => StateEnum::PollTypeChoice,
+            self::CreateSurveyWithAi => StateEnum::PollTypeChoice,
             self::Support => StateEnum::PollSupport,
             self::TypeQuiz,
-            self::TypeSurvey => StateEnum::PollAnonymityChoice,
-            self::IsAnon,
-            self::IsNotAnon => StateEnum::PollDifficultyChoice,
-            self::LevelHard,
-            self::LevelMiddle,
-            self::LevelEasy,
-            self::LevelAny => StateEnum::PollSectorChoice,
+            self::TypeSurvey => StateEnum::PollThemeChoice,
             self::RepeatFlow => StateEnum::PollAiRespondedChoice,
-            self::AfterPollCreatedMenu => StateEnum::PollAfterResultChoice,
+            self::AfterAiRespondedMenu => StateEnum::PollAfterAiRespondedChoice,
             /** Game */
             self::GameCreate => StateEnum::GameTitleWaiting,
             self::GameTitleSave => StateEnum::GamePollsChoice,
@@ -95,20 +83,18 @@ enum CallbackEnum: string
     public function buttonText(): string
     {
         return match ($this) {
+            /** Common button texts */
             self::Back => "↩️ Назад",
-            self::CreateSurvey => "Создать с Corgish AI",
             self::Support => "Поддержка",
+            self::CreateSurveyWithAi => "Создать с Corgish AI",
+
+            /** Poll button texts */
             self::TypeQuiz => "Викторина",
             self::TypeSurvey => "Опрос",
-            self::IsAnon => "Да",
-            self::IsNotAnon => "Нет",
-            self::LevelHard => "Высокая сложность",
-            self::LevelMiddle => "Средняя сложность",
-            self::LevelEasy => "Низкая сложность",
-            self::LevelAny => "Любая сложность",
             self::RepeatFlow => "🔄 Создать еще 5 вопросов",
-            self::AfterPollCreatedMenu => "🎲 Завершить",
+            self::AfterAiRespondedMenu => "🎲 Завершить",
             self::GameCreate => "Создать игру из вопросов",
+
             self::GamePollsSave => "Сохранить выбранные вопросы",
             self::GameTitleSave => "Сохранить название",
             self::GameDescriptionSave => "Сохранить описание",

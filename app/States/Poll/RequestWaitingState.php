@@ -4,14 +4,14 @@ namespace App\States\Poll;
 
 use App\Enums\CallbackEnum;
 use App\Enums\StateEnum;
-use App\Models\Sector;
 use App\States\AbstractState;
 use App\States\UserContext;
 use App\States\UserState;
+use Illuminate\Support\Facades\Log;
 
-class SectorChoiceState extends AbstractState implements UserState
+class RequestWaitingState extends AbstractState implements UserState
 {
-    private const StateEnum STATE = StateEnum::PollSectorChoice;
+    private const StateEnum STATE = StateEnum::PollRequestWaiting;
 
     public function handleInput(string $input, UserContext $context): void
     {
@@ -32,8 +32,6 @@ class SectorChoiceState extends AbstractState implements UserState
             return $baseState->backState();
         }
 
-        return Sector::where('code', $input)->first()
-            ? StateEnum::PollSubjectChoice
-            : self::STATE;
+        return StateEnum::PollAiRespondedChoice;
     }
 }

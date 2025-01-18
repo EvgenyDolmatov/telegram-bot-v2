@@ -5,9 +5,11 @@ namespace App\States;
 use App\Enums\CallbackEnum;
 use App\Enums\CommandEnum;
 use App\Enums\StateEnum;
+use App\Enums\ThemeEnum;
 use App\Models\User;
 use App\Repositories\Telegram\Request\RepositoryInterface;
 use App\Services\TelegramService;
+use Illuminate\Support\Facades\Log;
 
 abstract class AbstractState implements UserState
 {
@@ -23,8 +25,13 @@ abstract class AbstractState implements UserState
     public function handleCommand(string $command, UserContext $context): void
     {
         $command = ltrim($command, '/');
-        $state = CommandEnum::from($command)->toState();
 
+        if (ThemeEnum::tryFrom($command)) {
+            $this->handleInput($command, $context);
+            return;
+        }
+
+        $state = CommandEnum::from($command)->toState();
         $this->user->resetFlow();
         $this->baseHandle($state, $context);
     }
@@ -56,7 +63,7 @@ abstract class AbstractState implements UserState
     protected function updateState(StateEnum $state, UserContext $context): void
     {
         $context->setState($state->userState($this->repository, $this->telegramService));
-        $this->user->updateStateByCode($state->value);
+        $this->user->update(['state' => $state->value]);
     }
 
     protected function sendMessage(StateEnum $state): void

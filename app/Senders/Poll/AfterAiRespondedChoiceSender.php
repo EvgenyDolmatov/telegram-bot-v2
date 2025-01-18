@@ -5,7 +5,7 @@ namespace App\Senders\Poll;
 use App\Enums\StateEnum;
 use App\Senders\AbstractSender;
 
-class AfterResultChoiceSender extends AbstractSender
+class AfterAiRespondedChoiceSender extends AbstractSender
 {
     public function send(): void
     {
@@ -16,8 +16,8 @@ class AfterResultChoiceSender extends AbstractSender
         }
 
         $this->sendMessage(
-            text: StateEnum::PollAfterResultChoice->title(),
-            buttons: StateEnum::PollAfterResultChoice->buttons()
+            text: StateEnum::PollAfterAiRespondedChoice->title(),
+            buttons: StateEnum::PollAfterAiRespondedChoice->buttons()
         );
     }
 }
