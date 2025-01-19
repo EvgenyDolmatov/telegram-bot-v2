@@ -23,9 +23,6 @@ use PHPUnit\Logging\Exception;
 
 class AiRespondedChoiceSender extends AbstractSender
 {
-    // TODO: Remove after testing
-    private const bool IS_TESTING = true;
-
     public function send(): void
     {
         $this->addToTrash();
@@ -57,8 +54,7 @@ class AiRespondedChoiceSender extends AbstractSender
 
     private function getAiCompletionDto(): OpenAiCompletionDto
     {
-        // TODO: Remove after testing
-        if (self::IS_TESTING) {
+        if (env('OPEN_AI_TEST_MODE')) {
             return $this->getTestCompletionDto();
         }
 
@@ -76,74 +72,6 @@ class AiRespondedChoiceSender extends AbstractSender
         }
 
         return $aiCompletionDto;
-    }
-
-    // TODO: Remove after testing
-    private function getTestCompletionDto(): OpenAiCompletionDto
-    {
-        return new OpenAiCompletionDto(
-            id: 'cmpl-uqkvlQyYK7bGYrRHQ0eXlWi7',
-            object: 'chat.completion',
-            createdAt: 1589478378,
-            model: 'gpt-4-0125-preview',
-            questions: [
-                new OpenAiQuestionDto(
-                    text: "Вопрос 1?",
-                    options: [
-                        "a" => "Ответ 1",
-                        "b" => "Ответ 2",
-                        "c" => "Ответ 3",
-                        "d" => "Ответ 4",
-                    ],
-                    answer: "a"
-                ),
-                new OpenAiQuestionDto(
-                    text: "Вопрос 2?",
-                    options: [
-                        "a" => "Ответ 1",
-                        "b" => "Ответ 2",
-                        "c" => "Ответ 3",
-                        "d" => "Ответ 4",
-                    ],
-                    answer: "a"
-                ),
-                new OpenAiQuestionDto(
-                    text: "Вопрос 3?",
-                    options: [
-                        "a" => "Ответ 1",
-                        "b" => "Ответ 2",
-                        "c" => "Ответ 3",
-                        "d" => "Ответ 4",
-                    ],
-                    answer: "a"
-                ),
-                new OpenAiQuestionDto(
-                    text: "Вопрос 4?",
-                    options: [
-                        "a" => "Ответ 1",
-                        "b" => "Ответ 2",
-                        "c" => "Ответ 3",
-                        "d" => "Ответ 4",
-                    ],
-                    answer: "a"
-                ),
-                new OpenAiQuestionDto(
-                    text: "Вопрос 5?",
-                    options: [
-                        "a" => "Ответ 1",
-                        "b" => "Ответ 2",
-                        "c" => "Ответ 3",
-                        "d" => "Ответ 4",
-                    ],
-                    answer: "a"
-                ),
-            ],
-            usage: new OpenAiUsageDto(
-                promptTokens: 500,
-                completionTokens: 500,
-                totalTokens: 1000
-            )
-        );
     }
 
     private function sendPoll(
@@ -297,5 +225,34 @@ class AiRespondedChoiceSender extends AbstractSender
             'poll_ids' => $poll->tg_message_id,
             'checked_poll_ids' => $poll->tg_message_id,
         ]);
+    }
+
+    /**
+     * Generate fake data for testing
+     */
+    private function getTestCompletionDto(): OpenAiCompletionDto
+    {
+        $questions = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $questions[] = new OpenAiQuestionDto(
+                text: "Вопрос $i?",
+                options: [
+                    "a" => "Ответ 1",
+                    "b" => "Ответ 2",
+                    "c" => "Ответ 3",
+                    "d" => "Ответ 4",
+                ],
+                answer: "a"
+            );
+        }
+
+        return new OpenAiCompletionDto(
+            id: 'cmpl-uqkvlQyYK7bGYrRHQ0eXlWi7',
+            object: 'chat.completion',
+            createdAt: 1589478378,
+            model: 'gpt-4-0125-preview',
+            questions: $questions,
+            usage: new OpenAiUsageDto(500, 500,1000)
+        );
     }
 }

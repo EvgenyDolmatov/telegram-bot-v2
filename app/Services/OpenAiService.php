@@ -5,8 +5,6 @@ namespace App\Services;
 use App\Enums\CallbackEnum;
 use App\Enums\StateEnum;
 use App\Enums\ThemeEnum;
-use App\Models\Sector;
-use App\Models\Subject;
 use App\Models\User;
 use App\Services\Traits\Proxy;
 use Illuminate\Http\Client\Response;
@@ -87,11 +85,6 @@ class OpenAiService
                 'type' => 'json_object'
             ],
             'messages' => [
-//                [
-//                    'role' => 'system',
-//                    'content' => "Ты преподаватель в сфере $sector. Тебе нужно сгенерировать 5 вопросов $difficulty сложности, состоящие из 4 вариантов ответов$hasCorrectAnswer. Вопрос должен быть понятным и емким,
-//                    но не превышать 255 символов. Ответы должны быть понятны отвечающим, но не превышать 100 символов. Ответ пришли в формате JSON. Пример JSON ответа: " . json_encode($template)
-//                ]
                 [
                     'role' => 'system',
                     'content' => "Ты — мастер по созданию квизов (викторин). Ты умеешь создавать тесты с 4-мя " .
