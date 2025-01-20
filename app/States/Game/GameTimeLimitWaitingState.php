@@ -2,7 +2,6 @@
 
 namespace App\States\Game;
 
-use App\Enums\CallbackEnum;
 use App\Enums\StateEnum;
 use App\States\AbstractState;
 use App\States\UserContext;
@@ -25,19 +24,5 @@ class GameTimeLimitWaitingState extends AbstractState implements UserState
 
         // Send message to chat
         $this->sendMessage($state);
-    }
-
-    protected function getState(string $input, StateEnum $baseState): StateEnum
-    {
-        if ($input === CallbackEnum::Back->value) {
-            return $baseState->backState();
-        }
-
-        // TODO: Sending a message to user about this rule
-        if (!is_numeric($input)) {
-            return self::STATE;
-        }
-
-        return StateEnum::GameChannelWaiting;
     }
 }

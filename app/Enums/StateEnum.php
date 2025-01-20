@@ -83,6 +83,9 @@ enum StateEnum: string
     case GamePollsChoice = 'game_polls_choice';
     case GameTimeLimitChoice = 'game_time_limit_choice';
     case GameCreatedMenuShow = 'game_created_menu_show';
+
+
+
     case GameEditMenuShow = 'game_edit_menu_show';
     case GameAddToCommunityAction = 'game_add_to_community_action';
     case GameInvitationLinkShow = 'game_invitation_link_show';
@@ -94,7 +97,7 @@ enum StateEnum: string
 
     case GameDescriptionWaiting = 'game_description_waiting';
     case GameChannelWaiting = 'game_channel_waiting';
-    case GameCreatedSuccessShow = 'game_created_success_show';
+
     case GamePlayersWaiting = 'game_players_waiting';
     case GameQuizProcess = 'game_quiz_process';
 
@@ -184,7 +187,7 @@ enum StateEnum: string
             self::PollTypeChoice,
             self::PollAiRespondedChoice,
             self::PollAfterAiRespondedChoice,
-            self::GameCreatedSuccessShow,
+            self::GameCreatedMenuShow,
             self::GamePlayersWaiting => self::Start,
             self::PollRequestWaiting => self::PollThemeChoice,
 
@@ -348,9 +351,25 @@ enum StateEnum: string
                 new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText())
             ],
             self::GameTimeLimitChoice => [
-                new ButtonDto(CallbackEnum::GameTimeLimit15->value, CallbackEnum::Back->buttonText()),
+                new ButtonDto(CallbackEnum::GameTimeLimit15->value, CallbackEnum::GameTimeLimit15->buttonText()),
+                new ButtonDto(CallbackEnum::GameTimeLimit15->value, CallbackEnum::GameTimeLimit20->buttonText()),
+                new ButtonDto(CallbackEnum::GameTimeLimit15->value, CallbackEnum::GameTimeLimit25->buttonText()),
+                new ButtonDto(CallbackEnum::GameTimeLimit15->value, CallbackEnum::GameTimeLimit30->buttonText()),
+                new ButtonDto(CallbackEnum::GameTimeLimit15->value, CallbackEnum::GameTimeLimit45->buttonText()),
+                new ButtonDto(CallbackEnum::GameTimeLimit15->value, CallbackEnum::GameTimeLimit60->buttonText()),
+                new ButtonDto(CallbackEnum::GameTimeLimit15->value, CallbackEnum::GameTimeLimit180->buttonText()),
+                new ButtonDto(CallbackEnum::GameTimeLimit15->value, CallbackEnum::GameTimeLimit300->buttonText()),
+                new ButtonDto(CallbackEnum::GameTimeLimit15->value, CallbackEnum::GameTimeLimit600->buttonText()),
                 new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText())
             ],
+            self::GameCreatedMenuShow => [
+                new ButtonDto(CallbackEnum::GameEdit->value, CallbackEnum::GameEdit->buttonText()),
+                new ButtonDto(CallbackEnum::GameAddToCommunity->value, CallbackEnum::GameAddToCommunity->buttonText()),
+                new ButtonDto(CallbackEnum::GameInvitationLink->value, CallbackEnum::GameInvitationLink->buttonText()),
+                new ButtonDto(CallbackEnum::GameStart->value, CallbackEnum::GameStart->buttonText()),
+                new ButtonDto(CallbackEnum::GameStatistics->value, CallbackEnum::GameStatistics->buttonText()),
+            ],
+
 
 
 
@@ -367,10 +386,6 @@ enum StateEnum: string
                 new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText())
             ],
 
-            self::GameCreatedSuccessShow => [
-                new ButtonDto(CallbackEnum::GameQuizStart->value, CallbackEnum::GameQuizStart->buttonText()),
-                new ButtonDto(CommandEnum::Start->getCommand(), "↩️ Вернуться в начало")
-            ],
             self::GamePlayersWaiting => [
                 new ButtonDto(CommandEnum::Start->getCommand(), "↩️ Вернуться в начало")
             ],

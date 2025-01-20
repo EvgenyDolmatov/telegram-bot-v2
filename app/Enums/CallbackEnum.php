@@ -77,7 +77,9 @@ enum CallbackEnum: string
             self::GameTimeLimit60,
             self::GameTimeLimit180,
             self::GameTimeLimit300,
-            self::GameTimeLimit600 => StateEnum::GameCreatedSuccessShow,
+            self::GameTimeLimit600 => StateEnum::GameCreatedMenuShow,
+
+
 
 
             self::GameQuizStart => StateEnum::GamePlayersWaiting,
@@ -122,10 +124,10 @@ enum CallbackEnum: string
             self::GameTimeLimit25 => "25 секунд",
             self::GameTimeLimit30 => "30 секунд",
             self::GameTimeLimit45 => "45 секунд",
-            self::GameTimeLimit60 => "60 секунд",
-            self::GameTimeLimit180 => "180 секунд",
-            self::GameTimeLimit300 => "300 секунд",
-            self::GameTimeLimit600 => "600 секунд",
+            self::GameTimeLimit60 => "1 минута",
+            self::GameTimeLimit180 => "3 минуты",
+            self::GameTimeLimit300 => "5 минут",
+            self::GameTimeLimit600 => "10 минут",
             self::GameEdit => "Редактировать",
             self::GameAddToCommunity => "Добавить в группу",
             self::GameInvitationLink => "Пригласить игроков",

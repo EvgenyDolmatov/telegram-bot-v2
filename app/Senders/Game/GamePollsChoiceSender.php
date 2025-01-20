@@ -59,9 +59,7 @@ class GamePollsChoiceSender extends AbstractSender
                 text: $symbol . $poll['question']);
         }
 
-        $buttons[] = new ButtonDto(CallbackEnum::GamePollsSave->value, CallbackEnum::GamePollsSave->buttonText());
-
-        return $buttons;
+        return array_merge($buttons, self::STATE->buttons());
     }
 
     private function process(string $text, array $buttons): void
