@@ -33,6 +33,6 @@ class GameTitleWaitingState extends AbstractState implements UserState
             return $baseState->backState();
         }
 
-        return StateEnum::GameDescriptionWaiting;
+        return StateEnum::GamePollsChoice;
     }
 }

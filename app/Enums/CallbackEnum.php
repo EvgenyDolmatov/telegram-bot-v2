@@ -18,9 +18,23 @@ enum CallbackEnum: string
     /** Game */
     case GameCreate = 'game_create';
     case GamePollsSave = 'game_polls_save';
-    case GameTitleSave = 'game_title_save';
-    case GameDescriptionSave = 'game_description_save';
-    case GameTimeLimitSave = 'game_time_limit_save';
+    case GameTimeLimit15 = 'game_time_limit_15';
+    case GameTimeLimit20 = 'game_time_limit_20';
+    case GameTimeLimit25 = 'game_time_limit_25';
+    case GameTimeLimit30 = 'game_time_limit_30';
+    case GameTimeLimit45 = 'game_time_limit_45';
+    case GameTimeLimit60 = 'game_time_limit_60';
+    case GameTimeLimit180 = 'game_time_limit_180';
+    case GameTimeLimit300 = 'game_time_limit_300';
+    case GameTimeLimit600 = 'game_time_limit_600';
+    case GameEdit = 'game_edit';
+    case GameAddToCommunity = 'game_add_to_community';
+    case GameInvitationLink = 'game_invitation_link';
+    case GameStart = 'game_start';
+    case GameStatistics = 'game_statistics';
+
+
+
     case GameChannelSave = 'game_channel_save';
     case GameQuizStart = 'game_quiz_start';
     case GameJoinUserToQuiz = 'game_join_user_to_quiz'; // Show in communities
@@ -54,12 +68,18 @@ enum CallbackEnum: string
             self::AfterAiRespondedMenu => StateEnum::PollAfterAiRespondedChoice,
             /** Game */
             self::GameCreate => StateEnum::GameTitleWaiting,
-            self::GameTitleSave => StateEnum::GamePollsChoice,
-            self::GamePollsSave => StateEnum::GameTimeLimitWaiting,
-            self::GameTimeLimitSave => StateEnum::GameChannelWaiting,
+            self::GamePollsSave => StateEnum::GameTimeLimitChoice,
+            self::GameTimeLimit15,
+            self::GameTimeLimit20,
+            self::GameTimeLimit25,
+            self::GameTimeLimit30,
+            self::GameTimeLimit45,
+            self::GameTimeLimit60,
+            self::GameTimeLimit180,
+            self::GameTimeLimit300,
+            self::GameTimeLimit600 => StateEnum::GameCreatedSuccessShow,
 
-            self::GameDescriptionSave => StateEnum::GameTimeLimitWaiting, // TODO: Remove
-            self::GameChannelSave => StateEnum::GameCreatedSuccessShow,
+
             self::GameQuizStart => StateEnum::GamePlayersWaiting,
             self::GameJoinUserToQuiz => StateEnum::GameQuizProcess,
 
@@ -95,10 +115,23 @@ enum CallbackEnum: string
             self::AfterAiRespondedMenu => "🎲 Завершить",
             self::GameCreate => "Создать игру из вопросов",
 
-            self::GamePollsSave => "Сохранить выбранные вопросы",
-            self::GameTitleSave => "Сохранить название",
-            self::GameDescriptionSave => "Сохранить описание",
-            self::GameTimeLimitSave => "Сохранить ограничение по времени",
+            /** Game button texts */
+            self::GamePollsSave => "Отправить выбранные",
+            self::GameTimeLimit15 => "15 секунд",
+            self::GameTimeLimit20 => "20 секунд",
+            self::GameTimeLimit25 => "25 секунд",
+            self::GameTimeLimit30 => "30 секунд",
+            self::GameTimeLimit45 => "45 секунд",
+            self::GameTimeLimit60 => "60 секунд",
+            self::GameTimeLimit180 => "180 секунд",
+            self::GameTimeLimit300 => "300 секунд",
+            self::GameTimeLimit600 => "600 секунд",
+            self::GameEdit => "Редактировать",
+            self::GameAddToCommunity => "Добавить в группу",
+            self::GameInvitationLink => "Пригласить игроков",
+            self::GameStart => "Начать игру",
+            self::GameStatistics => "Статистика",
+
             self::GameChannelSave => "Сохранить канал",
             self::GameQuizStart => "Отправить в канал",
             self::GameJoinUserToQuiz => "Присоединиться к викторине",

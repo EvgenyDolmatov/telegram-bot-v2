@@ -5,9 +5,9 @@ namespace App\Senders\Game;
 use App\Enums\StateEnum;
 use App\Senders\AbstractSender;
 
-class GameCreatedSuccessShowSender extends AbstractSender
+class GameTimeLimitChoiceSender extends AbstractSender
 {
-    private const StateEnum STATE = StateEnum::GameCreatedSuccessShow;
+    private const StateEnum STATE = StateEnum::GameTimeLimitChoice;
 
     public function send(): void
     {

@@ -7,7 +7,7 @@ use App\States\AbstractState;
 use App\States\UserContext;
 use App\States\UserState;
 
-class GameCreatedSuccessState extends AbstractState implements UserState
+class GameCreatedMenuShowState extends AbstractState implements UserState
 {
     private const StateEnum STATE = StateEnum::GameCreatedSuccessShow;
 

@@ -41,6 +41,6 @@ class GamePollsChoiceState extends AbstractState implements UserState
             return self::STATE;
         }
 
-        return StateEnum::GameTitleWaiting;
+        return StateEnum::GameTimeLimitChoice;
     }
 }

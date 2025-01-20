@@ -48,7 +48,7 @@ return new class extends Migration
         State::create(['code' => StateEnum::GamePollsChoice->value]);
         State::create(['code' => StateEnum::GameTitleWaiting->value]);
         State::create(['code' => StateEnum::GameDescriptionWaiting->value]);
-        State::create(['code' => StateEnum::GameTimeLimitWaiting->value]);
+        State::create(['code' => StateEnum::GameTimeLimitChoice->value]);
         State::create(['code' => StateEnum::GameChannelWaiting->value]);
         State::create(['code' => StateEnum::GameCreatedSuccessShow->value]);
         State::create(['code' => StateEnum::GamePlayersWaiting->value]);

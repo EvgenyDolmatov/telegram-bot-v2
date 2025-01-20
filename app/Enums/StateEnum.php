@@ -23,12 +23,9 @@ use App\Senders\Commands\AccountSender;
 use App\Senders\Commands\AdminSender;
 use App\Senders\Commands\HelpSender;
 use App\Senders\Commands\StartSender;
-use App\Senders\Game\GameChannelWaitingSender;
-use App\Senders\Game\GameCreatedSuccessShowSender;
-use App\Senders\Game\GameDescriptionWaitingSender;
-use App\Senders\Game\GamePlayersWaitingSender;
+use App\Senders\Game\GameCreatedMenuShowSender;
 use App\Senders\Game\GamePollsChoiceSender;
-use App\Senders\Game\GameTimeLimitWaitingSender;
+use App\Senders\Game\GameTimeLimitChoiceSender;
 use App\Senders\Game\GameTitleWaitingSender;
 use App\Senders\Poll\AfterAiRespondedChoiceSender;
 use App\Senders\Poll\AiRespondedChoiceSender;
@@ -54,10 +51,7 @@ use App\States\Admin\StatisticPollsPerWeekShowState;
 use App\States\Admin\StatisticPollsPerYearShowState;
 use App\States\Admin\StatisticUsersMenuChoiceState;
 use App\States\Admin\StatisticUsersPerDayShowState;
-use App\States\Game\GameChannelWaitingState;
-use App\States\Game\GameCreatedSuccessState;
-use App\States\Game\GameDescriptionWaitingState;
-use App\States\Game\GamePlayersWaitingState;
+use App\States\Game\GameCreatedMenuShowState;
 use App\States\Game\GamePollsChoiceState;
 use App\States\Game\GameTimeLimitWaitingState;
 use App\States\Game\GameTitleWaitingState;
@@ -84,13 +78,21 @@ enum StateEnum: string
     case PollAiRespondedChoice = 'poll_ai_responded_choice';
     case PollAfterAiRespondedChoice = 'poll_after_ai_responded_choice';
 
-
-
     /** Game */
-    case GamePollsChoice = 'game_polls_choice';
     case GameTitleWaiting = 'game_title_waiting';
+    case GamePollsChoice = 'game_polls_choice';
+    case GameTimeLimitChoice = 'game_time_limit_choice';
+    case GameCreatedMenuShow = 'game_created_menu_show';
+    case GameEditMenuShow = 'game_edit_menu_show';
+    case GameAddToCommunityAction = 'game_add_to_community_action';
+    case GameInvitationLinkShow = 'game_invitation_link_show';
+    case GameStart = 'game_start';
+    case GameStatisticShow = 'game_statistic_show';
+
+
+
+
     case GameDescriptionWaiting = 'game_description_waiting';
-    case GameTimeLimitWaiting = 'game_time_limit_waiting';
     case GameChannelWaiting = 'game_channel_waiting';
     case GameCreatedSuccessShow = 'game_created_success_show';
     case GamePlayersWaiting = 'game_players_waiting';
@@ -141,14 +143,12 @@ enum StateEnum: string
             self::PollAfterAiRespondedChoice => new AfterAiRespondedChoiceState($repository, $telegramService),
 
             /** Game states */
-            self::GamePollsChoice => new GamePollsChoiceState($repository, $telegramService),
             self::GameTitleWaiting => new GameTitleWaitingState($repository, $telegramService),
-            self::GameDescriptionWaiting => new GameDescriptionWaitingState($repository, $telegramService),
-            self::GameTimeLimitWaiting => new GameTimeLimitWaitingState($repository, $telegramService),
-            self::GameChannelWaiting => new GameChannelWaitingState($repository, $telegramService),
-            self::GameCreatedSuccessShow => new GameCreatedSuccessState($repository, $telegramService),
+            self::GamePollsChoice => new GamePollsChoiceState($repository, $telegramService),
+            self::GameTimeLimitChoice => new GameTimeLimitWaitingState($repository, $telegramService),
+            self::GameCreatedMenuShow => new GameCreatedMenuShowState($repository, $telegramService),
 
-            self::GamePlayersWaiting => new GamePlayersWaitingState($repository, $telegramService),
+
 
             /** Account states */
             self::Account => new AccountState($repository, $telegramService),
@@ -184,14 +184,18 @@ enum StateEnum: string
             self::PollTypeChoice,
             self::PollAiRespondedChoice,
             self::PollAfterAiRespondedChoice,
-            self::GamePollsChoice,
             self::GameCreatedSuccessShow,
             self::GamePlayersWaiting => self::Start,
             self::PollRequestWaiting => self::PollThemeChoice,
-            self::GameTitleWaiting => self::GamePollsChoice,
-            self::GameDescriptionWaiting => self::GameTitleWaiting,
-            self::GameTimeLimitWaiting => self::GameDescriptionWaiting,
-            self::GameChannelWaiting => self::GameTimeLimitWaiting,
+
+
+            self::GameTitleWaiting => self::PollAfterAiRespondedChoice,
+            self::GamePollsChoice => self::GameTitleWaiting,
+            self::GameTimeLimitChoice => self::GamePollsChoice,
+
+
+
+            self::GameChannelWaiting => self::GameTimeLimitChoice,
             self::AccountReferralLinkShow,
             self::AccountReferredUsersShow => self::Account,
             self::AdminNewsletterWaiting,
@@ -215,6 +219,7 @@ enum StateEnum: string
             /** Common senders */
             self::Start => new StartSender($repository, $telegramService, $user),
             self::PollSupport => new SupportSender($repository, $telegramService, $user),
+            self::Help => new HelpSender($repository, $telegramService, $user),
 
             /** Poll senders */
             self::PollTypeChoice => new TypeChoiceSender($repository, $telegramService, $user),
@@ -223,18 +228,14 @@ enum StateEnum: string
             self::PollAiRespondedChoice => new AiRespondedChoiceSender($repository, $telegramService, $user),
             self::PollAfterAiRespondedChoice => new AfterAiRespondedChoiceSender($repository, $telegramService, $user),
 
+            /** Game senders */
+            self::GameTitleWaiting => new GameTitleWaitingSender($repository, $telegramService, $user),
+            self::GamePollsChoice => new GamePollsChoiceSender($repository, $telegramService, $user),
+            self::GameTimeLimitChoice => new GameTimeLimitChoiceSender($repository, $telegramService, $user),
+            self::GameCreatedMenuShow => new GameCreatedMenuShowSender($repository, $telegramService, $user),
+
 
             self::Account => new AccountSender($repository, $telegramService, $user),
-            self::Help => new HelpSender($repository, $telegramService, $user),
-
-            self::GamePollsChoice => new GamePollsChoiceSender($repository, $telegramService, $user),
-            self::GameTitleWaiting => new GameTitleWaitingSender($repository, $telegramService, $user),
-            self::GameDescriptionWaiting => new GameDescriptionWaitingSender($repository, $telegramService, $user),
-            self::GameTimeLimitWaiting => new GameTimeLimitWaitingSender($repository, $telegramService, $user),
-            self::GameChannelWaiting => new GameChannelWaitingSender($repository, $telegramService, $user),
-            self::GameCreatedSuccessShow => new GameCreatedSuccessShowSender($repository, $telegramService, $user),
-            self::GamePlayersWaiting => new GamePlayersWaitingSender($repository, $telegramService, $user),
-
             self::AccountReferralLinkShow => new ReferralLinkShowSender($repository, $telegramService, $user),
             self::AccountReferredUsersShow => new ReferredUsersShowSender($repository, $telegramService, $user),
             self::Admin => new AdminSender($repository, $telegramService, $user),
@@ -267,13 +268,17 @@ enum StateEnum: string
             self::PollAiRespondedChoice => "Выберите, что делать дальше:",
             self::PollAfterAiRespondedChoice => "<b>Вы можете создать викторину из созданных вопросов.</b>\n\nНажмите кнопку «Создать викторину», выберите вопросы, на которые будут отвечать участники",
 
+            /** Game titles */
+            self::GameTitleWaiting => "<b>Введите название викторины</b>\n\nНапример, викторина для моей группы",
+            self::GamePollsChoice => "Выберите вопросы",
+            self::GameTimeLimitChoice => "Укажите время для ответа пользователей",
+            self::GameCreatedMenuShow => "Игра успешно создана!",
 
-            self::GamePollsChoice => "Выберите, какие вопросы нужно отправить?",
-            self::GameTitleWaiting => "Введите название вашей игры:",
-            self::GameDescriptionWaiting => "Введите описание вашей игры:",
-            self::GameTimeLimitWaiting => "Какой лимит времени в секундах Вы даете на ответ? Напишите только цифру.",
-            self::GameChannelWaiting => "Напишите название канала или ссылку на канал:",
-            self::GameCreatedSuccessShow => "Игра успешно создана! Теперь Вы можете отправить ее в канал.",
+
+
+
+
+
             self::GamePlayersWaiting => "Игра успешно отправлена в канал! Она начнется через 30 секунд.",
 
             self::Account => "Мой аккаунт:",
@@ -334,11 +339,21 @@ enum StateEnum: string
                 new ButtonDto(CommandEnum::Start->getCommand(), "Отменить и выйти")
             ],
 
+            /** Game buttons */
+            self::GameTitleWaiting => [
+                new ButtonDto(CommandEnum::Start->getCommand(), "Отменить и выйти")
+            ],
+            self::GamePollsChoice => [
+                new ButtonDto(CallbackEnum::GamePollsSave->value, "Отправить выбранные"),
+                new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText())
+            ],
+            self::GameTimeLimitChoice => [
+                new ButtonDto(CallbackEnum::GameTimeLimit15->value, CallbackEnum::Back->buttonText()),
+                new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText())
+            ],
 
-            self::GameTitleWaiting,
-            self::GameDescriptionWaiting,
-            self::GameTimeLimitWaiting,
-            self::GameChannelWaiting,
+
+
             self::AdminStatisticPollsPerYearShow,
             self::AdminStatisticPollsPerQuarterShow,
             self::AdminStatisticPollsPerMonthShow,
