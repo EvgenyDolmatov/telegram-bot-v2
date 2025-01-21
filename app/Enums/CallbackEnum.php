@@ -28,6 +28,12 @@ enum CallbackEnum: string
     case GameTimeLimit300 = 'game_time_limit_300';
     case GameTimeLimit600 = 'game_time_limit_600';
     case GameEdit = 'game_edit';
+    case GameEditTitle = 'game_edit_title';
+    case GameEditPolls = 'game_edit_polls';
+    case GameEditTimeLimit = 'game_edit_time_limit';
+    case GameTitleChange = 'game_title_change';
+    case GamePollsChange = 'game_polls_change';
+    case GameTimeLimitChange = 'game_time_limit_change';
     case GameAddToCommunity = 'game_add_to_community';
     case GameInvitationLink = 'game_invitation_link';
     case GameStart = 'game_start';
@@ -60,8 +66,10 @@ enum CallbackEnum: string
     public function toState(): StateEnum
     {
         return match ($this) {
+            /** Common */
             self::CreateSurveyWithAi => StateEnum::PollTypeChoice,
             self::Support => StateEnum::PollSupport,
+            /** Poll */
             self::TypeQuiz,
             self::TypeSurvey => StateEnum::PollThemeChoice,
             self::RepeatFlow => StateEnum::PollAiRespondedChoice,
@@ -78,6 +86,13 @@ enum CallbackEnum: string
             self::GameTimeLimit180,
             self::GameTimeLimit300,
             self::GameTimeLimit600 => StateEnum::GameCreatedMenuShow,
+            self::GameEdit => StateEnum::GameEditMenuShow,
+            self::GameEditTitle => StateEnum::GameEditTitleWaiting,
+            self::GameEditPolls => StateEnum::GameEditPollsChoice,
+            self::GameEditTimeLimit,
+            self::GameTitleChange,
+            self::GamePollsChange,
+            self::GameTimeLimitChange => StateEnum::GameEditTimeLimitChoice,
 
 
 
@@ -129,6 +144,13 @@ enum CallbackEnum: string
             self::GameTimeLimit300 => "5 минут",
             self::GameTimeLimit600 => "10 минут",
             self::GameEdit => "Редактировать",
+            self::GameEditTitle => "Редактировать название",
+            self::GameEditPolls => "Редактировать вопросы",
+            self::GameEditTimeLimit => "Редактировать время",
+            self::GamePollsChange,
+            self::GameTimeLimitChange => "Сохранить",
+
+
             self::GameAddToCommunity => "Добавить в группу",
             self::GameInvitationLink => "Пригласить игроков",
             self::GameStart => "Начать игру",

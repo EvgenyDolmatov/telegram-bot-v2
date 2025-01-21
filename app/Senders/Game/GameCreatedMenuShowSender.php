@@ -3,7 +3,6 @@
 namespace App\Senders\Game;
 
 use App\Enums\StateEnum;
-use App\Models\Game;
 use App\Senders\AbstractSender;
 use Exception;
 
@@ -11,41 +10,45 @@ class GameCreatedMenuShowSender extends AbstractSender
 {
     private const StateEnum STATE = StateEnum::GameCreatedMenuShow;
 
+    /**
+     * @throws Exception
+     */
     public function send(): void
     {
         $this->addToTrash();
 
-        $game = $this->createGame();
+        $game = $this->user->games->last();
         $questionsQty = count(explode(',', $game->poll_ids));
 
-        $text = "<b>Викторина «{$game->title}» создана!</b>\n\n$questionsQty вопросов, задержка времени: $game->time_limit секунд.";
-
+        $text = "<b>Викторина «{$game->title}» создана!</b>\n\n{$this->getQuestionsQty($questionsQty)}," .
+                " задержка времени: {$this->timeLimitToText($game->time_limit)}.";
         $this->sendMessage($text, self::STATE->buttons());
     }
 
-    /**
-     * @throws Exception
-     */
-    private function createGame(): Game
+    private function timeLimitToText(int $timeLimit): string
     {
-        if (!$openedFlow = $this->user->getOpenedFlow()) {
-            throw new Exception('Flow data is empty');
-        }
-
-        $flowData = json_decode($openedFlow->flow, true);
-        $openedFlow->update(['is_closed' => true]);
-
-        return Game::create([
-            'user_id' => $this->user->id,
-            'poll_ids' => $flowData[StateEnum::GamePollsChoice->value],
-            'title' => $flowData[StateEnum::GameTitleWaiting->value],
-            'time_limit' => $this->getTimeLimit($flowData[StateEnum::GameTimeLimitChoice->value]),
-        ]);
+        return match ($timeLimit) {
+            15 => "15 секунд",
+            20 => "20 секунд",
+            25 => "25 секунд",
+            30 => "30 секунд",
+            45 => "45 секунд",
+            60 => "1 минута",
+            180 => "3 минуты",
+            300 => "5 минут",
+            600 => "10 минут",
+            default => 'не известно'
+        };
     }
 
-    private function getTimeLimit(string $timeLimitChoice): int
+    private function getQuestionsQty(int $qty): string
     {
-        $timeLimitArray = explode('_', $timeLimitChoice);
-        return (int)end($timeLimitArray);
+        if ($qty % 10 == 1 && $qty % 100 != 11) {
+            return "$qty вопрос";
+        } elseif ($qty % 10 >= 2 && $qty % 10 <= 4 && ($qty % 100 < 10 || $qty % 100 >= 20)) {
+            return "$qty вопроса";
+        } else {
+            return "$qty вопросов";
+        }
     }
 }
