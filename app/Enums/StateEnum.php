@@ -404,6 +404,18 @@ enum StateEnum: string
             self::GameEditTitleWaiting => [
                 new ButtonDto(CallbackEnum::Back->value, "Отмена")
             ],
+            self::GameEditTimeLimitChoice => [
+                new ButtonDto(CallbackEnum::GameTimeLimit15->value, CallbackEnum::GameTimeLimit15->buttonText()),
+                new ButtonDto(CallbackEnum::GameTimeLimit20->value, CallbackEnum::GameTimeLimit20->buttonText()),
+                new ButtonDto(CallbackEnum::GameTimeLimit25->value, CallbackEnum::GameTimeLimit25->buttonText()),
+                new ButtonDto(CallbackEnum::GameTimeLimit30->value, CallbackEnum::GameTimeLimit30->buttonText()),
+                new ButtonDto(CallbackEnum::GameTimeLimit45->value, CallbackEnum::GameTimeLimit45->buttonText()),
+                new ButtonDto(CallbackEnum::GameTimeLimit60->value, CallbackEnum::GameTimeLimit60->buttonText()),
+                new ButtonDto(CallbackEnum::GameTimeLimit180->value, CallbackEnum::GameTimeLimit180->buttonText()),
+                new ButtonDto(CallbackEnum::GameTimeLimit300->value, CallbackEnum::GameTimeLimit300->buttonText()),
+                new ButtonDto(CallbackEnum::GameTimeLimit600->value, CallbackEnum::GameTimeLimit600->buttonText()),
+                new ButtonDto(CallbackEnum::Back->value, "Отмена")
+            ],
 
 
 

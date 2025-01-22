@@ -45,10 +45,12 @@ class GameEditPollsChoiceState extends AbstractState implements UserState
             $pollIds = explode(',', $game->poll_ids);
             [,$chosenId] = explode('_', $input);
 
-            if (!in_array($chosenId, $pollIds)) {
-                $pollIds[] = $chosenId;
-            } else {
-                $pollIds = array_diff($pollIds, [$chosenId]);
+            if (is_numeric($chosenId)) {
+                if (!in_array($chosenId, $pollIds)) {
+                    $pollIds[] = $chosenId;
+                } else {
+                    $pollIds = array_diff($pollIds, [$chosenId]);
+                }
             }
 
             $game->update(['poll_ids' => implode(',', $pollIds)]);
