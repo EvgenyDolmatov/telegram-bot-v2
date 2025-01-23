@@ -7,7 +7,6 @@ use App\Enums\ThemeEnum;
 use App\States\AbstractState;
 use App\States\UserContext;
 use App\States\UserState;
-use Illuminate\Support\Facades\Log;
 
 class ThemeChoiceState extends AbstractState implements UserState
 {
@@ -31,11 +30,6 @@ class ThemeChoiceState extends AbstractState implements UserState
 
     protected function getAvailableCallbackValues(StateEnum $baseState): array
     {
-        $values = [];
-        foreach (ThemeEnum::cases() as $theme) {
-            $values[] = $theme->value;
-        }
-
-        return $values;
+        return array_map(fn ($theme) => $theme->value, ThemeEnum::cases());
     }
 }

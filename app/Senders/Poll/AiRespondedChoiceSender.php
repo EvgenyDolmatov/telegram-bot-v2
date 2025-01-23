@@ -158,16 +158,8 @@ class AiRespondedChoiceSender extends AbstractSender
                 $messagePollIds[] = $messageId;
             }
 
-            if ($userPollGroup = PollGroup::where('user_id', $this->user->id)->where('is_closed', false)->first()) {
-                $userPollGroup->update([
-                    'poll_ids' => $userPollGroup->poll_ids . ',' . implode(',', $messagePollIds),
-                ]);
-            } else {
-                PollGroup::create([
-                    'user_id' => $this->user->id,
-                    'poll_ids' => implode(',', $messagePollIds),
-                ]);
-            }
+            // Update poll group
+            $this->updatePollGroup($messagePollIds);
 
             // Send message with correct answers
             if ($correctAnswers !== '') {
@@ -183,6 +175,23 @@ class AiRespondedChoiceSender extends AbstractSender
             // Close current flow
             $flow->update(['is_completed' => true]);
         }
+    }
+
+    private function updatePollGroup(array $pollIds): void
+    {
+        $pollGroup = PollGroup::where('user_id', $this->user->id)->where('is_closed', false)->first();
+
+        if ($pollGroup) {
+            $pollGroup->update([
+                'poll_ids' => $pollGroup->poll_ids . ',' . implode(',', $pollIds),
+            ]);
+            return;
+        }
+
+        PollGroup::create([
+            'user_id' => $this->user->id,
+            'poll_ids' => implode(',', $pollIds),
+        ]);
     }
 
     private function saveAiRequestToDb(UserFlow $flow, OpenAiCompletionDto $aiCompletionDto): void
