@@ -3,6 +3,7 @@
 namespace App\Enums;
 
 use App\Dto\Telegram\Message\Component\ButtonDto;
+use App\Enums\Callback\GameEnum;
 use App\Models\User;
 use App\Repositories\Telegram\Request\RepositoryInterface;
 use App\Senders\Account\ReferralLinkShowSender;
@@ -55,7 +56,6 @@ use App\States\Admin\StatisticPollsPerWeekShowState;
 use App\States\Admin\StatisticPollsPerYearShowState;
 use App\States\Admin\StatisticUsersMenuChoiceState;
 use App\States\Admin\StatisticUsersPerDayShowState;
-use App\States\Game\Action\GameChangedTitleActionState;
 use App\States\Game\Edit\GameEditPollsChoiceState;
 use App\States\Game\Edit\GameEditTimeLimitWaitingState;
 use App\States\Game\Edit\GameEditTitleWaitingState;
@@ -364,7 +364,7 @@ enum StateEnum: string
                 new ButtonDto(CallbackEnum::AfterAiRespondedMenu->value, CallbackEnum::AfterAiRespondedMenu->buttonText()),
             ],
             self::PollAfterAiRespondedChoice => [
-                new ButtonDto(CallbackEnum::GameCreate->value, CallbackEnum::GameCreate->buttonText()),
+                GameEnum::Create->getButtonDto(),
                 new ButtonDto(CommandEnum::Start->getCommand(), "Отменить и выйти")
             ],
 
@@ -373,47 +373,47 @@ enum StateEnum: string
                 new ButtonDto(CommandEnum::Start->getCommand(), "Отменить и выйти")
             ],
             self::GamePollsChoice => [
-                new ButtonDto(CallbackEnum::GamePollsSave->value, "Отправить выбранные"),
+                GameEnum::PollsSave->getButtonDto("Отправить выбранные"),
                 new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText())
             ],
             self::GameTimeLimitChoice => [
-                new ButtonDto(CallbackEnum::GameTimeLimit15->value, CallbackEnum::GameTimeLimit15->buttonText()),
-                new ButtonDto(CallbackEnum::GameTimeLimit20->value, CallbackEnum::GameTimeLimit20->buttonText()),
-                new ButtonDto(CallbackEnum::GameTimeLimit25->value, CallbackEnum::GameTimeLimit25->buttonText()),
-                new ButtonDto(CallbackEnum::GameTimeLimit30->value, CallbackEnum::GameTimeLimit30->buttonText()),
-                new ButtonDto(CallbackEnum::GameTimeLimit45->value, CallbackEnum::GameTimeLimit45->buttonText()),
-                new ButtonDto(CallbackEnum::GameTimeLimit60->value, CallbackEnum::GameTimeLimit60->buttonText()),
-                new ButtonDto(CallbackEnum::GameTimeLimit180->value, CallbackEnum::GameTimeLimit180->buttonText()),
-                new ButtonDto(CallbackEnum::GameTimeLimit300->value, CallbackEnum::GameTimeLimit300->buttonText()),
-                new ButtonDto(CallbackEnum::GameTimeLimit600->value, CallbackEnum::GameTimeLimit600->buttonText()),
+                GameEnum::TimeLimit15->getButtonDto(),
+                GameEnum::TimeLimit20->getButtonDto(),
+                GameEnum::TimeLimit25->getButtonDto(),
+                GameEnum::TimeLimit30->getButtonDto(),
+                GameEnum::TimeLimit45->getButtonDto(),
+                GameEnum::TimeLimit60->getButtonDto(),
+                GameEnum::TimeLimit180->getButtonDto(),
+                GameEnum::TimeLimit300->getButtonDto(),
+                GameEnum::TimeLimit600->getButtonDto(),
                 new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText())
             ],
             self::GameCreatedMenuShow => [
-                new ButtonDto(CallbackEnum::GameEdit->value, CallbackEnum::GameEdit->buttonText()),
-                new ButtonDto(CallbackEnum::GameAddToCommunity->value, CallbackEnum::GameAddToCommunity->buttonText()),
-                new ButtonDto(CallbackEnum::GameInvitationLink->value, CallbackEnum::GameInvitationLink->buttonText()),
-                new ButtonDto(CallbackEnum::GameStart->value, CallbackEnum::GameStart->buttonText()),
-                new ButtonDto(CallbackEnum::GameStatistics->value, CallbackEnum::GameStatistics->buttonText()),
+                GameEnum::Edit->getButtonDto(),
+                GameEnum::AddToCommunity->getButtonDto(),
+                GameEnum::InvitationLink->getButtonDto(),
+                GameEnum::Start->getButtonDto(),
+                GameEnum::Statistics->getButtonDto(),
             ],
             self::GameEditMenuShow => [
-                new ButtonDto(CallbackEnum::GameEditTitle->value, CallbackEnum::GameEditTitle->buttonText()),
-                new ButtonDto(CallbackEnum::GameEditPolls->value, CallbackEnum::GameEditPolls->buttonText()),
-                new ButtonDto(CallbackEnum::GameEditTimeLimit->value, CallbackEnum::GameEditTimeLimit->buttonText()),
+                GameEnum::EditTitle->getButtonDto(),
+                GameEnum::EditPolls->getButtonDto(),
+                GameEnum::EditTimeLimit->getButtonDto(),
                 new ButtonDto(CallbackEnum::Back->value, "Отмена")
             ],
             self::GameEditTitleWaiting => [
                 new ButtonDto(CallbackEnum::Back->value, "Отмена")
             ],
             self::GameEditTimeLimitChoice => [
-                new ButtonDto(CallbackEnum::GameTimeLimit15->value, CallbackEnum::GameTimeLimit15->buttonText()),
-                new ButtonDto(CallbackEnum::GameTimeLimit20->value, CallbackEnum::GameTimeLimit20->buttonText()),
-                new ButtonDto(CallbackEnum::GameTimeLimit25->value, CallbackEnum::GameTimeLimit25->buttonText()),
-                new ButtonDto(CallbackEnum::GameTimeLimit30->value, CallbackEnum::GameTimeLimit30->buttonText()),
-                new ButtonDto(CallbackEnum::GameTimeLimit45->value, CallbackEnum::GameTimeLimit45->buttonText()),
-                new ButtonDto(CallbackEnum::GameTimeLimit60->value, CallbackEnum::GameTimeLimit60->buttonText()),
-                new ButtonDto(CallbackEnum::GameTimeLimit180->value, CallbackEnum::GameTimeLimit180->buttonText()),
-                new ButtonDto(CallbackEnum::GameTimeLimit300->value, CallbackEnum::GameTimeLimit300->buttonText()),
-                new ButtonDto(CallbackEnum::GameTimeLimit600->value, CallbackEnum::GameTimeLimit600->buttonText()),
+                GameEnum::TimeLimit15->getButtonDto(),
+                GameEnum::TimeLimit20->getButtonDto(),
+                GameEnum::TimeLimit25->getButtonDto(),
+                GameEnum::TimeLimit30->getButtonDto(),
+                GameEnum::TimeLimit45->getButtonDto(),
+                GameEnum::TimeLimit60->getButtonDto(),
+                GameEnum::TimeLimit180->getButtonDto(),
+                GameEnum::TimeLimit300->getButtonDto(),
+                GameEnum::TimeLimit600->getButtonDto(),
                 new ButtonDto(CallbackEnum::Back->value, "Отмена")
             ],
 

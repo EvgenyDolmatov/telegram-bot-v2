@@ -2,6 +2,7 @@
 
 namespace App\States;
 
+use App\Enums\Callback\GameEnum;
 use App\Enums\CallbackEnum;
 use App\Enums\CommandEnum;
 use App\Enums\StateEnum;
@@ -9,7 +10,6 @@ use App\Enums\ThemeEnum;
 use App\Models\User;
 use App\Repositories\Telegram\Request\RepositoryInterface;
 use App\Services\TelegramService;
-use Illuminate\Support\Facades\Log;
 
 abstract class AbstractState implements UserState
 {
@@ -74,9 +74,15 @@ abstract class AbstractState implements UserState
 
     protected function getState(string $input, StateEnum $baseState): StateEnum
     {
-        return $input === CallbackEnum::Back->value
-            ? $baseState->backState()
-            : CallbackEnum::from($input)->toState();
+        if ($input === CallbackEnum::Back->value) {
+            return $baseState;
+        }
+
+        if (str_starts_with($input, 'game_')) {
+            return GameEnum::from($input)->toState();
+        }
+
+        return CallbackEnum::from($input)->toState();
     }
 
     protected function getAvailableCallbackValues(StateEnum $baseState): array

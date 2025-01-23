@@ -15,36 +15,6 @@ enum CallbackEnum: string
     case RepeatFlow = 'repeat_flow';
     case AfterAiRespondedMenu = 'after_ai_responded_menu';
 
-    /** Game */
-    case GameCreate = 'game_create';
-    case GamePollsSave = 'game_polls_save';
-    case GameTimeLimit15 = 'game_time_limit_15';
-    case GameTimeLimit20 = 'game_time_limit_20';
-    case GameTimeLimit25 = 'game_time_limit_25';
-    case GameTimeLimit30 = 'game_time_limit_30';
-    case GameTimeLimit45 = 'game_time_limit_45';
-    case GameTimeLimit60 = 'game_time_limit_60';
-    case GameTimeLimit180 = 'game_time_limit_180';
-    case GameTimeLimit300 = 'game_time_limit_300';
-    case GameTimeLimit600 = 'game_time_limit_600';
-    case GameEdit = 'game_edit';
-    case GameEditTitle = 'game_edit_title';
-    case GameEditPolls = 'game_edit_polls';
-    case GameEditTimeLimit = 'game_edit_time_limit';
-    case GameTitleChange = 'game_title_change';
-    case GamePollsChange = 'game_polls_change';
-    case GameTimeLimitChange = 'game_time_limit_change';
-    case GameAddToCommunity = 'game_add_to_community';
-    case GameInvitationLink = 'game_invitation_link';
-    case GameStart = 'game_start';
-    case GameStatistics = 'game_statistics';
-
-
-
-    case GameChannelSave = 'game_channel_save';
-    case GameQuizStart = 'game_quiz_start';
-    case GameJoinUserToQuiz = 'game_join_user_to_quiz'; // Show in communities
-
     /** Account */
     case AccountReferralLink = 'account_referral_link';
     case AccountReferredUsers = 'account_referred_users';
@@ -74,31 +44,7 @@ enum CallbackEnum: string
             self::TypeSurvey => StateEnum::PollThemeChoice,
             self::RepeatFlow => StateEnum::PollAiRespondedChoice,
             self::AfterAiRespondedMenu => StateEnum::PollAfterAiRespondedChoice,
-            /** Game */
-            self::GameCreate => StateEnum::GameTitleWaiting,
-            self::GamePollsSave => StateEnum::GameTimeLimitChoice,
-            self::GameTimeLimit15,
-            self::GameTimeLimit20,
-            self::GameTimeLimit25,
-            self::GameTimeLimit30,
-            self::GameTimeLimit45,
-            self::GameTimeLimit60,
-            self::GameTimeLimit180,
-            self::GameTimeLimit300,
-            self::GameTimeLimit600 => StateEnum::GameCreatedMenuShow,
-            self::GameEdit => StateEnum::GameEditMenuShow,
-            self::GameEditTitle => StateEnum::GameEditTitleWaiting,
-            self::GameEditPolls => StateEnum::GameEditPollsChoice,
-            self::GameEditTimeLimit,
-            self::GameTitleChange,
-            self::GamePollsChange,
-            self::GameTimeLimitChange => StateEnum::GameEditTimeLimitChoice,
 
-
-
-
-            self::GameQuizStart => StateEnum::GamePlayersWaiting,
-            self::GameJoinUserToQuiz => StateEnum::GameQuizProcess,
 
             self::AccountReferralLink => StateEnum::AccountReferralLinkShow,
             self::AccountReferredUsers => StateEnum::AccountReferredUsersShow,
@@ -130,35 +76,8 @@ enum CallbackEnum: string
             self::TypeSurvey => "Опрос",
             self::RepeatFlow => "🔄 Создать еще 5 вопросов",
             self::AfterAiRespondedMenu => "🎲 Завершить",
-            self::GameCreate => "Создать игру из вопросов",
-
-            /** Game button texts */
-            self::GamePollsSave => "Отправить выбранные",
-            self::GameTimeLimit15 => "15 секунд",
-            self::GameTimeLimit20 => "20 секунд",
-            self::GameTimeLimit25 => "25 секунд",
-            self::GameTimeLimit30 => "30 секунд",
-            self::GameTimeLimit45 => "45 секунд",
-            self::GameTimeLimit60 => "1 минута",
-            self::GameTimeLimit180 => "3 минуты",
-            self::GameTimeLimit300 => "5 минут",
-            self::GameTimeLimit600 => "10 минут",
-            self::GameEdit => "Редактировать",
-            self::GameEditTitle => "Редактировать название",
-            self::GameEditPolls => "Редактировать вопросы",
-            self::GameEditTimeLimit => "Редактировать время",
-            self::GamePollsChange,
-            self::GameTimeLimitChange => "Сохранить",
 
 
-            self::GameAddToCommunity => "Добавить в группу",
-            self::GameInvitationLink => "Пригласить игроков",
-            self::GameStart => "Начать игру",
-            self::GameStatistics => "Статистика",
-
-            self::GameChannelSave => "Сохранить канал",
-            self::GameQuizStart => "Отправить в канал",
-            self::GameJoinUserToQuiz => "Присоединиться к викторине",
             self::AccountReferralLink => "Моя реферальная ссылка",
             self::AccountReferredUsers => "Приглашенные пользователи",
             self::AdminNewsletterCreate => 'Создать рассылку',
