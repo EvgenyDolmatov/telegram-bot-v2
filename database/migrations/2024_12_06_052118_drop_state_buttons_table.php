@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::dropIfExists('state_buttons');
+        Schema::dropIfExists('states');
     }
 
     /**
