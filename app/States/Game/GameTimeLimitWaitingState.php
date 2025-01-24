@@ -2,31 +2,55 @@
 
 namespace App\States\Game;
 
+use App\Enums\Callback\GameEnum;
+use App\Enums\CallbackEnum;
 use App\Enums\StateEnum;
 use App\Models\Game;
 use App\States\AbstractState;
 use App\States\UserContext;
 use App\States\UserState;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class GameTimeLimitWaitingState extends AbstractState implements UserState
 {
     private const StateEnum STATE = StateEnum::GameTimeLimitChoice;
+    private const StateEnum NEXT_STATE = StateEnum::GameCreatedMenuShow;
 
     public function handleInput(string $input, UserContext $context): void
     {
+        Log::debug('GameTimeLimitWaitingState: ' . $input);
         // Get next state by callback
         $state = $this->getState($input, self::STATE);
+
+        // If user sent unexpected message
+        $availableValues = $this->getAvailableCallbackValues(self::STATE);
+        if (!empty($availableValues) && !in_array($input, $availableValues)) {
+            $this->sendMessage(self::STATE);
+            return;
+        }
 
         // Update user step
         $this->user->updateFlow(self::STATE, $input);
 
         // Update user step
         $this->updateState($state, $context);
-        $this->createGame();
+
+        if ($state === self::NEXT_STATE) {
+            $this->createGame();
+        }
 
         // Send message to chat
         $this->sendMessage($state);
+    }
+
+    protected function getState(string $input, StateEnum $baseState): StateEnum
+    {
+        if ($input === CallbackEnum::Back->value) {
+            return $baseState->backState();
+        }
+
+        return GameEnum::from($input)->toState();
     }
 
     private function createGame(): Game
