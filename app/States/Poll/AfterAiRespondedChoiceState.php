@@ -13,6 +13,6 @@ class AfterAiRespondedChoiceState extends AbstractState implements UserState
 
     public function handleInput(string $input, UserContext $context): void
     {
-        $this->handleSimpleInput($input, $context, self::STATE);
+        $this->handleSimpleInput($input, $context, self::STATE, false);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Enums;
 
 use App\Dto\Telegram\Message\Component\ButtonDto;
 use App\Enums\Callback\GameEnum;
+use App\Enums\Callback\PollEnum;
 use App\Models\User;
 use App\Repositories\Telegram\Request\RepositoryInterface;
 use App\Senders\Account\ReferralLinkShowSender;
@@ -204,6 +205,7 @@ enum StateEnum: string
             self::PollAfterAiRespondedChoice,
             self::GameCreatedMenuShow,
             self::GamePlayersWaiting => self::Start,
+            self::PollThemeChoice => self::PollTypeChoice,
             self::PollRequestWaiting => self::PollThemeChoice,
             /** Game */
             self::GameTitleWaiting => self::PollAfterAiRespondedChoice,
@@ -350,8 +352,8 @@ enum StateEnum: string
 
             /** Poll buttons */
             self::PollTypeChoice => [
-                new ButtonDto(CallbackEnum::TypeQuiz->value, CallbackEnum::TypeQuiz->buttonText()),
-                new ButtonDto(CallbackEnum::TypeSurvey->value, CallbackEnum::TypeSurvey->buttonText()),
+                PollEnum::TypeQuiz->getButtonDto(),
+                PollEnum::TypeSurvey->getButtonDto(),
                 new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText()),
             ],
             self::PollThemeChoice,
@@ -359,9 +361,9 @@ enum StateEnum: string
                 new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText()),
             ],
             self::PollAiRespondedChoice => [
-                new ButtonDto(CallbackEnum::RepeatFlow->value, CallbackEnum::RepeatFlow->buttonText()),
+                PollEnum::RepeatFlow->getButtonDto(),
                 new ButtonDto(CommandEnum::Start->getCommand(), '↩️ Выбрать другую тему'),
-                new ButtonDto(CallbackEnum::AfterAiRespondedMenu->value, CallbackEnum::AfterAiRespondedMenu->buttonText()),
+                PollEnum::AfterAiRespondedMenu->getButtonDto(),
             ],
             self::PollAfterAiRespondedChoice => [
                 GameEnum::Create->getButtonDto(),

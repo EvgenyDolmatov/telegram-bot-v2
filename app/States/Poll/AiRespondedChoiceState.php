@@ -2,7 +2,7 @@
 
 namespace App\States\Poll;
 
-use App\Enums\CallbackEnum;
+use App\Enums\Callback\PollEnum;
 use App\Enums\StateEnum;
 use App\Models\UserFlow;
 use App\States\AbstractState;
@@ -35,7 +35,7 @@ class AiRespondedChoiceState extends AbstractState implements UserState
     private function flowHandler(string $input): void
     {
         match ($input) {
-            CallbackEnum::RepeatFlow->value => $this->duplicateLastFlow(),
+            PollEnum::RepeatFlow->value => $this->duplicateLastFlow(),
             default => $this->user->updateFlow(self::STATE, $input, true)
         };
     }

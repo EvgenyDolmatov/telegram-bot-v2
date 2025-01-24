@@ -3,6 +3,7 @@
 namespace App\States;
 
 use App\Enums\Callback\GameEnum;
+use App\Enums\Callback\PollEnum;
 use App\Enums\CallbackEnum;
 use App\Enums\CommandEnum;
 use App\Enums\StateEnum;
@@ -75,11 +76,15 @@ abstract class AbstractState implements UserState
     protected function getState(string $input, StateEnum $baseState): StateEnum
     {
         if ($input === CallbackEnum::Back->value) {
-            return $baseState;
+            return $baseState->backState();
         }
 
         if (str_starts_with($input, 'game_')) {
             return GameEnum::from($input)->toState();
+        }
+
+        if (str_starts_with($input, 'poll_')) {
+            return PollEnum::from($input)->toState();
         }
 
         return CallbackEnum::from($input)->toState();

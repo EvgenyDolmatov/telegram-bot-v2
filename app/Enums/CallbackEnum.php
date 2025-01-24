@@ -9,12 +9,6 @@ enum CallbackEnum: string
     case Support = 'support';
     case CreateSurveyWithAi = 'create_survey_with_ai';
 
-    /** Poll */
-    case TypeQuiz = 'type_quiz';
-    case TypeSurvey = 'type_survey';
-    case RepeatFlow = 'repeat_flow';
-    case AfterAiRespondedMenu = 'after_ai_responded_menu';
-
     /** Account */
     case AccountReferralLink = 'account_referral_link';
     case AccountReferredUsers = 'account_referred_users';
@@ -39,12 +33,6 @@ enum CallbackEnum: string
             /** Common */
             self::CreateSurveyWithAi => StateEnum::PollTypeChoice,
             self::Support => StateEnum::PollSupport,
-            /** Poll */
-            self::TypeQuiz,
-            self::TypeSurvey => StateEnum::PollThemeChoice,
-            self::RepeatFlow => StateEnum::PollAiRespondedChoice,
-            self::AfterAiRespondedMenu => StateEnum::PollAfterAiRespondedChoice,
-
 
             self::AccountReferralLink => StateEnum::AccountReferralLinkShow,
             self::AccountReferredUsers => StateEnum::AccountReferredUsersShow,
@@ -70,12 +58,6 @@ enum CallbackEnum: string
             self::Back => "↩️ Назад",
             self::Support => "Поддержка",
             self::CreateSurveyWithAi => "Создать с Corgish AI",
-
-            /** Poll button texts */
-            self::TypeQuiz => "Викторина",
-            self::TypeSurvey => "Опрос",
-            self::RepeatFlow => "🔄 Создать еще 5 вопросов",
-            self::AfterAiRespondedMenu => "🎲 Завершить",
 
 
             self::AccountReferralLink => "Моя реферальная ссылка",

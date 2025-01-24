@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enums\CallbackEnum;
+use App\Enums\Callback\PollEnum;
 use App\Enums\StateEnum;
 use Illuminate\Database\Eloquent\Model;
 
@@ -20,21 +20,12 @@ class UserFlow extends Model
         return json_decode($this->flow, true);
     }
 
-    public function isAnonymous(): bool
-    {
-        $flowData = $this->getFlowData();
-
-        return
-            isset($flowData[StateEnum::PollAnonymityChoice->value])
-            && $flowData[StateEnum::PollAnonymityChoice->value] === CallbackEnum::IsAnon->value;
-    }
-
     public function isQuiz(): bool
     {
         $flowData = $this->getFlowData();
 
         return
             isset($flowData[StateEnum::PollTypeChoice->value])
-            && $flowData[StateEnum::PollTypeChoice->value] === CallbackEnum::TypeQuiz->value;
+            && $flowData[StateEnum::PollTypeChoice->value] === PollEnum::TypeQuiz->value;
     }
 }
