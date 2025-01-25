@@ -52,6 +52,7 @@ enum GameEnum: string
             self::TitleChange,
             self::PollsChange,
             self::TimeLimitChange => StateEnum::GameEditTimeLimitChoice,
+            self::Start => StateEnum::GameplayStart,
         };
     }
 
@@ -83,8 +84,11 @@ enum GameEnum: string
         };
     }
 
-    public function getButtonDto(?string $text = null): ButtonDto
+    public function getButtonDto(?string $value = null, ?string $text = null): ButtonDto
     {
-        return new ButtonDto($this->value, $text ?? $this->buttonText());
+        return new ButtonDto(
+            callbackData: $value ?? $this->value,
+            text: $text ?? $this->buttonText()
+        );
     }
 }

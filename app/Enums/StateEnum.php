@@ -30,6 +30,7 @@ use App\Senders\Game\Edit\GameEditTimeLimitChoiceSender;
 use App\Senders\Game\Edit\GameEditTitleWaitingSender;
 use App\Senders\Game\GameCreatedMenuShowSender;
 use App\Senders\Game\GameEditMenuShowSender;
+use App\Senders\Game\Gameplay\GameplayStartSender;
 use App\Senders\Game\GamePollsChoiceSender;
 use App\Senders\Game\GameTimeLimitChoiceSender;
 use App\Senders\Game\GameTitleWaitingSender;
@@ -62,6 +63,7 @@ use App\States\Game\Edit\GameEditTimeLimitWaitingState;
 use App\States\Game\Edit\GameEditTitleWaitingState;
 use App\States\Game\GameCreatedMenuShowState;
 use App\States\Game\GameEditMenuShowState;
+use App\States\Game\Gameplay\GameplayStartState;
 use App\States\Game\GamePollsChoiceState;
 use App\States\Game\GameTimeLimitWaitingState;
 use App\States\Game\GameTitleWaitingState;
@@ -101,10 +103,11 @@ enum StateEnum: string
 
     case GameAddToCommunityAction = 'game_add_to_community_action';
     case GameInvitationLinkShow = 'game_invitation_link_show';
-    case GameStart = 'game_start';
     case GameStatisticShow = 'game_statistic_show';
 
-
+    /** Gameplay */
+    case GameplayStart = 'gameplay_start';
+    case GameplayCountdownShow = 'gameplay_countdown_show';
 
 
     case GameDescriptionWaiting = 'game_description_waiting';
@@ -166,6 +169,8 @@ enum StateEnum: string
             self::GameEditTitleWaiting => new GameEditTitleWaitingState($repository, $telegramService),
             self::GameEditPollsChoice => new GameEditPollsChoiceState($repository, $telegramService),
             self::GameEditTimeLimitChoice => new GameEditTimeLimitWaitingState($repository, $telegramService),
+            /** Gameplay states */
+            self::GameplayStart => new GameplayStartState($repository, $telegramService),
 
 
 
@@ -261,6 +266,12 @@ enum StateEnum: string
             self::GameEditPollsChoice => new GameEditPollsChoiceSender($repository, $telegramService, $user),
             self::GameEditTimeLimitChoice => new GameEditTimeLimitChoiceSender($repository, $telegramService, $user),
 
+            /** Gameplay senders */
+            self::GameplayStart => new GameplayStartSender($repository, $telegramService, $user),
+
+            /** Gameplay senders */
+            self::GamePlayersWaiting => new GameplayStartSender($repository, $telegramService, $user),
+
             /** Account senders */
             self::Account => new AccountSender($repository, $telegramService, $user),
             self::AccountReferralLinkShow => new ReferralLinkShowSender($repository, $telegramService, $user),
@@ -305,7 +316,8 @@ enum StateEnum: string
             self::GameCreatedMenuShow => "Игра успешно создана!",
             self::GameEditMenuShow => "Выберите действие",
 
-
+            /** Gameplay titles */
+            self::GameplayStart => "Game Start",
 
 
 
@@ -340,11 +352,11 @@ enum StateEnum: string
             self::Start => [
                 new ButtonDto(CallbackEnum::CreateSurveyWithAi->value, CallbackEnum::CreateSurveyWithAi->buttonText()),
                 new ButtonDto(CallbackEnum::Support->value, CallbackEnum::Support->buttonText()),
-                new ButtonDto(
-                    callbackData: "",
-                    text: "test",
-                    url: 'https://t.me/DevTest067Bot?startgroup=start'
-                ), // TODO: Do not forget to remove it.
+//                new ButtonDto(
+//                    callbackData: "",
+//                    text: "Call groups list",
+//                    url: 'https://t.me/DevTest067Bot?startgroup=start'
+//                ), // TODO: Do not forget to remove it.
             ],
             self::PollSupport => [
                 new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText())
@@ -375,7 +387,7 @@ enum StateEnum: string
                 new ButtonDto(CommandEnum::Start->getCommand(), "Отменить и выйти")
             ],
             self::GamePollsChoice => [
-                GameEnum::PollsSave->getButtonDto("Отправить выбранные"),
+                GameEnum::PollsSave->getButtonDto(value: "Отправить выбранные"),
                 new ButtonDto(CallbackEnum::Back->value, CallbackEnum::Back->buttonText())
             ],
             self::GameTimeLimitChoice => [
@@ -419,7 +431,10 @@ enum StateEnum: string
                 new ButtonDto(CallbackEnum::Back->value, "Отмена")
             ],
 
-
+            /** Gameplay buttons */
+            self::GameplayStart => [
+                GameEnum::Start->getButtonDto(),
+            ],
 
 
             self::AdminStatisticPollsPerYearShow,

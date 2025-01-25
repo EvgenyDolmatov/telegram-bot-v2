@@ -134,7 +134,7 @@ readonly class SenderService
                 $body['reply_markup']['inline_keyboard'][] = [
                     [
                         'text' => $button->getText(),
-                        'callback_data' => $button->getCallbackData()
+                        'callback_data' => $button->getCallbackData(),
                     ]
                 ];
 
@@ -142,6 +142,16 @@ readonly class SenderService
                     $body['reply_markup']['inline_keyboard'][$key][0]['url'] = $button->getUrl();
                 }
             }
+
+//            $body['reply_markup']['inline_keyboard'][] = [
+//                [
+//                    'text' => "switch_inline_query_chosen_chat",
+//                    'switch_inline_query_chosen_chat' => [
+//                        'query' => 'adsf',
+//                        'allow_user_chats' => true
+//                    ]
+//                ],
+//            ];
         }
 
         return $body;
