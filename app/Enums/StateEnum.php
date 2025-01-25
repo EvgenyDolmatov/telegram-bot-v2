@@ -30,6 +30,7 @@ use App\Senders\Game\Edit\GameEditTimeLimitChoiceSender;
 use App\Senders\Game\Edit\GameEditTitleWaitingSender;
 use App\Senders\Game\GameCreatedMenuShowSender;
 use App\Senders\Game\GameEditMenuShowSender;
+use App\Senders\Game\Gameplay\GameplayCountdownShowSender;
 use App\Senders\Game\Gameplay\GameplayStartSender;
 use App\Senders\Game\GamePollsChoiceSender;
 use App\Senders\Game\GameTimeLimitChoiceSender;
@@ -63,6 +64,7 @@ use App\States\Game\Edit\GameEditTimeLimitWaitingState;
 use App\States\Game\Edit\GameEditTitleWaitingState;
 use App\States\Game\GameCreatedMenuShowState;
 use App\States\Game\GameEditMenuShowState;
+use App\States\Game\Gameplay\GameplayCountdownShowState;
 use App\States\Game\Gameplay\GameplayStartState;
 use App\States\Game\GamePollsChoiceState;
 use App\States\Game\GameTimeLimitWaitingState;
@@ -171,6 +173,7 @@ enum StateEnum: string
             self::GameEditTimeLimitChoice => new GameEditTimeLimitWaitingState($repository, $telegramService),
             /** Gameplay states */
             self::GameplayStart => new GameplayStartState($repository, $telegramService),
+            self::GameplayCountdownShow => new GameplayCountdownShowState($repository, $telegramService),
 
 
 
@@ -268,6 +271,7 @@ enum StateEnum: string
 
             /** Gameplay senders */
             self::GameplayStart => new GameplayStartSender($repository, $telegramService, $user),
+            self::GameplayCountdownShow => new GameplayCountdownShowSender($repository, $telegramService, $user),
 
             /** Gameplay senders */
             self::GamePlayersWaiting => new GameplayStartSender($repository, $telegramService, $user),

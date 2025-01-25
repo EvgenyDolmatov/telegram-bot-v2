@@ -12,7 +12,7 @@ use App\States\UserState;
 use Exception;
 use Illuminate\Support\Facades\Log;
 
-class GameplayStartState extends AbstractState implements UserState
+class GameplayCountdownShowState extends AbstractState implements UserState
 {
     private const StateEnum STATE = StateEnum::GameplayStart;
 
