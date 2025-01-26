@@ -52,7 +52,7 @@ enum GameEnum: string
             self::TitleChange,
             self::PollsChange,
             self::TimeLimitChange => StateEnum::GameEditTimeLimitChoice,
-            self::Start => StateEnum::GameplayStart,
+            self::Start => StateEnum::GameplayWaitingToStart,
         };
     }
 

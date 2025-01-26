@@ -5,9 +5,9 @@ namespace App\Senders\Game\Gameplay;
 use App\Enums\StateEnum;
 use App\Senders\AbstractSender;
 
-class GameplayStartSender extends AbstractSender
+class GameplayWaitingToStartSender extends AbstractSender
 {
-    private const StateEnum STATE = StateEnum::GameplayStart;
+    private const StateEnum STATE = StateEnum::GameplayWaitingToStart;
 
     public function send(): void
     {
