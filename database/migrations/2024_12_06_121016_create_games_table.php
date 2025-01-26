@@ -13,13 +13,11 @@ return new class extends Migration
     {
         Schema::create('games', function (Blueprint $table) {
             $table->id();
+            $table->string('code')->unique();
             $table->foreignId('user_id')->references('id')->on('users')->cascadeOnDelete();
             $table->string('poll_ids');
             $table->string('title')->nullable();
-            $table->string('description')->nullable();
             $table->integer('time_limit')->default(0);
-            $table->string('channel')->nullable();
-            $table->integer('message_id')->nullable();
             $table->timestamps();
         });
     }

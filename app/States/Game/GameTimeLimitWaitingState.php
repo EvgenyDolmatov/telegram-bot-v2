@@ -10,7 +10,7 @@ use App\States\AbstractState;
 use App\States\UserContext;
 use App\States\UserState;
 use Exception;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class GameTimeLimitWaitingState extends AbstractState implements UserState
 {
@@ -19,7 +19,6 @@ class GameTimeLimitWaitingState extends AbstractState implements UserState
 
     public function handleInput(string $input, UserContext $context): void
     {
-        Log::debug('GameTimeLimitWaitingState: ' . $input);
         // Get next state by callback
         $state = $this->getState($input, self::STATE);
 
@@ -63,6 +62,7 @@ class GameTimeLimitWaitingState extends AbstractState implements UserState
         $openedFlow->update(['is_completed' => true]);
 
         return Game::create([
+            'code' => Str::random(10),
             'user_id' => $this->user->id,
             'poll_ids' => $flowData[StateEnum::GamePollsChoice->value],
             'title' => $flowData[StateEnum::GameTitleWaiting->value],
