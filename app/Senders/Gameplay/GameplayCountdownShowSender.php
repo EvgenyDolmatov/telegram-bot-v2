@@ -3,9 +3,11 @@
 namespace App\Senders\Gameplay;
 
 use App\Enums\StateEnum;
+use App\Models\Poll;
 use App\Repositories\Telegram\Message\MessageTextRepository;
 use App\Senders\AbstractSender;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class GameplayCountdownShowSender extends AbstractSender
 {
@@ -46,5 +48,20 @@ class GameplayCountdownShowSender extends AbstractSender
         $this->editMessage($messageId, '🚀 Приготовьтесь!');
 
         // Create first poll
+        $game = $this->user->games->last();
+        $pollIds = explode(',', $game->poll_ids);
+        $gamePolls = Poll::whereIn('id', $pollIds)->get();
+
+        Log::debug($gamePolls->count());
+
+        foreach ($gamePolls as $poll) {
+            $this->sendPoll(
+                $poll->question,
+                array_map(fn ($option) => $option->text, $poll->options->toArray()),
+                true,
+                $poll->correct_option_id
+            );
+        }
+
     }
 }

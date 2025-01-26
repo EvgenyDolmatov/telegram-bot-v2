@@ -4,6 +4,7 @@ namespace App\Senders;
 
 use App\Builder\Message\MessageBuilder;
 use App\Builder\MessageSender;
+use App\Builder\Poll\PollBuilder;
 use App\Builder\PollSender;
 use App\Dto\Telegram\Message\Component\ButtonDto;
 use App\Dto\Telegram\MessageDto;
@@ -140,5 +141,18 @@ abstract class AbstractSender implements SenderInterface
     ): Response {
         $message = $this->messageBuilder->createMessage($text, $buttons);
         return $this->senderService->sendPhoto($message, $imageUrl, $isTrash, $chatId);
+    }
+
+    protected function sendPoll(
+        string $question,
+        array $options,
+        bool $isQuiz = true,
+        ?int $correctOptionId = null
+    ): Response {
+        $pollBuilder = $this->pollBuilder
+            ->setBuilder(new PollBuilder())
+            ->createPoll($question, $options, $isQuiz, $correctOptionId);
+
+        return $this->senderService->sendPoll($pollBuilder, $this->user->tg_user_id);
     }
 }
