@@ -1,15 +1,15 @@
 <?php
 
-namespace App\States\Game\Gameplay;
+namespace App\States\Gameplay;
 
 use App\Enums\StateEnum;
 use App\States\AbstractState;
 use App\States\UserContext;
 use App\States\UserState;
 
-class GameplayCountdownShowState extends AbstractState implements UserState
+class GameplayWaitingToStartState extends AbstractState implements UserState
 {
-    private const StateEnum STATE = StateEnum::GameplayCountdownShow;
+    private const StateEnum STATE = StateEnum::GameplayWaitingToStart;
 
     public function handleInput(string $input, UserContext $context): void
     {

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Senders\Game\Gameplay;
+namespace App\Senders\Gameplay;
 
 use App\Enums\StateEnum;
 use App\Senders\AbstractSender;

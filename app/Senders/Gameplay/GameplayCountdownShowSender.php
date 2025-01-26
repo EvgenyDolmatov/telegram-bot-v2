@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Senders\Game\Gameplay;
+namespace App\Senders\Gameplay;
 
 use App\Enums\StateEnum;
 use App\Repositories\Telegram\Message\MessageTextRepository;
@@ -44,5 +44,7 @@ class GameplayCountdownShowSender extends AbstractSender
 
         sleep(1);
         $this->editMessage($messageId, '🚀 Приготовьтесь!');
+
+        // Create first poll
     }
 }
