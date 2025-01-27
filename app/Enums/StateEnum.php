@@ -4,7 +4,6 @@ namespace App\Enums;
 
 use App\Dto\Telegram\Message\Component\ButtonDto;
 use App\Enums\Callback\GameEnum;
-use App\Enums\Callback\GameplayEnum;
 use App\Enums\Callback\PollEnum;
 use App\Models\User;
 use App\Repositories\Telegram\Request\RepositoryInterface;
@@ -34,8 +33,6 @@ use App\Senders\Game\GameEditMenuShowSender;
 use App\Senders\Game\GamePollsChoiceSender;
 use App\Senders\Game\GameTimeLimitChoiceSender;
 use App\Senders\Game\GameTitleWaitingSender;
-use App\Senders\Gameplay\GameplayCountdownShowSender;
-use App\Senders\Gameplay\GameplayWaitingToStartSender;
 use App\Senders\Poll\AfterAiRespondedChoiceSender;
 use App\Senders\Poll\AiRespondedChoiceSender;
 use App\Senders\Poll\RequestWaitingSender;
@@ -68,8 +65,6 @@ use App\States\Game\GameEditMenuShowState;
 use App\States\Game\GamePollsChoiceState;
 use App\States\Game\GameTimeLimitWaitingState;
 use App\States\Game\GameTitleWaitingState;
-use App\States\Gameplay\GameplayCountdownShowState;
-use App\States\Gameplay\GameplayWaitingToStartState;
 use App\States\Help\HelpState;
 use App\States\Poll\AfterAiRespondedChoiceState;
 use App\States\Poll\AiRespondedChoiceState;
@@ -80,7 +75,7 @@ use App\States\Poll\TypeChoiceState;
 use App\States\StartState;
 use App\States\UserState;
 
-enum StateEnum: string
+enum StateEnum: string implements StateInterface
 {
     /** Common */
     case Start = 'start';
@@ -106,10 +101,6 @@ enum StateEnum: string
     case GameAddToCommunityAction = 'game_add_to_community_action';
     case GameInvitationLinkShow = 'game_invitation_link_show';
     case GameStatisticShow = 'game_statistic_show';
-
-    /** Gameplay */
-    case GameplayWaitingToStart = 'gameplay_waiting_to_start';
-    case GameplayCountdownShow = 'gameplay_countdown_show';
 
 
     /**
@@ -165,10 +156,6 @@ enum StateEnum: string
             self::GameEditTitleWaiting => new GameEditTitleWaitingState($repository, $telegramService),
             self::GameEditPollsChoice => new GameEditPollsChoiceState($repository, $telegramService),
             self::GameEditTimeLimitChoice => new GameEditTimeLimitWaitingState($repository, $telegramService),
-            /** Gameplay states */
-            self::GameplayWaitingToStart => new GameplayWaitingToStartState($repository, $telegramService),
-            self::GameplayCountdownShow => new GameplayCountdownShowState($repository, $telegramService),
-
 
 
             /** Account states */
@@ -261,10 +248,6 @@ enum StateEnum: string
             self::GameEditPollsChoice => new GameEditPollsChoiceSender($repository, $telegramService, $user),
             self::GameEditTimeLimitChoice => new GameEditTimeLimitChoiceSender($repository, $telegramService, $user),
 
-            /** Gameplay senders */
-            self::GameplayWaitingToStart => new GameplayWaitingToStartSender($repository, $telegramService, $user),
-            self::GameplayCountdownShow => new GameplayCountdownShowSender($repository, $telegramService, $user),
-
             /** Account senders */
             self::Account => new AccountSender($repository, $telegramService, $user),
             self::AccountReferralLinkShow => new ReferralLinkShowSender($repository, $telegramService, $user),
@@ -310,7 +293,7 @@ enum StateEnum: string
             self::GameEditMenuShow => "Выберите действие",
 
             /** Gameplay titles */
-            self::GameplayWaitingToStart => "Game Start",
+//            self::GameplayWaitingToStart => "Game Start",
 
 
             self::Account => "Мой аккаунт:",
@@ -421,9 +404,9 @@ enum StateEnum: string
             ],
 
             /** Gameplay buttons */
-            self::GameplayWaitingToStart => [
-                GameplayEnum::Start->getButtonDto(),
-            ],
+//            self::GameplayWaitingToStart => [
+//                GameplayEnum::Start->getButtonDto(),
+//            ],
 
 
             self::AdminStatisticPollsPerYearShow,

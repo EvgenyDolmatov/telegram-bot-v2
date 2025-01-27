@@ -3,16 +3,16 @@
 namespace App\Enums\Callback;
 
 use App\Dto\Telegram\Message\Component\ButtonDto;
-use App\Enums\StateEnum;
+use App\Enums\State\GameplayEnum as GameplayStateEnum;
 
 enum GameplayEnum: string
 {
     case Start = 'gameplay_start';
 
-    public function toState(): StateEnum
+    public function toState(): GameplayStateEnum
     {
         return match ($this) {
-            self::Start => StateEnum::GameplayCountdownShow,
+            self::Start => GameplayStateEnum::CountdownShow,
         };
     }
 

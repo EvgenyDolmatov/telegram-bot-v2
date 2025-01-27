@@ -4,6 +4,7 @@ namespace App\Enums\Callback;
 
 use App\Dto\Telegram\Message\Component\ButtonDto;
 use App\Enums\StateEnum;
+use App\Enums\State\GameplayEnum;
 
 enum GameEnum: string
 {
@@ -52,7 +53,7 @@ enum GameEnum: string
             self::TitleChange,
             self::PollsChange,
             self::TimeLimitChange => StateEnum::GameEditTimeLimitChoice,
-            self::Start => StateEnum::GameplayWaitingToStart,
+            self::Start => GameplayEnum::WaitingToStart,
         };
     }
 

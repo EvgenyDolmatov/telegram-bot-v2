@@ -2,14 +2,14 @@
 
 namespace App\States\Gameplay;
 
-use App\Enums\StateEnum;
+use App\Enums\State\GameplayEnum;
 use App\States\AbstractState;
 use App\States\UserContext;
 use App\States\UserState;
 
 class GameplayWaitingToStartState extends AbstractState implements UserState
 {
-    private const StateEnum STATE = StateEnum::GameplayWaitingToStart;
+    private const GameplayEnum STATE = GameplayEnum::WaitingToStart;
 
     public function handleInput(string $input, UserContext $context): void
     {

@@ -2,12 +2,12 @@
 
 namespace App\Senders\Gameplay;
 
-use App\Enums\StateEnum;
+use App\Enums\State\GameplayEnum;
 use App\Senders\AbstractSender;
 
 class GameplayWaitingToStartSender extends AbstractSender
 {
-    private const StateEnum STATE = StateEnum::GameplayWaitingToStart;
+    private const GameplayEnum STATE = GameplayEnum::WaitingToStart;
 
     public function send(): void
     {
