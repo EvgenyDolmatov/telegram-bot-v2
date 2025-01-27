@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Telegram\Request;
 
+use App\Repositories\Telegram\Response\PollAnswerRepository;
 use App\Repositories\Telegram\Response\PollRepository;
 use Illuminate\Http\Request;
 
@@ -37,6 +38,11 @@ readonly class RequestStrategy
         if ($this->request->has('poll')) {
             $messageData = $this->request->get('poll');
             $repository = (new PollRepository($messageData));
+        }
+
+        if ($this->request->has('poll_answer')) {
+            $messageData = $this->request->get('poll_answer');
+            $repository = (new PollAnswerRepository($messageData));
         }
 
         if (!isset($repository)) {

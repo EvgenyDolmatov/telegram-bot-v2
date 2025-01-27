@@ -66,6 +66,7 @@ class MessageStrategy
         return "";
     }
 
+    // TODO: Continue here... need to do (maybe) handler for poll_answer
     private function getMessageDto(): MessageDto
     {
         $dto = $this->repository->createDto();

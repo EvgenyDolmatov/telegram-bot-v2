@@ -21,6 +21,7 @@ class GameplayCountdownShowSender extends AbstractSender
         $this->addToTrash();
 
         $this->sendCountdownMessage();
+        $this->sendFirstPoll();
     }
 
     /**
@@ -46,22 +47,23 @@ class GameplayCountdownShowSender extends AbstractSender
 
         sleep(1);
         $this->editMessage($messageId, '🚀 Приготовьтесь!');
+    }
 
-        // Create first poll
-        $game = $this->user->games->last();
+    private function sendFirstPoll(): void
+    {
+        $game = $this->user->games->last(); // TODO: Change logic for this
         $pollIds = explode(',', $game->poll_ids);
-        $gamePolls = Poll::whereIn('id', $pollIds)->get();
+        $gamePolls = Poll::whereIn('tg_message_id', $pollIds)->get();
 
         Log::debug($gamePolls->count());
 
         foreach ($gamePolls as $poll) {
             $this->sendPoll(
                 $poll->question,
-                array_map(fn ($option) => $option->text, $poll->options->toArray()),
+                array_map(fn ($option) => $option['text'], $poll->options->toArray()),
                 true,
                 $poll->correct_option_id
             );
         }
-
     }
 }
