@@ -2,7 +2,7 @@
 
 namespace App\Senders\Gameplay;
 
-use App\Enums\State\GameplayEnum;
+use App\Enums\StateEnum;
 use App\Models\Poll;
 use App\Repositories\Telegram\Message\MessageTextRepository;
 use App\Senders\AbstractSender;
@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 
 class GameplayCountdownShowSender extends AbstractSender
 {
-    private const GameplayEnum STATE = GameplayEnum::CountdownShow;
+    private const StateEnum STATE = StateEnum::GameplayCountdownShow;
 
     /**
      * @throws Exception

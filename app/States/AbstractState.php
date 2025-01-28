@@ -8,7 +8,6 @@ use App\Enums\Callback\PollEnum;
 use App\Enums\CallbackEnum;
 use App\Enums\CommandEnum;
 use App\Enums\StateEnum;
-use App\Enums\StateInterface;
 use App\Enums\ThemeEnum;
 use App\Models\User;
 use App\Repositories\Telegram\Request\RepositoryInterface;
@@ -69,13 +68,13 @@ abstract class AbstractState implements UserState
         $this->user->update(['state' => $state->value]);
     }
 
-    protected function sendMessage(StateInterface $state): void
+    protected function sendMessage(StateEnum $state): void
     {
         $sender = $state->sender($this->repository, $this->telegramService, $this->user);
         $sender->send();
     }
 
-    protected function getState(string $input, StateInterface $baseState): StateInterface
+    protected function getState(string $input, StateEnum $baseState): StateEnum
     {
         if ($input === CallbackEnum::Back->value) {
             return $baseState->backState();
