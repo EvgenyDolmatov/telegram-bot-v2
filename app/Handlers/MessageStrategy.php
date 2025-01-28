@@ -8,6 +8,7 @@ use App\Handlers\Message\CommandHandler;
 use App\Handlers\Message\CommunityHandler;
 use App\Handlers\Message\StateHandler;
 use App\Repositories\Telegram\Request\RepositoryInterface;
+use App\Repositories\Telegram\Response\PollAnswerRepository;
 use App\Services\TelegramService;
 
 class MessageStrategy
@@ -22,6 +23,11 @@ class MessageStrategy
 
     public function defineHandler(): self
     {
+        if ($this->repository instanceof PollAnswerRepository) {
+            $handler = new PollAnswerHandler($this->telegramService, $this->repository);
+            return $this->setHandler($handler);
+        }
+
         $dto = $this->getMessageDto();
         $message = $this->getInput();
 
