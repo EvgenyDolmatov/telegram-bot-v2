@@ -17,6 +17,7 @@ use App\Repositories\Telegram\Request\RepositoryInterface;
 use App\Services\SenderService;
 use App\Services\TelegramService;
 use Illuminate\Http\Client\Response;
+use PHPUnit\Logging\Exception;
 
 abstract class AbstractSender implements SenderInterface
 {
@@ -144,15 +145,24 @@ abstract class AbstractSender implements SenderInterface
     }
 
     protected function sendPoll(
-        string $question,
-        array $options,
-        bool $isQuiz = true,
-        ?int $correctOptionId = null
+        string  $question,
+        array   $options,
+        bool    $isQuiz = false,
+        ?string $correctOptionId = null,
+        ?int    $chatId = null,
+        bool    $isTrash = true
     ): Response {
-        $pollBuilder = $this->pollBuilder
-            ->setBuilder(new PollBuilder())
-            ->createPoll($question, $options, $isQuiz, $correctOptionId);
+        try {
+            // Send poll message
+            $pollBuilder = $this->pollBuilder
+                ->setBuilder(new PollBuilder())
+                ->createPoll($question, $options, $isQuiz, $correctOptionId);
 
-        return $this->senderService->sendPoll($pollBuilder, $this->user->tg_user_id);
+            $response = $this->senderService->sendPoll($pollBuilder, $chatId, $isTrash);
+        } catch (\Throwable $exception) {
+            throw new Exception('An error occurred while submitting the poll');
+        }
+
+        return $response;
     }
 }

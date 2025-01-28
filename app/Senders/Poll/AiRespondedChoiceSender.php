@@ -2,10 +2,10 @@
 
 namespace App\Senders\Poll;
 
-use App\Builder\Poll\PollBuilder;
 use App\Dto\OpenAi\OpenAiQuestionDto;
 use App\Dto\OpenAi\OpenAiUsageDto;
 use App\Dto\OpenAiCompletionDto;
+use App\Dto\Telegram\Message\Component\PollDto;
 use App\Enums\StateEnum;
 use App\Models\AiRequest;
 use App\Models\Poll;
@@ -74,7 +74,7 @@ class AiRespondedChoiceSender extends AbstractSender
         return $aiCompletionDto;
     }
 
-    private function sendPoll(
+    private function handlePoll(
         string  $question,
         array   $options,
         bool    $isQuiz = false,
@@ -82,32 +82,11 @@ class AiRespondedChoiceSender extends AbstractSender
         ?int    $chatId = null,
         bool    $isTrash = true
     ): Response {
-        try {
-            // Send poll message
-            $pollBuilder = $this->pollBuilder
-                ->setBuilder(new PollBuilder())
-                ->createPoll($question, $options, $isQuiz, $correctOptionId);
-
-            $response = $this->senderService->sendPoll($pollBuilder, $chatId, $isTrash);
-        } catch (\Throwable $exception) {
-            throw new Exception('An error occurred while submitting the poll');
-        }
+        $response = $this->sendPoll($question, $options, $isQuiz, $correctOptionId, $chatId, $isTrash);
 
         try {
-            $pollData = json_decode($response, true);
-            $messagePollDto = (new MessagePollRepository($pollData))->createDto();
-            $pollDto = $messagePollDto->getPoll();
-
-            // Save poll to database
-            $poll = Poll::create([
-                'user_id' => $this->user->id,
-                'tg_message_id' => $messagePollDto->getId(),
-                'question' => $pollDto->getQuestion(),
-                'is_anonymous' => $pollDto->getIsAnonymous(),
-                'allows_multiple_answers' => $pollDto->getIsAllowsMultipleAnswers(),
-                'type' => $pollDto->getType(),
-                'correct_option_id' => $pollDto->getCorrectOptionId(),
-            ]);
+            $pollDto = $this->getPollDto($response);
+            $poll = $this->createPoll($response);
 
             // Save poll options to database
             foreach ($pollDto->getOptions() as $option) {
@@ -126,6 +105,31 @@ class AiRespondedChoiceSender extends AbstractSender
         return $response;
     }
 
+    private function getPollDto(Response $response): PollDto
+    {
+        $pollData = json_decode($response, true);
+        $messagePollDto = (new MessagePollRepository($pollData))->createDto();
+
+        return $messagePollDto->getPoll();
+    }
+
+    private function createPoll(Response $response): Poll
+    {
+        $pollData = json_decode($response, true);
+        $messagePollDto = (new MessagePollRepository($pollData))->createDto();
+        $pollDto = $messagePollDto->getPoll();
+
+        return Poll::create([
+            'user_id' => $this->user->id,
+            'tg_message_id' => $messagePollDto->getId(),
+            'question' => $pollDto->getQuestion(),
+            'is_anonymous' => $pollDto->getIsAnonymous(),
+            'allows_multiple_answers' => $pollDto->getIsAllowsMultipleAnswers(),
+            'type' => $pollDto->getType(),
+            'correct_option_id' => $pollDto->getCorrectOptionId(),
+        ]);
+    }
+
     private function sendPolls(OpenAiCompletionDto $dto): void
     {
         $flow = $this->user->getOpenedFlow();
@@ -137,7 +141,7 @@ class AiRespondedChoiceSender extends AbstractSender
             $messagePollIds = [];
 
             foreach ($questions as $question) {
-                $response = $this->sendPoll(
+                $response = $this->handlePoll(
                     question: $question->getText(),
                     options: $question->getOptions(),
                     isQuiz: $flow->isQuiz(),
