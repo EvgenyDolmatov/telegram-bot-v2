@@ -17,7 +17,7 @@ class GameplayCountdownShowState extends AbstractState implements UserState
         $state = $this->getState($input, self::STATE);
 
         // Update user step
-//        $this->updateState($state, $context);
+        $this->updateState($state, $context);
 
         // Send message to chat
         $this->sendMessage($state);

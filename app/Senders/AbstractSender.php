@@ -9,6 +9,7 @@ use App\Builder\PollSender;
 use App\Dto\Telegram\Message\Component\ButtonDto;
 use App\Dto\Telegram\MessageDto;
 use App\Enums\CommandEnum;
+use App\Enums\GameplayEnum;
 use App\Exceptions\ResponseException;
 use App\Models\AiRequest;
 use App\Models\TrashMessage;
@@ -101,7 +102,7 @@ abstract class AbstractSender implements SenderInterface
      * @return Response
      * @throws \Exception
      */
-    protected function sendMessage(
+    public function sendMessage(
         string $text,
         ?array $buttons = null,
         bool   $isTrash = true,
@@ -164,5 +165,10 @@ abstract class AbstractSender implements SenderInterface
         }
 
         return $response;
+    }
+
+    protected function updateState(mixed $state): void
+    {
+        $this->user->update(['state' => $state->value]);
     }
 }
