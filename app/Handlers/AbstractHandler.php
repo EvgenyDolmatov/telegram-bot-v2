@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Handlers\Message;
+namespace App\Handlers;
 
 use App\Models\User;
 use App\Repositories\Telegram\Request\RepositoryInterface;
 use App\Services\TelegramService;
 
-abstract class AbstractHandler
+class AbstractHandler
 {
     protected User $user;
 
@@ -16,6 +16,4 @@ abstract class AbstractHandler
     ) {
         $this->user = User::getOrCreate($repository);
     }
-
-    abstract public function handle(string $message): void;
 }

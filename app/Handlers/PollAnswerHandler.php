@@ -2,19 +2,24 @@
 
 namespace App\Handlers;
 
-use App\Enums\GameplayEnum;
-use App\Handlers\Message\AbstractHandler;
-use App\States\UserContext;
+use App\Models\User;
+use App\Repositories\Telegram\Request\RepositoryInterface;
+use App\Services\TelegramService;
 use Illuminate\Support\Facades\Log;
 
-class PollAnswerHandler extends AbstractHandler
+class PollAnswerHandler
 {
-    public function handle(string $message): void
+    protected User $user;
+
+    public function __construct(
+        protected readonly TelegramService $telegramService,
+        protected readonly RepositoryInterface $repository
+    ) {
+        $this->user = User::getOrCreate($repository);
+    }
+
+    public function handle(): void
     {
         Log::debug("PollAnswerHandler");
-
-        $state = GameplayEnum::from($this->user->getCurrentState());
-        $userContext = new UserContext($state->userState($this->repository, $this->telegramService));
-        $userContext->handleInput($message);
     }
 }

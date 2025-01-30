@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Handlers\MessageStrategy;
+use App\Handlers\HandlerStrategy;
 use App\Repositories\Telegram\Request\RequestStrategy;
 use App\Services\TelegramService;
 use Illuminate\Http\Request;
@@ -28,7 +28,7 @@ class MainController extends Controller
             $repository->addToTrash();
         }
 
-        $messageStrategy = new MessageStrategy($telegram, $repository);
-        $messageStrategy->defineHandler()->process();
+        $handlerStrategy = new HandlerStrategy($telegram, $repository);
+        $handlerStrategy->defineBehavior();
     }
 }

@@ -3,17 +3,15 @@
 namespace App\Handlers;
 
 use App\Dto\Telegram\MessageDto;
-use App\Handlers\Message\AbstractHandler;
-use App\Handlers\Message\CommandHandler;
-use App\Handlers\Message\CommunityHandler;
-use App\Handlers\Message\StateHandler;
+use App\Handlers\Message\AbstractMessageHandler;
+use App\Handlers\Message\CommandMessageHandler;
+use App\Handlers\Message\StateMessageHandler;
 use App\Repositories\Telegram\Request\RepositoryInterface;
-use App\Repositories\Telegram\Response\PollAnswerRepository;
 use App\Services\TelegramService;
 
 class MessageStrategy
 {
-    private AbstractHandler $handler;
+    private AbstractMessageHandler $handler;
 
     public function __construct(
         private readonly TelegramService $telegramService,
@@ -23,23 +21,23 @@ class MessageStrategy
 
     public function defineHandler(): self
     {
-        if ($this->repository instanceof PollAnswerRepository) {
-            $handler = new PollAnswerHandler($this->telegramService, $this->repository);
-            return $this->setHandler($handler);
-        }
+//        if ($this->repository instanceof PollAnswerRepository) {
+//            $handler = new PollAnswerHandler($this->telegramService, $this->repository);
+//            return $this->setHandler($handler);
+//        }
 
-        $dto = $this->getMessageDto();
+//        $dto = $this->getMessageDto();
         $message = $this->getInput();
 
-        if (in_array($dto->getChat()->getType(), ['supergroup', 'channel'])) {
-            $handler = new CommunityHandler($this->telegramService, $this->repository);
-            return $this->setHandler($handler);
-        }
+//        if (in_array($dto->getChat()->getType(), ['supergroup', 'channel'])) {
+//            $handler = new CommunityHandler($this->telegramService, $this->repository);
+//            return $this->setHandler($handler);
+//        }
 
         if (str_starts_with($message, '/')) {
-            $handler = new CommandHandler($this->telegramService, $this->repository);
+            $handler = new CommandMessageHandler($this->telegramService, $this->repository);
         } else {
-            $handler = new StateHandler($this->telegramService, $this->repository);
+            $handler = new StateMessageHandler($this->telegramService, $this->repository);
         }
 
         return $this->setHandler($handler);
@@ -50,7 +48,7 @@ class MessageStrategy
         $this->handler->handle($this->getInput());
     }
 
-    private function setHandler(AbstractHandler $handler): self
+    private function setHandler(AbstractMessageHandler $handler): self
     {
         $this->handler = $handler;
 

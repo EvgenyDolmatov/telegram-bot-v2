@@ -8,7 +8,7 @@ use App\Dto\Telegram\MessageDto;
 use App\Models\Game;
 use App\Services\SenderService;
 
-class CommunityHandler extends AbstractHandler
+class CommunityMessageHandler extends AbstractMessageHandler
 {
     public function handle(string $message): void
     {
