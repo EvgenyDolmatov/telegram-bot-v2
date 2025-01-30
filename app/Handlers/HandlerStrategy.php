@@ -2,7 +2,7 @@
 
 namespace App\Handlers;
 
-use App\Repositories\Telegram\Request\AbstractRepository;
+use App\Repositories\Telegram\Request\AbstractRepository as AbstractMessageRepository;
 use App\Repositories\Telegram\Request\RepositoryInterface;
 use App\Repositories\Telegram\Response\PollAnswerRepository;
 use App\Services\TelegramService;
@@ -16,7 +16,7 @@ class HandlerStrategy extends AbstractHandler
 
     public function defineBehavior(): void
     {
-        if ($this->repository instanceof AbstractRepository) {
+        if ($this->repository instanceof AbstractMessageRepository) {
             $messageStrategy = new MessageStrategy($this->telegramService, $this->repository);
             $messageStrategy->defineHandler()->process();
         }

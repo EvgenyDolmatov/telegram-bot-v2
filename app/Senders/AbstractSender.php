@@ -9,7 +9,6 @@ use App\Builder\PollSender;
 use App\Dto\Telegram\Message\Component\ButtonDto;
 use App\Dto\Telegram\MessageDto;
 use App\Enums\CommandEnum;
-use App\Enums\GameplayEnum;
 use App\Exceptions\ResponseException;
 use App\Models\AiRequest;
 use App\Models\TrashMessage;
