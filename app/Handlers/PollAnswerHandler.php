@@ -2,6 +2,8 @@
 
 namespace App\Handlers;
 
+use App\Builder\Message\MessageBuilder;
+use App\Builder\MessageSender;
 use App\Builder\Poll\PollBuilder;
 use App\Builder\PollSender;
 use App\Models\Game;
@@ -17,14 +19,16 @@ use Illuminate\Http\Client\Response;
 class PollAnswerHandler
 {
     protected User $user;
-    private SenderService $sender;
+    private SenderService $senderService;
+    protected MessageSender $messageBuilder;
 
     public function __construct(
         protected readonly TelegramService $telegramService,
         protected readonly RepositoryInterface $repository
     ) {
         $this->user = User::getOrCreate($repository);
-        $this->sender = new SenderService($repository, $telegramService);
+        $this->messageBuilder = (new MessageSender())->setBuilder(new MessageBuilder());
+        $this->senderService = new SenderService($repository, $telegramService);
     }
 
     public function handle(): void
@@ -41,20 +45,25 @@ class PollAnswerHandler
             'points' => 123 // TODO: Calculate and save points
         ]);
 
-        // send next message ...
-        $game = $this->user->games->last(); // TODO: Change logic for this
         $pollIds = explode(',', $game->poll_ids);
-        $gamePoll = Poll::whereIn('tg_message_id', $pollIds)->get()->first();
+        $pollsCount = count($pollIds);
+        $gameAnswersCount = $game->results->count();
 
-        $this->sendPoll(
-            $gamePoll->question,
-            array_map(fn ($option) => $option['text'], $gamePoll->options->toArray()),
-            true,
-            $gamePoll->correct_option_id,
-            $this->user->tg_chat_id
+        if ($pollsCount > $gameAnswersCount) {
+            $this->sendPoll(
+                $poll->question,
+                array_map(fn ($option) => $option['text'], $poll->options->toArray()),
+                true,
+                $poll->correct_option_id,
+                $this->user->tg_chat_id
+            );
+            return;
+        }
+
+        $this->sendMessage(
+            text: "Игра завершена",
+            chatId: $this->user->tg_chat_id
         );
-
-        // TODO: Check if user gave all answers. If yes, send message with results...
     }
 
     private function sendPoll(
@@ -70,7 +79,7 @@ class PollAnswerHandler
                 ->setBuilder(new PollBuilder())
                 ->createPoll($question, $options, $isQuiz, $correctOptionId);
 
-            $response = $this->sender->sendPoll($pollBuilder, $chatId, $isTrash);
+            $response = $this->senderService->sendPoll($pollBuilder, $chatId, $isTrash);
         } catch (\Throwable $exception) {
             throw new Exception('An error occurred while submitting the poll');
         }
@@ -78,18 +87,23 @@ class PollAnswerHandler
         return $response;
     }
 
+    private function sendMessage(
+        string $text,
+        ?array $buttons = null,
+        bool   $isTrash = true,
+        ?int   $chatId = null
+    ): Response {
+        $message = $this->messageBuilder->createMessage($text, $buttons);
+        return $this->senderService->sendMessage($message, $isTrash, $chatId);
+    }
+
     private function getPoll(Game $game): Poll
     {
         $gameResults = $game->results()->where('user_id', $this->user->id)->get();
         $pollIds = explode(',', $game->poll_ids);
 
-        $pollIdsCount = count($pollIds);
         $resultsCount = count($gameResults);
 
-        if ($pollIdsCount > $resultsCount) {
-            $pollIndex = $pollIds[$resultsCount];
-        }
-
-        return Poll::where('tg_message_id', $pollIndex)->first();
+        return Poll::where('tg_message_id', $pollIds[$resultsCount])->first();
     }
 }
