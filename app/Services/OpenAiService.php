@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\Callback\PollEnum;
 use App\Enums\CallbackEnum;
 use App\Enums\StateEnum;
 use App\Enums\ThemeEnum;
@@ -72,7 +73,7 @@ class OpenAiService
         ];
 
         $hasCorrectAnswer = 'верных ответов может быть несколько';
-        if ($data[StateEnum::PollTypeChoice->value] === CallbackEnum::TypeQuiz->value) {
+        if ($data[StateEnum::PollTypeChoice->value] === PollEnum::TypeQuiz->value) {
             $template['question1']['correct_answer'] = 'c';
             $template['question2']['correct_answer'] = 'a';
 
