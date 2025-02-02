@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
             $table->foreignId('game_id')->references('id')->on('games')->cascadeOnDelete();
             $table->foreignId('poll_id')->references('id')->on('polls')->cascadeOnDelete();
-            $table->string('answer');
+            $table->integer('answer')->nullable();
             $table->integer('time')->default(0);
             $table->integer('points')->default(0);
             $table->timestamps();

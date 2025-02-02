@@ -149,6 +149,7 @@ abstract class AbstractSender implements SenderInterface
         array   $options,
         bool    $isQuiz = false,
         ?string $correctOptionId = null,
+        ?int    $timeLimit = null,
         ?int    $chatId = null,
         bool    $isTrash = true
     ): Response {
@@ -158,7 +159,7 @@ abstract class AbstractSender implements SenderInterface
                 ->setBuilder(new PollBuilder())
                 ->createPoll($question, $options, $isQuiz, $correctOptionId);
 
-            $response = $this->senderService->sendPoll($pollBuilder, $chatId, $isTrash);
+            $response = $this->senderService->sendPoll($pollBuilder, $timeLimit, $chatId, $isTrash);
         } catch (\Throwable $exception) {
             throw new Exception('An error occurred while submitting the poll');
         }

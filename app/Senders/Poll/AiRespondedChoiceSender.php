@@ -79,10 +79,19 @@ class AiRespondedChoiceSender extends AbstractSender
         array   $options,
         bool    $isQuiz = false,
         ?string $correctOptionId = null,
+        ?int    $timeLimit = null,
         ?int    $chatId = null,
         bool    $isTrash = true
     ): Response {
-        $response = $this->sendPoll($question, $options, $isQuiz, $correctOptionId, $chatId, $isTrash);
+        $response = $this->sendPoll(
+            $question,
+            $options,
+            $isQuiz,
+            $correctOptionId,
+            $timeLimit,
+            $chatId,
+            $isTrash
+        );
 
         try {
             $pollDto = $this->getPollDto($response);

@@ -53,7 +53,7 @@ readonly class SenderService
         $body = $this->addButtonsToBody($buttons, $body);
 
         $response = Http::post($url, $body);
-        $this->updateChatMessages($isTrash);
+//        $this->updateChatMessages($isTrash);
 
         Log::debug('BOT: ' . $response);
         return $response;
@@ -86,7 +86,7 @@ readonly class SenderService
         $body = $this->addButtonsToBody($buttons, $body);
 
         $response = Http::post($url, $body);
-        $this->updateChatMessages($isTrash);
+//        $this->updateChatMessages($isTrash);
 
         Log::debug('BOT: ' . $response);
 
@@ -161,29 +161,33 @@ readonly class SenderService
      * Send poll or quiz
      *
      * @param Poll $poll
+     * @param int|null $timeLimit
      * @param int|null $chatId
      * @param bool $isTrash
      * @return Response
-     * @throws \Exception
      */
-    public function sendPoll(Poll $poll, ?int $chatId = null, bool $isTrash = true): Response
+    public function sendPoll(Poll $poll, ?int $timeLimit = null, ?int $chatId = null, bool $isTrash = true): Response
     {
         $url = $this->getUrl('sendPoll');
 
         $body = [
-            "chat_id" => $chatId ?? $this->getChatId($chatId),
+            "chat_id" => $this->getChatId($chatId),
             "question" => $poll->getQuestion(),
             "options" => $poll->getOptions(),
             "type" => $poll->getIsQuiz() ? "quiz" : "regular",
             "is_anonymous" => $poll->getIsAnonymous(),
         ];
 
+        if ($timeLimit) {
+            $body['open_period'] = $timeLimit;
+        }
+
         if ($poll->getIsQuiz()) {
             $body["correct_option_id"] = $poll->getCorrectOptionId();
         }
 
         $response = Http::post($url, $body);
-        $this->updateChatMessages($isTrash);
+//        $this->updateChatMessages($isTrash);
 
         Log::debug('BOT: ' . $response);
 
@@ -318,12 +322,16 @@ readonly class SenderService
 
     private function getChatId(?int $chatId = null): int
     {
+        if ($chatId !== null) {
+            return $chatId;
+        }
+
         $dto = $this->repository->createDto();
 
         if (method_exists($dto, 'getChat')) {
             return $dto->getChat()->getId();
         }
 
-        return $chatId ?? $this->getMessageDto()->getChat()->getId();
+        return $this->getMessageDto()->getChat()->getId();
     }
 }

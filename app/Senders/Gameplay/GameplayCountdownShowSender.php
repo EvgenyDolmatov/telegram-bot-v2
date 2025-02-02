@@ -3,9 +3,11 @@
 namespace App\Senders\Gameplay;
 
 use App\Enums\StateEnum;
+use App\Handlers\PollAnswerHandler;
 use App\Models\Poll;
 use App\Repositories\Telegram\Message\MessageTextRepository;
 use App\Senders\AbstractSender;
+use App\States\UserContext;
 use Exception;
 
 class GameplayCountdownShowSender extends AbstractSender
@@ -47,20 +49,9 @@ class GameplayCountdownShowSender extends AbstractSender
         $this->editMessage($messageId, '🚀 Приготовьтесь!');
 
         sleep(1);
-        $this->sendFirstPoll();
-    }
+        $this->updateState(StateEnum::GameplayQuizProcess);
 
-    private function sendFirstPoll(): void
-    {
-        $game = $this->user->games->last(); // TODO: Change logic for this
-        $pollIds = explode(',', $game->poll_ids);
-        $gamePoll = Poll::whereIn('tg_message_id', $pollIds)->get()->first();
-
-        $this->sendPoll(
-            $gamePoll->question,
-            array_map(fn ($option) => $option['text'], $gamePoll->options->toArray()),
-            true,
-            $gamePoll->correct_option_id
-        );
+        $nextState = StateEnum::GameplayQuizProcess;
+        $nextState->sender($this->repository, $this->telegramService, $this->user)->send();
     }
 }

@@ -2,9 +2,12 @@
 
 namespace App\Handlers;
 
+use App\Enums\StateEnum;
+use App\Handlers\Message\StateMessageHandler;
 use App\Repositories\Telegram\Request\AbstractRepository as AbstractMessageRepository;
 use App\Repositories\Telegram\Request\RepositoryInterface;
 use App\Repositories\Telegram\Response\PollAnswerRepository;
+use App\Senders\Gameplay\GameplayQuizProcessSender;
 use App\Services\TelegramService;
 
 class HandlerStrategy extends AbstractHandler
@@ -22,8 +25,10 @@ class HandlerStrategy extends AbstractHandler
         }
 
         if ($this->repository instanceof PollAnswerRepository) {
-            $handler = new PollAnswerHandler($this->telegramService, $this->repository);
-            $handler->handle();
+            StateEnum::GameplayQuizProcess->sender($this->repository, $this->telegramService, $this->user)->send();
+
+//            $handler = new PollAnswerHandler($this->telegramService, $this->repository);
+//            $handler->handle();
         }
     }
 }

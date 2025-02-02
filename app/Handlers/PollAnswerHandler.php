@@ -6,15 +6,19 @@ use App\Builder\Message\MessageBuilder;
 use App\Builder\MessageSender;
 use App\Builder\Poll\PollBuilder;
 use App\Builder\PollSender;
+use App\Enums\StateEnum;
 use App\Models\Game;
+use App\Models\GamePoll;
 use App\Models\GamePollResult;
 use App\Models\Poll;
 use App\Models\User;
 use App\Repositories\Telegram\Request\RepositoryInterface;
 use App\Services\SenderService;
 use App\Services\TelegramService;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\Log;
 
 class PollAnswerHandler
 {
@@ -33,15 +37,28 @@ class PollAnswerHandler
 
     public function handle(): void
     {
-        $game = $this->user->games->last();
+        $user = $this->user;
+        $game = $user->games->last();
         $poll = $this->getPoll($game);
+
+        $dto = $this->repository->createDto();
+        $answer = isset($dto->getOptionIds()[0]) ? $dto->getOptionIds()[0] : null;
+
+        $gamePoll = GamePoll::where('chat_id', $user->tg_chat_id)
+            ->where('game_id', $game->id)
+            ->where('poll_id', $poll->id)
+            ->first();
+
+        $date = Carbon::createFromFormat('Y-m-d H:i:s', $gamePoll->started_at);
+        $currentTime = Carbon::now();
+        $diffInSeconds = $date->timestamp - $currentTime->timestamp;
 
         GamePollResult::create([
             'user_id' => $this->user->id,
             'game_id' => $game->id,
             'poll_id' => $poll->id,
-            'answer' => 'a', // TODO: Save real answer
-            'time' => 4, // TODO: Save real time spent
+            'answer' => $answer,
+            'time' => $diffInSeconds,
             'points' => 123 // TODO: Calculate and save points
         ]);
 
@@ -50,13 +67,10 @@ class PollAnswerHandler
         $gameAnswersCount = $game->results->count();
 
         if ($pollsCount > $gameAnswersCount) {
-            $this->sendPoll(
-                $poll->question,
-                array_map(fn ($option) => $option['text'], $poll->options->toArray()),
-                true,
-                $poll->correct_option_id,
-                $this->user->tg_chat_id
-            );
+            $this->telegramService->resetQueue();
+            StateEnum::GameplayQuizProcess
+                ->sender($this->repository, $this->telegramService, $this->user)
+                ->send();
             return;
         }
 
@@ -64,27 +78,6 @@ class PollAnswerHandler
             text: "Игра завершена",
             chatId: $this->user->tg_chat_id
         );
-    }
-
-    private function sendPoll(
-        string  $question,
-        array   $options,
-        bool    $isQuiz = false,
-        ?string $correctOptionId = null,
-        ?int    $chatId = null,
-        bool    $isTrash = true
-    ): Response {
-        try {
-            $pollBuilder = (new PollSender())
-                ->setBuilder(new PollBuilder())
-                ->createPoll($question, $options, $isQuiz, $correctOptionId);
-
-            $response = $this->senderService->sendPoll($pollBuilder, $chatId, $isTrash);
-        } catch (\Throwable $exception) {
-            throw new Exception('An error occurred while submitting the poll');
-        }
-
-        return $response;
     }
 
     private function sendMessage(

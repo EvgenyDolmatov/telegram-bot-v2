@@ -35,6 +35,7 @@ use App\Senders\Game\GamePollsChoiceSender;
 use App\Senders\Game\GameTimeLimitChoiceSender;
 use App\Senders\Game\GameTitleWaitingSender;
 use App\Senders\Gameplay\GameplayCountdownShowSender;
+use App\Senders\Gameplay\GameplayQuizProcessSender;
 use App\Senders\Gameplay\GameplayWaitingToStartSender;
 use App\Senders\Poll\AfterAiRespondedChoiceSender;
 use App\Senders\Poll\AiRespondedChoiceSender;
@@ -69,6 +70,7 @@ use App\States\Game\GamePollsChoiceState;
 use App\States\Game\GameTimeLimitWaitingState;
 use App\States\Game\GameTitleWaitingState;
 use App\States\Gameplay\GameplayCountdownShowState;
+use App\States\Gameplay\GameplayQuizProcessState;
 use App\States\Gameplay\GameplayWaitingToStartState;
 use App\States\Help\HelpState;
 use App\States\Poll\AfterAiRespondedChoiceState;
@@ -110,6 +112,7 @@ enum StateEnum: string
     /** Gameplay */
     case GameplayWaitingToStart = 'gameplay_waiting_to_start';
     case GameplayCountdownShow = 'gameplay_countdown_show';
+    case GameplayQuizProcess = 'gameplay_quiz_process';
 
 
     /**
@@ -168,6 +171,7 @@ enum StateEnum: string
             /** Gameplay states */
             self::GameplayWaitingToStart => new GameplayWaitingToStartState($repository, $telegramService),
             self::GameplayCountdownShow => new GameplayCountdownShowState($repository, $telegramService),
+            self::GameplayQuizProcess => new GameplayQuizProcessState($repository, $telegramService),
 
 
 
@@ -264,6 +268,7 @@ enum StateEnum: string
             /** Gameplay senders */
             self::GameplayWaitingToStart => new GameplayWaitingToStartSender($repository, $telegramService, $user),
             self::GameplayCountdownShow => new GameplayCountdownShowSender($repository, $telegramService, $user),
+            self::GameplayQuizProcess => new GameplayQuizProcessSender($repository, $telegramService, $user),
 
             /** Account senders */
             self::Account => new AccountSender($repository, $telegramService, $user),
