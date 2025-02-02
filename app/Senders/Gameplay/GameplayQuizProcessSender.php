@@ -13,6 +13,7 @@ use App\Repositories\Telegram\Response\PollAnswerRepository;
 use App\Senders\AbstractSender;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
 class GameplayQuizProcessSender extends AbstractSender
@@ -24,8 +25,86 @@ class GameplayQuizProcessSender extends AbstractSender
      */
     public function send(): void
     {
-        $this->gameProcess();
+        $user = $this->user;
+        $game = $user->games->last();
+
+        $pollsIds = explode(',', $game->poll_ids);
+        $polls = $this->getActualPolls($game);
+
+        $sentPolls = GamePoll::where('game_id', $game->id)->get();
+
+        if (isset($pollsIds[count($sentPolls)])) {
+            $nextPollId = $pollsIds[count($sentPolls)];
+            $poll = Poll::where('tg_message_id', $nextPollId)->first();
+
+            $gamePoll = $this->sendGamePoll($game, $poll);
+
+            $gamePollResult = $this->checkForResponses($gamePoll);
+
+            if (!$gamePollResult) {
+                self::STATE->sender($this->repository, $this->telegramService, $user)->send();
+            }
+        } else {
+            $this->sendMessage('Buy...', null, false, $user->tg_chat_id);
+        }
+
+//        $this->gameProcess();
     }
+
+
+    private function getActualPolls(Game $game)
+    {
+        $pollsIds = explode(',', $game->poll_ids);
+
+        return Poll::whereIn('tg_message_id', $pollsIds)->get();
+    }
+
+
+
+    private function checkForResponses(GamePoll $gamePoll): ?GamePollResult
+    {
+        $user = $this->user;
+        $game = $user->games->last();
+
+        $timeout = 5;
+        $startTime = Carbon::parse('Y-m-d H:i:s', $gamePoll->started_at);
+
+        $count = 0;
+        while (Carbon::now()->timestamp - $startTime->timestamp <= $timeout) {
+            $pollResult = GamePollResult::where('user_id', $user->id)
+                ->where('game_id', $game->id)
+                ->where('poll_id', $gamePoll->id)->first();
+
+            if ($pollResult) {
+                GamePollResult::create([
+                    'user_id' => $user->id,
+                    'game_id' => $game->id,
+                    'poll_id' => $gamePoll->poll->id,
+                    'answer' => 1,
+                    'time' => $count,
+                    'points' => 123 // TODO: Calculate and save points
+                ]);
+
+                return $pollResult;
+            }
+
+            $count++;
+            sleep(1);
+        }
+
+        GamePollResult::create([
+            'user_id' => $user->id,
+            'game_id' => $game->id,
+            'poll_id' => $gamePoll->poll->id,
+            'answer' => null,
+            'time' => $count,
+            'points' => 0
+        ]);
+
+        return null;
+    }
+
+
 
     private function gameProcess(): void
     {
@@ -82,7 +161,7 @@ class GameplayQuizProcessSender extends AbstractSender
         }
     }
 
-    private function sendGamePoll(Game $game, Poll $poll): void
+    private function sendGamePoll(Game $game, Poll $poll): GamePoll
     {
         $this->sendPoll(
             question: $poll->question,
@@ -94,7 +173,7 @@ class GameplayQuizProcessSender extends AbstractSender
             isTrash: false,
         );
 
-        GamePoll::create([
+        return GamePoll::create([
             'game_id' => $game->id,
             'poll_id' => $poll->id,
             'chat_id' => $this->user->tg_chat_id
