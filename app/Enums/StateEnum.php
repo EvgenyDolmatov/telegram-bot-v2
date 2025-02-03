@@ -36,6 +36,7 @@ use App\Senders\Game\GameTimeLimitChoiceSender;
 use App\Senders\Game\GameTitleWaitingSender;
 use App\Senders\Gameplay\GameplayCountdownShowSender;
 use App\Senders\Gameplay\GameplayQuizProcessSender;
+use App\Senders\Gameplay\GameplayQuizResultSender;
 use App\Senders\Gameplay\GameplayWaitingToStartSender;
 use App\Senders\Poll\AfterAiRespondedChoiceSender;
 use App\Senders\Poll\AiRespondedChoiceSender;
@@ -71,6 +72,7 @@ use App\States\Game\GameTimeLimitWaitingState;
 use App\States\Game\GameTitleWaitingState;
 use App\States\Gameplay\GameplayCountdownShowState;
 use App\States\Gameplay\GameplayQuizProcessState;
+use App\States\Gameplay\GameplayQuizResultState;
 use App\States\Gameplay\GameplayWaitingToStartState;
 use App\States\Help\HelpState;
 use App\States\Poll\AfterAiRespondedChoiceState;
@@ -113,6 +115,7 @@ enum StateEnum: string
     case GameplayWaitingToStart = 'gameplay_waiting_to_start';
     case GameplayCountdownShow = 'gameplay_countdown_show';
     case GameplayQuizProcess = 'gameplay_quiz_process';
+    case GameplayQuizResult = 'gameplay_quiz_result';
 
 
     /**
@@ -172,6 +175,7 @@ enum StateEnum: string
             self::GameplayWaitingToStart => new GameplayWaitingToStartState($repository, $telegramService),
             self::GameplayCountdownShow => new GameplayCountdownShowState($repository, $telegramService),
             self::GameplayQuizProcess => new GameplayQuizProcessState($repository, $telegramService),
+            self::GameplayQuizResult => new GameplayQuizResultState($repository, $telegramService),
 
 
 
@@ -269,6 +273,7 @@ enum StateEnum: string
             self::GameplayWaitingToStart => new GameplayWaitingToStartSender($repository, $telegramService, $user),
             self::GameplayCountdownShow => new GameplayCountdownShowSender($repository, $telegramService, $user),
             self::GameplayQuizProcess => new GameplayQuizProcessSender($repository, $telegramService, $user),
+            self::GameplayQuizResult => new GameplayQuizResultSender($repository, $telegramService, $user),
 
             /** Account senders */
             self::Account => new AccountSender($repository, $telegramService, $user),
@@ -316,6 +321,8 @@ enum StateEnum: string
 
             /** Gameplay titles */
             self::GameplayWaitingToStart => "Game Start",
+            self::GameplayQuizProcess => "Gameplay Quiz Process",
+            self::GameplayQuizResult => "Gameplay Quiz Result",
 
 
             self::Account => "Мой аккаунт:",

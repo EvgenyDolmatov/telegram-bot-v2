@@ -25,10 +25,10 @@ class HandlerStrategy extends AbstractHandler
         }
 
         if ($this->repository instanceof PollAnswerRepository) {
-            StateEnum::GameplayQuizProcess->sender($this->repository, $this->telegramService, $this->user)->send();
+//            StateEnum::GameplayQuizProcess->sender($this->repository, $this->telegramService, $this->user)->send();
 
-//            $handler = new PollAnswerHandler($this->telegramService, $this->repository);
-//            $handler->handle();
+            $handler = new PollAnswerHandler($this->telegramService, $this->repository);
+            $handler->handle();
         }
     }
 }

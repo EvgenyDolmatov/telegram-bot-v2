@@ -28,38 +28,95 @@ class GameplayQuizProcessSender extends AbstractSender
         $user = $this->user;
         $game = $user->games->last();
 
-        $pollsIds = explode(',', $game->poll_ids);
-        $polls = $this->getActualPolls($game);
-
-        $sentPolls = GamePoll::where('game_id', $game->id)->get();
-
-        if (isset($pollsIds[count($sentPolls)])) {
-            $nextPollId = $pollsIds[count($sentPolls)];
-            $poll = Poll::where('tg_message_id', $nextPollId)->first();
-
-            $gamePoll = $this->sendGamePoll($game, $poll);
-
-            $gamePollResult = $this->checkForResponses($gamePoll);
-
-            if (!$gamePollResult) {
-                self::STATE->sender($this->repository, $this->telegramService, $user)->send();
-            }
-        } else {
-            $this->sendMessage('Buy...', null, false, $user->tg_chat_id);
+        if (!$poll = $this->getNextGamePoll($game)) {
+            $this->sendMessage('END...', null, false, $user->tg_chat_id);
+            return;
         }
 
-//        $this->gameProcess();
+        $gamePoll = $this->sendGamePoll($game, $poll);
+        $gamePollRes = $this->checkForResponses($gamePoll);
+
+        if (!$gamePollRes) {
+            self::STATE->sender($this->repository, $this->telegramService, $this->user)->send();
+        }
     }
 
-
-    private function getActualPolls(Game $game)
+    private function getAllGamePollIds(Game $game): array
     {
-        $pollsIds = explode(',', $game->poll_ids);
+        return explode(',', $game->poll_ids);
+    }
+
+    /**
+     * Все вопросы игры
+     *
+     * @param Game $game
+     * @return mixed
+     */
+    private function getAllGamePolls(Game $game)
+    {
+        $pollsIds = $this->getAllGamePollIds($game);
 
         return Poll::whereIn('tg_message_id', $pollsIds)->get();
     }
 
+    /**
+     * Отправленные вопросы игры
+     *
+     * @param Game $game
+     * @return mixed
+     */
+    private function getSentGamePolls(Game $game)
+    {
+        $sentPolls = GamePoll::where('game_id', $game->id)->get();
+        $sentPollIds = array_map(fn ($poll) => $poll['poll_id'], $sentPolls->toArray());
 
+        return Poll::whereIn('tg_message_id', $sentPollIds)->get();
+    }
+
+    /**
+     * Оставшиеся вопросы игры
+     *
+     * @param Game $game
+     * @return mixed
+     */
+    private function getLeftGamePolls(Game $game)
+    {
+        $allGamePollIds = array_map(
+            fn ($poll) => $poll['tg_message_id'],
+            $this->getAllGamePolls($game)->toArray()
+        );
+        $sentGamePollIds = array_map(
+            fn ($poll) => $poll['tg_message_id'],
+            $this->getSentGamePolls($game)->toArray()
+        );
+        $leftGamePollIds = array_diff($allGamePollIds, $sentGamePollIds);
+
+        return Poll::whereIn('tg_message_id', $leftGamePollIds)->get();
+    }
+
+    private function getNextGamePoll(Game $game): ?Poll
+    {
+        return $this->getLeftGamePolls($game)->first();
+    }
+
+    private function sendGamePoll(Game $game, Poll $poll): GamePoll
+    {
+        $this->sendPoll(
+            question: $poll->question,
+            options: array_map(fn ($option) => $option['text'], $poll->options->toArray()),
+            isQuiz: true,
+            correctOptionId: $poll->correct_option_id,
+            timeLimit: 5,
+            chatId: $this->user->tg_chat_id,
+            isTrash: false,
+        );
+
+        return GamePoll::create([
+            'game_id' => $game->id,
+            'poll_id' => $poll->id,
+            'chat_id' => $this->user->tg_chat_id
+        ]);
+    }
 
     private function checkForResponses(GamePoll $gamePoll): ?GamePollResult
     {
@@ -67,24 +124,15 @@ class GameplayQuizProcessSender extends AbstractSender
         $game = $user->games->last();
 
         $timeout = 5;
-        $startTime = Carbon::parse('Y-m-d H:i:s', $gamePoll->started_at);
+        $startTime = Carbon::parse($gamePoll->started_at);
 
         $count = 0;
         while (Carbon::now()->timestamp - $startTime->timestamp <= $timeout) {
             $pollResult = GamePollResult::where('user_id', $user->id)
                 ->where('game_id', $game->id)
-                ->where('poll_id', $gamePoll->id)->first();
+                ->where('poll_id', $gamePoll->poll_id)->first();
 
             if ($pollResult) {
-                GamePollResult::create([
-                    'user_id' => $user->id,
-                    'game_id' => $game->id,
-                    'poll_id' => $gamePoll->poll->id,
-                    'answer' => 1,
-                    'time' => $count,
-                    'points' => 123 // TODO: Calculate and save points
-                ]);
-
                 return $pollResult;
             }
 
@@ -103,6 +151,11 @@ class GameplayQuizProcessSender extends AbstractSender
 
         return null;
     }
+
+
+
+
+
 
 
 
@@ -159,25 +212,6 @@ class GameplayQuizProcessSender extends AbstractSender
 
             $this->gameProcess();
         }
-    }
-
-    private function sendGamePoll(Game $game, Poll $poll): GamePoll
-    {
-        $this->sendPoll(
-            question: $poll->question,
-            options: array_map(fn ($option) => $option['text'], $poll->options->toArray()),
-            isQuiz: true,
-            correctOptionId: $poll->correct_option_id,
-            timeLimit: 5,
-            chatId: $this->user->tg_chat_id,
-            isTrash: false,
-        );
-
-        return GamePoll::create([
-            'game_id' => $game->id,
-            'poll_id' => $poll->id,
-            'chat_id' => $this->user->tg_chat_id
-        ]);
     }
 
     private function getPollResult(Game $game, Poll $poll, int $timeout = 5): ?GamePollResult
