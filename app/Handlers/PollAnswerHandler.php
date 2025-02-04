@@ -4,9 +4,6 @@ namespace App\Handlers;
 
 use App\Builder\Message\MessageBuilder;
 use App\Builder\MessageSender;
-use App\Builder\Poll\PollBuilder;
-use App\Builder\PollSender;
-use App\Enums\StateEnum;
 use App\Models\Game;
 use App\Models\GamePoll;
 use App\Models\GamePollResult;
@@ -15,10 +12,6 @@ use App\Models\User;
 use App\Repositories\Telegram\Request\RepositoryInterface;
 use App\Services\SenderService;
 use App\Services\TelegramService;
-use Carbon\Carbon;
-use Exception;
-use Illuminate\Http\Client\Response;
-use Illuminate\Support\Facades\Log;
 
 class PollAnswerHandler
 {
@@ -39,7 +32,7 @@ class PollAnswerHandler
     {
         $user = $this->user;
         $game = $user->games->last();
-        $poll = $this->getPoll($game);
+        $poll = $this->getLeftGamePolls($game)->first();
 
         $dto = $this->repository->createDto();
         $answer = isset($dto->getOptionIds()[0]) ? $dto->getOptionIds()[0] : null;
@@ -50,7 +43,17 @@ class PollAnswerHandler
             'poll_id' => $poll->id,
             'answer' => $answer,
             'time' => 1,
-            'points' => 123 // TODO: Calculate and save points
+            'points' => 123
         ]);
+    }
+
+    private function getLeftGamePolls(Game $game)
+    {
+        $allIds = explode(',', $game->poll_ids);
+        $notActualIds = GamePoll::where('game_id', $game->id)->pluck('poll_id');
+
+        return Poll::whereIn('tg_message_id', $allIds)
+            ->whereNotIn('tg_message_id', $notActualIds)
+            ->get();
     }
 }
