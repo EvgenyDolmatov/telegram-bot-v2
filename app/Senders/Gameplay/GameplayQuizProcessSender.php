@@ -69,7 +69,7 @@ class GameplayQuizProcessSender extends AbstractSender
     {
         $startTime = Carbon::now();
 
-        while (Carbon::now()->diffInSeconds($startTime) < 5) {
+        while ($startTime->diffInSeconds(Carbon::now()) < 5) {
             $response = GamePollResult::where('user_id', $this->user->id)
                 ->where('game_id', $game->id)
                 ->where('poll_id', $poll->id)
