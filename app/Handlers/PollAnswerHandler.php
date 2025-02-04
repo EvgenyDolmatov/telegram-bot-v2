@@ -44,59 +44,13 @@ class PollAnswerHandler
         $dto = $this->repository->createDto();
         $answer = isset($dto->getOptionIds()[0]) ? $dto->getOptionIds()[0] : null;
 
-        $gamePoll = GamePoll::where('chat_id', $user->tg_chat_id)
-            ->where('game_id', $game->id)
-            ->where('poll_id', $poll->id)
-            ->first();
-
-        $date = Carbon::createFromFormat('Y-m-d H:i:s', $gamePoll->started_at);
-        $currentTime = Carbon::now();
-        $diffInSeconds = $date->timestamp - $currentTime->timestamp;
-
         GamePollResult::create([
             'user_id' => $this->user->id,
             'game_id' => $game->id,
             'poll_id' => $poll->id,
             'answer' => $answer,
-            'time' => $diffInSeconds,
+            'time' => 1,
             'points' => 123 // TODO: Calculate and save points
         ]);
-
-        $pollIds = explode(',', $game->poll_ids);
-        $pollsCount = count($pollIds);
-        $gameAnswersCount = $game->results->count();
-
-        if ($pollsCount > $gameAnswersCount) {
-            $this->telegramService->resetQueue();
-            StateEnum::GameplayQuizProcess
-                ->sender($this->repository, $this->telegramService, $this->user)
-                ->send();
-            return;
-        }
-
-        $this->sendMessage(
-            text: "Игра завершена",
-            chatId: $this->user->tg_chat_id
-        );
-    }
-
-    private function sendMessage(
-        string $text,
-        ?array $buttons = null,
-        bool   $isTrash = true,
-        ?int   $chatId = null
-    ): Response {
-        $message = $this->messageBuilder->createMessage($text, $buttons);
-        return $this->senderService->sendMessage($message, $isTrash, $chatId);
-    }
-
-    private function getPoll(Game $game): Poll
-    {
-        $gameResults = $game->results()->where('user_id', $this->user->id)->get();
-        $pollIds = explode(',', $game->poll_ids);
-
-        $resultsCount = count($gameResults);
-
-        return Poll::where('tg_message_id', $pollIds[$resultsCount])->first();
     }
 }

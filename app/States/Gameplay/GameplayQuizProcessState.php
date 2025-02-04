@@ -11,17 +11,10 @@ use Illuminate\Support\Facades\Log;
 
 class GameplayQuizProcessState extends AbstractState implements UserState
 {
-    private const StateEnum STATE = StateEnum::GameplayCountdownShow;
+    private const StateEnum STATE = StateEnum::GameplayQuizProcess;
 
     public function handleInput(string $input, UserContext $context): void
     {
-        // Get next state by callback
-        $state = $this->getState($input, self::STATE);
-
-        // Update user step
-        $this->updateState($state, $context);
-
-        // Send message to chat
-        $this->sendMessage($state);
+        //
     }
 }
