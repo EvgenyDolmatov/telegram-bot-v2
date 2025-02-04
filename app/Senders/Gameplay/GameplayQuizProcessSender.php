@@ -3,6 +3,7 @@
 namespace App\Senders\Gameplay;
 
 use App\Enums\StateEnum;
+use App\Jobs\SendPollJob;
 use App\Models\Game;
 use App\Models\GamePoll;
 use App\Models\GamePollResult;
@@ -21,7 +22,21 @@ class GameplayQuizProcessSender extends AbstractSender
     public function send(): void
     {
         $game = $this->user->games->last();
-        $this->sendPolls($game);
+        $firstPoll = $this->getNextGamePoll($game);
+
+        if ($firstPoll) {
+            SendPollJob::dispatch($this->repository, $this->telegramService, $this->user, $game, $firstPoll);
+        }
+    }
+
+    public function sendResults(): void
+    {
+        $this->sendMessage('Results');
+    }
+
+    public function getNextGamePoll(Game $game): ?Poll
+    {
+        return $this->getLeftGamePolls($game)->first() ?? null;
     }
 
     private function sendPolls(Game $game): void
@@ -46,7 +61,7 @@ class GameplayQuizProcessSender extends AbstractSender
             ->get();
     }
 
-    private function sendGamePoll(Game $game, Poll $poll): void
+    public function sendGamePoll(Game $game, Poll $poll): void
     {
         $this->sendPoll(
             question: $poll->question,
