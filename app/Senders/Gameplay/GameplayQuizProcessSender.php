@@ -11,6 +11,7 @@ use App\Models\Poll;
 use App\Senders\AbstractSender;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class GameplayQuizProcessSender extends AbstractSender
 {
@@ -21,47 +22,66 @@ class GameplayQuizProcessSender extends AbstractSender
      */
     public function send(): void
     {
-        $game = $this->user->games->last();
-        $firstPoll = $this->getNextGamePoll($game);
+        Log::debug('Quiz process');
+        $user = $this->user;
+        $game = $user->games->last();
+        $poll = $this->getNextGamePoll($game);
 
-        if ($firstPoll) {
-            SendPollJob::dispatch($this->repository, $this->telegramService, $this->user, $game, $firstPoll);
+        $result = null;
+
+        if ($poll) {
+            Log::debug("POLL: " . $poll->question);
+            Log::debug('Poll process');
+            $gamePoll = $this->sendGamePoll($game, $poll);
+
+            for ($i = 0; $i < 5; $i++) {
+                $result = GamePollResult::where('user_id', $this->user->id)
+                    ->where('game_id', $gamePoll->game_id)
+                    ->where('poll_id', $gamePoll->poll_id)
+                    ->first();
+
+                Log::debug('Wait...');
+                sleep(1);
+            }
         }
-    }
 
-    public function sendResults(): void
-    {
-        $this->sendMessage('Results');
+        if ($result) {
+            $nextPoll = $this->getNextGamePoll($game);
+            Log::debug('NEXT');
+            Log::debug("POLL: " . $nextPoll->question);
+
+            return;
+        }
+
+        $this->sendMessage('END...');
     }
 
     public function getNextGamePoll(Game $game): ?Poll
     {
+        $leftGamePolls = $this->getLeftGamePolls($game);
+
+        Log::debug("Left game polls: " . count($leftGamePolls));
+        Log::debug("Left game poll: " . $leftGamePolls->first()?->question);
+
         return $this->getLeftGamePolls($game)->first() ?? null;
-    }
-
-    private function sendPolls(Game $game): void
-    {
-        $polls = $this->getLeftGamePolls($game);
-
-        foreach ($polls as $poll) {
-            $this->sendGamePoll($game, $poll);
-            $this->waitForResponse($game, $poll);
-        }
-
-        $this->sendMessage('BUY!', null, false, $this->user->tg_chat_id);
     }
 
     private function getLeftGamePolls(Game $game)
     {
-        $allIds = explode(',', $game->poll_ids);
-        $notActualIds = GamePoll::where('game_id', $game->id)->pluck('poll_id');
+        $allIds = Poll::whereIn('tg_message_id', explode(',', $game->poll_ids))->pluck('id')->toArray();
+        $notActualIds = GamePoll::where('game_id', $game->id)->pluck('poll_id')->toArray() ?? [];
+        $res = array_diff($allIds, $notActualIds);
 
-        return Poll::whereIn('tg_message_id', $allIds)
-            ->whereNotIn('tg_message_id', $notActualIds)
-            ->get();
+        $polls = Poll::whereIn('tg_message_id', $res)->get();
+
+
+        Log::debug("All Ids: " . implode(',', $allIds));
+        Log::debug("Not Actual Ids: " . implode(',', $notActualIds));
+
+        return $polls;
     }
 
-    public function sendGamePoll(Game $game, Poll $poll): void
+    public function sendGamePoll(Game $game, Poll $poll): GamePoll
     {
         $this->sendPoll(
             question: $poll->question,
@@ -73,37 +93,10 @@ class GameplayQuizProcessSender extends AbstractSender
             isTrash: false,
         );
 
-        GamePoll::create([
+        return GamePoll::create([
             'game_id' => $game->id,
             'poll_id' => $poll->id,
             'chat_id' => $this->user->tg_chat_id
-        ]);
-    }
-
-    private function waitForResponse(Game $game, Poll $poll): void
-    {
-        $startTime = Carbon::now();
-
-        while ($startTime->diffInSeconds(Carbon::now()) < 5) {
-            $response = GamePollResult::where('user_id', $this->user->id)
-                ->where('game_id', $game->id)
-                ->where('poll_id', $poll->id)
-                ->first();
-
-            if ($response) {
-                return;
-            }
-
-            sleep(1);
-        }
-
-        GamePollResult::create([
-            'user_id' => $this->user->id,
-            'game_id' => $game->id,
-            'poll_id' => $poll->id,
-            'answer' => null,
-            'time' => 5,
-            'points' => 0
         ]);
     }
 }

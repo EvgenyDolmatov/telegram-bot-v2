@@ -2,13 +2,12 @@
 
 namespace App\Jobs;
 
-use App\Models\Game;
+use App\Enums\StateEnum;
 use App\Models\GamePoll;
 use App\Models\GamePollResult;
-use App\Models\Poll;
 use App\Models\User;
 use App\Repositories\Telegram\Request\RepositoryInterface;
-use App\Senders\Gameplay\GameplayQuizProcessSender;
+use App\Senders\SenderInterface;
 use App\Services\TelegramService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -18,7 +17,7 @@ class SendPollJob implements ShouldQueue
 {
     use Queueable;
 
-    private GameplayQuizProcessSender $sender;
+    private SenderInterface $sender;
 
     /**
      * Create a new job instance.
@@ -27,10 +26,9 @@ class SendPollJob implements ShouldQueue
         private readonly RepositoryInterface $repository,
         private readonly TelegramService $telegramService,
         private readonly User $user,
-        private readonly Game $game,
-        private readonly Poll $poll,
+        private readonly GamePoll $gamePoll
     ) {
-        $this->sender = new GameplayQuizProcessSender($this->repository, $this->telegramService, $this->user);
+        $this->sender = StateEnum::GameplayQuizProcess->sender($this->repository, $this->telegramService, $this->user);
     }
 
     /**
@@ -38,40 +36,40 @@ class SendPollJob implements ShouldQueue
      */
     public function handle(): void
     {
-        Log::debug('aaa');
+        if ($this->user->state !== StateEnum::GameplayQuizProcess->value) {
+            Log::debug('NOT STATE');
+            return;
+        }
 
-        $this->sender->sendGamePoll($this->game, $this->poll);
+        Log::debug('check result');
 
-        GamePoll::create([
-            'game_id' => $this->game->id,
-            'poll_id' => $this->poll->id,
-            'chat_id' => $this->user->tg_chat_id
-        ]);
-
-        sleep(5);
-
-        $response = GamePollResult::where('user_id', $this->user->id)
-            ->where('game_id', $this->game->id)
-            ->where('poll_id', $this->poll->id)
+        $result = GamePollResult::where('user_id', $this->user->id)
+            ->where('game_id', $this->gamePoll->game_id)
+            ->where('poll_id', $this->gamePoll->poll_id)
             ->first();
 
-        if (!$response) {
-            GamePollResult::create([
-                'user_id' => $this->user->id,
-                'game_id' => $this->game->id,
-                'poll_id' => $this->poll->id,
-                'answer' => null,
-                'time' => 5,
-                'points' => 0,
-            ]);
+        if ($result) {
+            Log::debug('RESULT HAS!');
+            $this->sender->send();
+
+            sleep(1);
+            return;
         }
 
-        if ($nextPoll = $this->sender->getNextGamePoll($this->game)) {
-            SendPollJob::dispatch($this->repository, $this->telegramService, $this->user, $this->game, $nextPoll);
-        } else {
-            $this->sender->sendResults();
-        }
+        Log::debug('bbb');
 
-        SendPollJob::dispatch($this->repository, $this->telegramService, $this->user, $this->game, $nextPoll);
+        GamePollResult::create([
+            'user_id' => $this->user->id,
+            'game_id' => $this->gamePoll->game_id,
+            'poll_id' => $this->gamePoll->poll_id,
+            'answer' => null,
+            'time' => 5,
+            'points' => 0,
+        ]);
+
+        Log::debug('ccc');
+
+        sleep(5);
+        $this->sender->send();
     }
 }
