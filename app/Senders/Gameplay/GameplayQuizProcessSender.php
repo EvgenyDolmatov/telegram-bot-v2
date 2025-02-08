@@ -52,7 +52,7 @@ class GameplayQuizProcessSender extends AbstractSender
                 'game_id' => $game->id,
                 'poll_id' => $poll->id,
                 'answer' => null,
-                'time' => 5,
+                'time' => $timeLimit,
                 'points' => 0
             ]);
         }

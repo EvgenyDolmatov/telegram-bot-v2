@@ -10,14 +10,15 @@ use App\Models\GamePollResult;
 use App\Models\Poll;
 use App\Models\User;
 use App\Repositories\Telegram\Request\RepositoryInterface;
-use App\Services\SenderService;
 use App\Services\TelegramService;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
 class PollAnswerHandler
 {
+    private const int POINTS = 1000;
+
     protected User $user;
-    private SenderService $senderService;
     protected MessageSender $messageBuilder;
 
     public function __construct(
@@ -26,7 +27,6 @@ class PollAnswerHandler
     ) {
         $this->user = User::getOrCreate($repository);
         $this->messageBuilder = (new MessageSender())->setBuilder(new MessageBuilder());
-        $this->senderService = new SenderService($repository, $telegramService);
     }
 
     public function handle(): void
@@ -37,15 +37,37 @@ class PollAnswerHandler
 
         $dto = $this->repository->createDto();
         $answer = isset($dto->getOptionIds()[0]) ? $dto->getOptionIds()[0] : null;
+        $spentTime = $this->getSpentTime($game, $poll);
 
         GamePollResult::create([
             'user_id' => $this->user->id,
             'game_id' => $game->id,
             'poll_id' => $poll->id,
             'answer' => $answer,
-            'time' => 1,
-            'points' => 123
+            'time' => $spentTime,
+            'points' => $this->calculatePoints($game, $spentTime)
         ]);
+    }
+
+    private function calculatePoints(Game $game, int $spentTime): int
+    {
+        $timeLimit = $game->time_limit;
+        $pointsPerSecond = self::POINTS / $timeLimit;
+
+        return round(self::POINTS - $pointsPerSecond * $spentTime);
+    }
+
+    private function getSpentTime(Game $game, Poll $poll): int
+    {
+        $gamePoll = GamePoll::where('game_id', $game->id)
+            ->where('chat_id', $this->user->tg_chat_id)
+            ->where('poll_id', $poll->id)
+            ->first();
+
+        $startTime = Carbon::parse($gamePoll->started_at);
+        $now = Carbon::now();
+
+        return floor($now->diffInSeconds($startTime));
     }
 
     public function getCurrentGamePoll(Game $game): Poll
