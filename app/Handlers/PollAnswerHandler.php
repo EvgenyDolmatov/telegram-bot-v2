@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Repositories\Telegram\Request\RepositoryInterface;
 use App\Services\SenderService;
 use App\Services\TelegramService;
+use Illuminate\Support\Collection;
 
 class PollAnswerHandler
 {
@@ -32,7 +33,7 @@ class PollAnswerHandler
     {
         $user = $this->user;
         $game = $user->games->last();
-        $poll = $this->getLeftGamePolls($game)->first();
+        $poll = $this->getCurrentGamePoll($game);
 
         $dto = $this->repository->createDto();
         $answer = isset($dto->getOptionIds()[0]) ? $dto->getOptionIds()[0] : null;
@@ -47,13 +48,22 @@ class PollAnswerHandler
         ]);
     }
 
-    private function getLeftGamePolls(Game $game)
+    public function getCurrentGamePoll(Game $game): Poll
     {
-        $allIds = explode(',', $game->poll_ids);
-        $notActualIds = GamePoll::where('game_id', $game->id)->pluck('poll_id');
+        return $this->getLeftGamePolls($game)->first();
+    }
 
-        return Poll::whereIn('tg_message_id', $allIds)
-            ->whereNotIn('tg_message_id', $notActualIds)
-            ->get();
+    private function getLeftGamePolls(Game $game): ?Collection
+    {
+        $allTgMessageIds = explode(',', $game->poll_ids);
+        $notActualPollIds = GamePoll::where('game_id', $game->id)
+            ->where('chat_id', $this->user->tg_chat_id)
+            ->pluck('poll_id')
+            ->toArray();
+        $notActualTgMessageIds = Poll::whereIn('id', $notActualPollIds)->pluck('tg_message_id')->toArray();
+
+        $result = array_diff($allTgMessageIds, $notActualTgMessageIds);
+
+        return Poll::whereIn('tg_message_id', $result)->get();
     }
 }

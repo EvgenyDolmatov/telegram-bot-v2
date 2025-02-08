@@ -3,15 +3,13 @@
 namespace App\Senders\Gameplay;
 
 use App\Enums\StateEnum;
-use App\Jobs\SendPollJob;
 use App\Models\Game;
 use App\Models\GamePoll;
 use App\Models\GamePollResult;
 use App\Models\Poll;
 use App\Senders\AbstractSender;
-use Carbon\Carbon;
 use Exception;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Collection;
 
 class GameplayQuizProcessSender extends AbstractSender
 {
@@ -22,73 +20,75 @@ class GameplayQuizProcessSender extends AbstractSender
      */
     public function send(): void
     {
-        Log::debug('Quiz process');
         $user = $this->user;
         $game = $user->games->last();
-        $poll = $this->getNextGamePoll($game);
+        $timeLimit = $game->time_limit;
 
-        $result = null;
-
-        if ($poll) {
-            Log::debug("POLL: " . $poll->question);
-            Log::debug('Poll process');
-            $gamePoll = $this->sendGamePoll($game, $poll);
-
-            for ($i = 0; $i < 5; $i++) {
-                $result = GamePollResult::where('user_id', $this->user->id)
-                    ->where('game_id', $gamePoll->game_id)
-                    ->where('poll_id', $gamePoll->poll_id)
-                    ->first();
-
-                Log::debug('Wait...');
-                sleep(1);
-            }
-        }
-
-        if ($result) {
-            $nextPoll = $this->getNextGamePoll($game);
-            Log::debug('NEXT');
-            Log::debug("POLL: " . $nextPoll->question);
-
+        if (!$poll = $this->getNextGamePoll($game)) {
+            $this->sendMessage('END...');
             return;
         }
 
-        $this->sendMessage('END...');
+        $result = null;
+        $this->sendGamePoll($game, $poll, $timeLimit);
+
+        for ($i = 0; $i < $timeLimit; $i++) {
+            sleep(1);
+
+            $result = GamePollResult::where('user_id', $this->user->id)
+                ->where('game_id', $game->id)
+                ->where('poll_id', $poll->id)
+                ->first();
+
+            if ($result) {
+                self::STATE->sender($this->repository, $this->telegramService, $user)->send();
+                return;
+            }
+        }
+
+        if (!$result) {
+            GamePollResult::create([
+                'user_id' => $user->id,
+                'game_id' => $game->id,
+                'poll_id' => $poll->id,
+                'answer' => null,
+                'time' => 5,
+                'points' => 0
+            ]);
+        }
+
+        self::STATE->sender($this->repository, $this->telegramService, $user)->send();
     }
 
     public function getNextGamePoll(Game $game): ?Poll
     {
         $leftGamePolls = $this->getLeftGamePolls($game);
 
-        Log::debug("Left game polls: " . count($leftGamePolls));
-        Log::debug("Left game poll: " . $leftGamePolls->first()?->question);
-
-        return $this->getLeftGamePolls($game)->first() ?? null;
+        return $leftGamePolls->first();
     }
 
-    private function getLeftGamePolls(Game $game)
+    private function getLeftGamePolls(Game $game): ?Collection
     {
-        $allIds = Poll::whereIn('tg_message_id', explode(',', $game->poll_ids))->pluck('id')->toArray();
-        $notActualIds = GamePoll::where('game_id', $game->id)->pluck('poll_id')->toArray() ?? [];
-        $res = array_diff($allIds, $notActualIds);
+        $allTgMessageIds = explode(',', $game->poll_ids);
+        $notActualPollIds = GamePoll::where('game_id', $game->id)
+            ->where('chat_id', $this->user->tg_chat_id)
+            ->pluck('poll_id')
+            ->toArray();
+        $notActualTgMessageIds = Poll::whereIn('id', $notActualPollIds)->pluck('tg_message_id')->toArray();
 
-        $polls = Poll::whereIn('tg_message_id', $res)->get();
+        $result = array_diff($allTgMessageIds, $notActualTgMessageIds);
 
-
-        Log::debug("All Ids: " . implode(',', $allIds));
-        Log::debug("Not Actual Ids: " . implode(',', $notActualIds));
-
-        return $polls;
+        return Poll::whereIn('tg_message_id', $result)->get();
     }
 
-    public function sendGamePoll(Game $game, Poll $poll): GamePoll
+    public function sendGamePoll(Game $game, Poll $poll, int $timeLimit = 5): GamePoll
     {
         $this->sendPoll(
             question: $poll->question,
             options: array_map(fn ($option) => $option['text'], $poll->options->toArray()),
             isQuiz: true,
             correctOptionId: $poll->correct_option_id,
-            timeLimit: 5,
+            timeLimit: $timeLimit,
             chatId: $this->user->tg_chat_id,
             isTrash: false,
         );
