@@ -68,7 +68,7 @@ class AiRespondedChoiceSender extends AbstractSender
         return $aiCompletionDto;
     }
 
-    private function sendPoll(
+    protected function sendPoll(
         string  $question,
         array   $options,
         bool    $isAnonymous,
